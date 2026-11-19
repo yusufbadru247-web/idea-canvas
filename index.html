@@ -304,6 +304,15 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .pv-md>*{margin:0 0 10px}
 .pv-ta{display:block;width:100%;min-height:200px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.65;resize:none;outline:none;padding:0;overflow:hidden}
 .md hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+.md a.wl,.wl{color:var(--accent);text-decoration:none;font-weight:500;border-radius:3px;background:var(--accent-soft);padding:0 3px;cursor:pointer}
+.md a.wl:hover{text-decoration:underline}
+.md a.wl.missing{background:none;color:var(--muted);border-bottom:1px dashed var(--edge);border-radius:0;padding:0}
+.pv-bl{margin-top:36px;padding-top:14px;border-top:1px solid var(--line)}
+.pv-bl-h{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.pv-bl-r{display:flex;flex-direction:column;gap:2px;width:100%;border:0;background:none;text-align:left;padding:8px;border-radius:7px;cursor:pointer;color:var(--ink);font:inherit}
+.pv-bl-r:hover{background:var(--hover)}
+.pv-bl-r .t{font-size:14px;font-weight:500}
+.pv-bl-r .l{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Grilles */
 .tbl-host{margin:6px 0 14px}
 .tbl-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -568,6 +577,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Links</dt><dd>Type [[ in a note or a page and pick a card, or write [[A new name]] to make a page. Each page lists what links to it</dd>
     <dt>Tables</dt><dd>T, the Table button, or /table in a page. Click a column name to rename it, change its type or sort; switch to Board to see cards by Status</dd>
     <dt>Dates</dt><dd>Add @today, @friday, @25/11 or /date to a to-do, then tap the date to change it</dd>
     <dt>Today</dt><dd>The calendar button: overdue, today, this week</dd>
@@ -648,6 +658,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <input class="pv-title" id="pv-title" placeholder="Untitled" aria-label="Page title" autocomplete="off">
     <div class="pv-templates" id="pv-templates" hidden></div>
     <div id="pv-body"></div>
+    <div class="pv-bl" id="pv-bl" hidden></div>
   </div></div>
 </div>
 <div id="slash" class="pop" hidden role="listbox" aria-label="Insert"></div>
@@ -922,7 +933,96 @@ function pickDate(anchor, iso, done) {
   i.addEventListener('change', finish); i.addEventListener('blur', () => setTimeout(() => { if (!fired) i.remove(); }, 400));
   i.focus(); try { i.showPicker(); } catch { i.click(); }
 }
+/* ---------- liens entre les cartes ---------- */
+// « [[Titre]] » relie à la carte qui porte ce titre (page, carte mentale, grille, note…), comme Obsidian.
+// Le lien vit par son titre : lisible en écrivant, mis à jour quand on renomme, et un titre inconnu crée la page.
+const WL_RE = /\[\[([^\[\]|\n]{1,160}?)(?:\|([^\[\]\n]{1,160}))?\]\]/g;
+const isEmbedRef = n => /^(page|table):/.test(n);
+function itemTitle(it) {
+  if (!it) return '';
+  if (it.type === 'page') return it.title || 'Untitled';
+  if (it.type === 'mindmap') return it.tree?.t || 'Mind map';
+  if (it.type === 'table') return it.name || 'Untitled table';
+  if (it.type === 'note') { const l = (it.text || '').split('\n').find(x => x.trim()) || ''; return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
+  if (it.type === 'link') return it.title || it.url || 'Link';
+  if (it.type === 'group') return it.label || 'Group';
+  return it.fileName || KIND[it.type] || 'Card';
+}
+const RANK = { page: 0, mindmap: 1, table: 2, note: 3, link: 4, group: 5 };
+let wlIdx = null, wlAt = 0;
+function titleIndex() {
+  if (wlIdx && wlAt === S.items) return wlIdx;
+  const m = new Map();
+  for (const [id, it] of S.items) {
+    const k = itemTitle(it).toLowerCase().trim(); if (!k) continue;
+    const cur = m.get(k), r = RANK[it.type] ?? 9;
+    if (!cur || r < (RANK[S.items.get(cur)?.type] ?? 9)) m.set(k, id);
+  }
+  wlIdx = m; wlAt = S.items; setTimeout(() => { wlIdx = null; }, 0);
+  return m;
+}
+const findByTitle = t => titleIndex().get(String(t).toLowerCase().trim());
+function openItem(id) {
+  const it = S.items.get(id); if (!it) return;
+  if (S.mapId) closeMap(); if (S.tableId && it.type !== 'table') closeTable();
+  if (it.type === 'page') openPage(id);
+  else if (it.type === 'mindmap') openMap(id);
+  else if (it.type === 'table') openTable(id);
+  else { if (S.pageId) closePage(); focusItem(id); }
+}
+function openWikiLink(title) {
+  const id = findByTitle(title);
+  if (id) { openItem(id); return; }
+  if (S.readonly) { toast('Nothing is called “' + title + '” on this board.'); return; }
+  // Lien vers un titre qui n'existe pas encore : on crée la page.
+  const p = nextPos(260, 150);
+  const nid = createItem({ type: 'page', title: title.trim().slice(0, 160), icon: '📄', text: '', x: p.x, y: p.y, w: 260, h: 150 });
+  if (S.pageId) { const from = S.items.get(S.pageId); let a = from, aid = S.pageId; while (a?.parent) { aid = a.parent; a = S.items.get(aid); } if (a && typeof a.x === 'number') { const n = S.items.get(nid); n.x = a.x + (a.w || 260) + 60; n.y = a.y + 40; persist(nid, { x: n.x, y: n.y }); } }
+  openPage(nid);
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest?.('.wl'); if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  openWikiLink(a.dataset.wl);
+});
+// Toutes les cartes qui pointent vers un titre (texte des notes et pages, notes des idées d'une carte mentale).
+function backlinks(id) {
+  const it = S.items.get(id); if (!it) return [];
+  const want = itemTitle(it).toLowerCase().trim(), out = [];
+  const scan = (txt, sid, where) => {
+    if (!txt || !txt.includes('[[')) return;
+    for (const line of txt.split('\n')) {
+      WL_RE.lastIndex = 0; let m;
+      while ((m = WL_RE.exec(line))) if (!isEmbedRef(m[1]) && m[1].toLowerCase().trim() === want) { out.push({ id: sid, line: line.trim(), where }); return; }
+    }
+  };
+  for (const [sid, x] of S.items) {
+    if (sid === id) continue;
+    if (x.type === 'note' || x.type === 'page') scan(x.text, sid);
+    if (x.type === 'mindmap' && x.tree) (function w(n) { if (n.n) scan(n.n, sid, n.t); (n.c || []).forEach(w); })(x.tree);
+  }
+  return out;
+}
+// Renommer une carte met à jour les liens qui la visent.
+function renameRefs(oldT, newT) {
+  oldT = (oldT || '').trim(); newT = (newT || '').trim();
+  if (!oldT || !newT || oldT.toLowerCase() === newT.toLowerCase() || S.readonly) return;
+  const lo = oldT.toLowerCase(), fix = txt => txt && txt.includes('[[') ? txt.replace(WL_RE, (all, n, label) => n.toLowerCase().trim() === lo ? `[[${newT}${label ? '|' + label : ''}]]` : all) : txt;
+  let n = 0;
+  for (const [sid, x] of S.items) {
+    if ((x.type === 'note' || x.type === 'page') && x.text) { const t = fix(x.text); if (t !== x.text) { if (S.editing === sid) { const ta = document.getElementById('edit-' + sid); if (ta) ta.value = t; } persist(sid, { text: t }); n++; } }
+    if (x.type === 'mindmap' && x.tree) {
+      const tree = JSON.parse(JSON.stringify(x.tree)); let ch = false;
+      (function w(k) { if (k.n) { const t = fix(k.n); if (t !== k.n) { k.n = t; ch = true; } } (k.c || []).forEach(w); })(tree);
+      if (ch) { persist(sid, { tree }); n++; }
+    }
+  }
+  if (n) { render(); toast(n === 1 ? 'Updated 1 link' : `Updated links in ${n} cards`); }
+}
 function inline(s) {
+  // Les liens [[…]] sont mis de côté avant l'échappement, puis reposés en HTML.
+  const wl = [];
+  s = String(s).replace(WL_RE, (all, n, label) => { if (isEmbedRef(n)) return all; wl.push([n.trim(), (label || n).trim()]); return '\u0001' + (wl.length - 1) + '\u0001'; });
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -931,6 +1031,7 @@ function inline(s) {
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
   s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}">${esc(dueLabel(d))}</span>` : all; });
+  if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
   return s;
 }
 function md(src) {
@@ -1936,7 +2037,7 @@ function descendants(id) {
 }
 function pageSnippet(it) {
   return (it.text || '').split('\n').filter(l => l.trim() && !/^\s*(\[\[(page|table):|!\[|---)/.test(l))
-    .map(l => l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
+    .map(l => l.replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (a, n, lb) => lb ? lb.slice(1) : n).replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
 }
 function addPage() {
   const p = nextPos(260, 150);
@@ -2003,6 +2104,7 @@ function renderPage() {
       return c;
     }));
   }
+  drawBacklinks(id);
   const body = $('#pv-body');
   if (S.editing === id) { if (!body.querySelector('textarea')) buildPageEditor(id, it); return; }
   const ae = document.activeElement;
@@ -2020,6 +2122,17 @@ function renderPage() {
   };
   body.replaceChildren(d);
   d.querySelectorAll('.tbl-embed').forEach(el => mountTable(el, el.dataset.table));
+}
+function drawBacklinks(id) {
+  const box = $('#pv-bl'), bl = backlinks(id);
+  box.hidden = !bl.length; if (!bl.length) { box.replaceChildren(); return; }
+  const h = document.createElement('div'); h.className = 'pv-bl-h'; h.textContent = bl.length === 1 ? '1 link to this page' : bl.length + ' links to this page';
+  box.replaceChildren(h, ...bl.map(b => {
+    const it = S.items.get(b.id), r = document.createElement('button'); r.className = 'pv-bl-r';
+    const t = document.createElement('span'); t.className = 't'; t.textContent = (it.type === 'page' ? (it.icon || '📄') : KICON[it.type] || '•') + ' ' + itemTitle(it) + (b.where ? ' › ' + b.where : '');
+    const l = document.createElement('span'); l.className = 'l'; l.textContent = b.line.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|([^\]]+))?\]\]/g, (a, n, x, lb) => lb || n).replace(/[*_`]/g, '').slice(0, 140);
+    r.append(t); if (l.textContent && l.textContent !== itemTitle(it)) r.append(l); r.onclick = () => openItem(b.id); return r;
+  }));
 }
 function autosize(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
 function buildPageEditor(id, it) {
@@ -2084,6 +2197,8 @@ $('#pv-icon').onclick = () => {
   const box = $('#pv-icons'); box.hidden = !box.hidden;
   if (!box.hidden) box.replaceChildren(...ICONS.map(e => { const b = document.createElement('button'); b.textContent = e; b.onclick = () => { persist(S.pageId, { icon: e }); box.hidden = true; renderPage(); render(); }; return b; }));
 };
+$('#pv-title').addEventListener('focus', e => { e.target._old = S.items.get(S.pageId)?.title || ''; });
+$('#pv-title').addEventListener('blur', e => { const o = e.target._old; e.target._old = null; if (o != null) renameRefs(o || 'Untitled', e.target.value || 'Untitled'); });
 $('#pv-title').addEventListener('input', e => { const id = S.pageId, it = S.items.get(id); if (!it) return; it.title = e.target.value; clearTimeout(e.target.t); e.target.t = setTimeout(() => { persist(id, { title: it.title }); render(); }, 500); });
 $('#pv-title').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); persist(S.pageId, { title: e.target.value }); startPageEdit(); } else if (e.key === 'Escape') e.target.blur(); });
 $('#page-file').onchange = async e => {
@@ -2110,7 +2225,36 @@ const SLASH = [
   { k: 'page', t: 'Page inside', d: 'A sub-page you can open', run: insertSubpage, pageOnly: true },
 ];
 let SL = null;
+const KICON = { page: '📄', mindmap: '🧠', table: '▦', note: '🗒', link: '🔗', group: '▢', image: '🖼', video: '🎬' };
+// « [[ » : choisir la carte à relier, ou créer une page de ce nom.
+function wikiCheck(ta) {
+  const v = ta.value, c = ta.selectionStart;
+  if (c !== ta.selectionEnd) return false;
+  const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/\[\[([^\[\]|\n]{0,60})$/);
+  if (!m) return false;
+  const q = m[1].toLowerCase().trim(), self = S.editing, seen = new Set(), items = [];
+  const all = [...S.items].filter(([id, it]) => id !== self && it.type !== 'image' && it.type !== 'video')
+    .map(([id, it]) => ({ id, it, t: itemTitle(it) }))
+    .filter(x => x.t && (!q || x.t.toLowerCase().includes(q)))
+    .sort((a, b) => (a.t.toLowerCase().startsWith(q) ? 0 : 1) - (b.t.toLowerCase().startsWith(q) ? 0 : 1) || (RANK[a.it.type] ?? 9) - (RANK[b.it.type] ?? 9) || (b.it.created || 0) - (a.it.created || 0));
+  for (const x of all) {
+    const k = x.t.toLowerCase(); if (seen.has(k)) continue; seen.add(k);
+    items.push({ k: x.id, t: (x.it.type === 'page' ? (x.it.icon || '📄') : KICON[x.it.type] || '•') + ' ' + x.t, d: KIND[x.it.type] || '', run: () => insertWiki(ta, x.t) });
+    if (items.length >= 8) break;
+  }
+  const typed = m[1].trim();
+  if (typed && !seen.has(typed.toLowerCase())) items.push({ k: 'new', t: '+ New page “' + typed + '”', d: 'Created when you open the link', run: () => insertWiki(ta, typed) });
+  if (!items.length) { closeSlash(); return true; }
+  SL = { start: ls + m.index, end: c, items, idx: SL && SL.wiki ? Math.min(SL.idx, items.length - 1) : 0, ta, wiki: true };
+  drawSlash(); return true;
+}
+function insertWiki(ta, title) {
+  const v = ta.value, a = ta.selectionStart, ins = `[[${title}]]`;
+  const after = v.slice(a).startsWith(']]') ? v.slice(a + 2) : v.slice(a);
+  setTA(ta, v.slice(0, a) + ins + after, a + ins.length, a + ins.length);
+}
 function slashCheck(ta) {
+  if (wikiCheck(ta)) return;
   const v = ta.value, c = ta.selectionStart;
   const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/^(\s*)\/(\w*)$/);
   if (!m || ta.selectionStart !== ta.selectionEnd) return closeSlash();
@@ -2332,7 +2476,7 @@ function findNode(n, id, parent = null) {
   return null;
 }
 const isInside = (n, id) => n.id === id || (n.c || []).some(k => isInside(k, id));
-const plainMd = t => t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
+const plainMd = t => t.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (a, n, lb) => lb || n).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
 const MD_PRE = /^\s*(?:#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> ?)?/;
 // Une page ou une note devient un arbre : titres, puis listes selon leur retrait, les pages incluses dépliées dessous.
 function outlineTree(title, text, guard = 0) {
@@ -2676,7 +2820,7 @@ function mmCommit(id, cancel) {
   const el = nodeEl(id), t = el?.querySelector('.mv-t'); const text = (t?.innerText || '').replace(/\s+/g, ' ').trim();
   MM.editing = null; if (t) { t.contentEditable = 'false'; t.onblur = null; } el?.classList.remove('editing');
   const fresh = MM.fresh; MM.fresh = false;
-  const it = mmItem(); let renamed = null;
+  const it = mmItem(); let renamed = null, rootRen = null;
   mmChange(tree => {
     const f = findNode(tree, id); if (!f) return false;
     // Échap ou texte vidé : une idée neuve disparaît, une idée existante garde son ancien nom.
@@ -2687,9 +2831,11 @@ function mmCommit(id, cancel) {
     }
     if (f.node.t === text) return false;
     if (f.node.s && it?.src) renamed = [f.node.t, text, !f.parent];
+    if (!f.parent) rootRen = [f.node.t, text];
     f.node.t = text;
   });
   if (renamed) renameInSource(it, ...renamed);
+  if (rootRen) renameRefs(...rootRen);
   renderMap();
 }
 function mmNav(dir) {
@@ -3019,7 +3165,7 @@ function drawTable(host) {
   const ro = S.readonly, cols = t.cols || [];
   const top = document.createElement('div'); top.className = 'tbl-top';
   const nm = document.createElement('input'); nm.className = 'tbl-name'; nm.value = t.name || ''; nm.placeholder = 'Untitled table'; nm.readOnly = ro; nm.setAttribute('aria-label', 'Table name');
-  nm.onchange = () => tChange(id, d => { d.name = nm.value.trim(); });
+  nm.onchange = () => { const o = S.items.get(id)?.name || 'Untitled table'; tChange(id, d => { d.name = nm.value.trim(); }); renameRefs(o, nm.value.trim() || 'Untitled table'); };
   nm.onkeydown = e => { if (e.key === 'Enter') nm.blur(); };
   const seg = document.createElement('div'); seg.className = 'seg tbl-views';
   for (const [k, l] of [['table', 'Table'], ['board', 'Board']]) { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', String((t.view || 'table') === k)); b.onclick = () => tChange(id, d => { d.view = k; }); seg.append(b); }
