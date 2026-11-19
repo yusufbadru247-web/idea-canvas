@@ -30,12 +30,12 @@ do $$ begin
   alter publication supabase_realtime add table public.canvas_docs;
 exception when duplicate_object then null; end $$;
 
--- 2. Photos, vidéos et fichiers : 20 Mo au plus chacun.
+-- 2. Photos, vidéos et fichiers : 5 Mo au plus chacun (1 Go pour tout le projet).
 -- Lecture par lien (adresse impossible à deviner), écriture et suppression par le propriétaire seulement,
 -- personne ne peut lister les fichiers des autres.
 insert into storage.buckets (id, name, public, file_size_limit)
-values ('canvas', 'canvas', true, 20971520)
-on conflict (id) do update set public = true, file_size_limit = 20971520;
+values ('canvas', 'canvas', true, 5242880)
+on conflict (id) do update set public = true, file_size_limit = 5242880;
 
 drop policy if exists "canvas upload own" on storage.objects;
 create policy "canvas upload own" on storage.objects

@@ -244,11 +244,11 @@ const $ = s => document.querySelector(s);
 const vp = $('#vp'), world = $('#world'), cardsL = $('#cards'), groupsL = $('#groups'), edgeG = $('#edge-g'), edgeTmp = $('#edge-tmp');
 const SVGNS = 'http://www.w3.org/2000/svg';
 const COLORS = ['1','2','3','4','5','6'];
-const MAX_UPLOAD = 20 * 1024 * 1024;
+const MAX_UPLOAD = 5 * 1024 * 1024;
 // Synchronisation hors claude.ai : projet Supabase du propriétaire (voir supabase/setup.sql).
 // La clé « anon » est publique par conception ; ce sont les règles RLS qui protègent les données.
-const SUPABASE_URL = 'https://glvuouhzjmwhjnpegnpu.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_sJ3dIfw4w3Zj0YQH1uzcrw_TZQAgmLG';
+const SUPABASE_URL = 'https://msrxyapmkrqzsboztipc.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_H2LgEG-2L4Gwg_FTtnFiBw_Av32tTwh';
 const SUPA_ON = !!(SUPABASE_URL && SUPABASE_KEY);
 
 const S = {
@@ -741,7 +741,7 @@ function shrink(file, max = 1600) {
     img.src = url;
   });
 }
-const UPLOAD_MSG = { too_large: 'is too big (20 MB max)', unsupported_type: 'is a file type that cannot be stored', quota_or_state: 'does not fit: storage is full', rate_limited: 'was not sent: too many uploads, try again in a minute', not_granted: 'was not sent: uploads are not allowed for you here' };
+const UPLOAD_MSG = { too_large: 'is too big (5 MB max). For longer videos, paste a YouTube or Drive link', unsupported_type: 'is a file type that cannot be stored', quota_or_state: 'does not fit: storage is full', rate_limited: 'was not sent: too many uploads, try again in a minute', not_granted: 'was not sent: uploads are not allowed for you here' };
 async function addFiles(files, pos) {
   let i = 0;
   for (const f of files) {
