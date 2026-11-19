@@ -149,6 +149,11 @@ button{font:inherit;color:inherit}
 .btn.grow{flex:1}
 .hint{color:var(--muted);font-size:12px;line-height:1.45}
 #help-pop h3{margin:0 0 8px;font-family:var(--font-display);font-size:16px}
+#signin{top:50%;left:50%;transform:translate(-50%,-50%);padding:18px;display:flex;flex-direction:column;gap:10px;z-index:35;width:min(360px,calc(100vw - 32px))}
+#signin h3{margin:0;font-family:var(--font-display);font-size:18px}
+#signin p{margin:0}
+#si-email{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+#si-msg:empty{display:none}
 #help-pop dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:13px}
 #help-pop dt{color:var(--muted);white-space:nowrap}
 #help-pop dd{margin:0}
@@ -223,6 +228,13 @@ button{font:inherit;color:inherit}
   </dl>
   <p class="hint" style="margin:10px 0 0">Notes understand **bold**, *italic*, # headings, - lists and - [ ] checkboxes.</p>
 </div>
+<div id="signin" class="pop" hidden role="dialog" aria-modal="true" aria-labelledby="si-title">
+  <h3 id="si-title">See your boards everywhere</h3>
+  <p class="hint" id="si-text">Enter your email and we'll send you a sign-in link. Open it on this device. Your boards then sync to your phone, computer and any browser.</p>
+  <input type="email" id="si-email" autocomplete="email" inputmode="email" placeholder="you@example.com" aria-label="Email">
+  <div class="row"><button class="btn" id="si-later">Not now</button><button class="btn primary grow" id="si-send">Send link</button></div>
+  <p class="hint" id="si-msg" aria-live="polite"></p>
+</div>
 <div id="toasts" aria-live="polite"></div>
 
 <script>
@@ -233,6 +245,11 @@ const vp = $('#vp'), world = $('#world'), cardsL = $('#cards'), groupsL = $('#gr
 const SVGNS = 'http://www.w3.org/2000/svg';
 const COLORS = ['1','2','3','4','5','6'];
 const MAX_UPLOAD = 20 * 1024 * 1024;
+// Synchronisation hors claude.ai : projet Supabase du propriétaire (voir supabase/setup.sql).
+// La clé « anon » est publique par conception ; ce sont les règles RLS qui protègent les données.
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
+const SUPA_ON = !!(SUPABASE_URL && SUPABASE_KEY);
 
 const S = {
   store: null, synced: false, assets: null, boards: [], boardId: null,
@@ -305,6 +322,86 @@ function localStore() {
     del: (b, k, id) => { delete coll(b, k)[id]; return done(); },
   };
 }
+function supaStore(sb, userId) {
+  const T = 'canvas_docs';
+  const watchers = new Map();   // coll -> Set(load)
+  const timers = new Map();
+  // Écritures en vol : appliquées par-dessus chaque relecture pour qu'une carte ne revienne pas en arrière.
+  const overlay = new Map();    // coll|id -> { n, del, full, patch }
+  const schedule = coll => {
+    const set = watchers.get(coll); if (!set) return;
+    clearTimeout(timers.get(coll));
+    timers.set(coll, setTimeout(() => set.forEach(f => f()), 120));
+  };
+  const refresh = () => watchers.forEach((_, c) => schedule(c));
+  const apply = (coll, rows) => {
+    const map = new Map(rows.map(r => [r.id, { ...r.data }]));
+    for (const [key, o] of overlay) {
+      const [c, id] = key.split('|'); if (c !== coll) continue;
+      if (o.del) map.delete(id);
+      else if (o.full) map.set(id, { ...o.full, ...o.patch });
+      else if (map.has(id)) Object.assign(map.get(id), o.patch);
+    }
+    return [...map].map(([id, d]) => ({ id, ...d }));
+  };
+  const track = (coll, id, fn, change) => {
+    const key = coll + '|' + id, o = overlay.get(key) || { n: 0, patch: {} };
+    change(o); o.n++; overlay.set(key, o);
+    const end = () => { if (--o.n === 0 && overlay.get(key) === o) overlay.delete(key); schedule(coll); };
+    return fn().then(r => { if (r?.error) throw r.error; end(); }, e => { end(); throw e; });
+  };
+  const watchColl = (coll, cb, err) => {
+    let alive = true;
+    const load = async () => {
+      const { data, error } = await sb.from(T).select('id,data').eq('coll', coll);
+      if (!alive) return;
+      if (error) { err?.(error); return; }
+      cb(apply(coll, data), { fromCache: false });
+    };
+    if (!watchers.has(coll)) watchers.set(coll, new Set());
+    watchers.get(coll).add(load); load();
+    return () => { alive = false; watchers.get(coll)?.delete(load); };
+  };
+  // Un seul canal : la clé primaire contient « coll », donc même une suppression dit quelle liste relire.
+  sb.channel('canvas:' + userId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: T }, p => {
+      const c = p.new?.coll || p.old?.coll; if (c) schedule(c); else refresh();
+    })
+    .subscribe(st => { if (st === 'SUBSCRIBED') refresh(); });
+  addEventListener('online', refresh);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  const row = (coll, id, data) => ({ owner: userId, coll, id, data, updated_at: new Date().toISOString() });
+  const set = (coll, id, d) => track(coll, id, () => sb.from(T).upsert(row(coll, id, d), { onConflict: 'owner,coll,id' }),
+    o => { o.full = JSON.parse(JSON.stringify(d)); o.patch = {}; o.del = false; });
+  const patch = (coll, id, d) => track(coll, id, () => sb.rpc('canvas_patch', { p_coll: coll, p_id: id, p_data: d }),
+    o => { Object.assign(o.patch, JSON.parse(JSON.stringify(d))); });
+  const del = (coll, id) => track(coll, id, () => sb.from(T).delete().match({ owner: userId, coll, id }),
+    o => { o.del = true; });
+  return {
+    kind: 'supa', refresh,
+    watchBoards: (cb, err) => watchColl('boards', cb, err),
+    setBoard: (id, d) => set('boards', id, d),
+    patchBoard: (id, d) => patch('boards', id, d),
+    watch: (b, k, cb, err) => watchColl(`${b}/${k}`, cb, err),
+    set: (b, k, id, d) => set(`${b}/${k}`, id, d),
+    patch: (b, k, id, d) => patch(`${b}/${k}`, id, d),
+    del: (b, k, id) => del(`${b}/${k}`, id),
+  };
+}
+function supaAssets(sb, userId) {
+  const B = sb.storage.from('canvas');
+  return {
+    kind: 'supa',
+    async upload(blob, name = '') {
+      const ext = (name.match(/\.([a-z0-9]{1,5})$/i) || [])[1];
+      const path = `${userId}/${crypto.randomUUID()}${ext ? '.' + ext.toLowerCase() : ''}`;
+      const { error } = await B.upload(path, blob, { contentType: blob.type || undefined, cacheControl: '31536000' });
+      if (error) throw { code: /size|large|exceed/i.test(error.message) ? 'too_large' : /quota|storage/i.test(error.message) ? 'quota_or_state' : '', message: error.message };
+      return { id: path, url: B.getPublicUrl(path).data.publicUrl };
+    },
+    delete: path => B.remove([path]),
+  };
+}
 
 /* ---------- vue ---------- */
 function applyView() {
@@ -375,7 +472,7 @@ function linkInfo(url) {
     [/figma\.com/, 'Figma', 'F'], [/notion\.(so|site)/, 'Notion', 'N'],
   ];
   for (const [re, kind, letter, cls] of known) if (re.test(h)) return { host: h, kind, letter, cls, path: u.pathname };
-  if (u.pathname.startsWith('/_blob/')) return { host: 'Uploaded file', kind: 'File', letter: '⇩', path: '' };
+  if (u.pathname.startsWith('/_blob/') || u.pathname.includes('/storage/v1/object/public/canvas/')) return { host: 'Uploaded file', kind: 'File', letter: '⇩', path: '' };
   return { host: h, kind: '', letter: (h[0] || '?').toUpperCase(), path: u.pathname };
 }
 const isUrl = t => /^(https?:\/\/|www\.)\S+$/i.test(t);
@@ -560,7 +657,11 @@ function deleteSel() {
     label: 'Undo',
     run: () => { undone = true; for (const [id, it] of gone) createItem(it, { id, keepSel: true }); for (const [id, l] of goneLinks) { S.links.set(id, l); enqueue('l/' + id, () => S.store.set(S.boardId, 'links', id, l)); } render(); },
     // Le fichier envoyé n'est effacé qu'une fois l'annulation devenue impossible.
-    expire: () => { if (undone || !S.assets) return; for (const [, it] of gone) if (it.assetId && ![...S.items.values()].some(o => o.assetId === it.assetId)) S.assets.delete(it.assetId).catch(() => {}); },
+    expire: () => {
+      if (undone || !S.assets) return;
+      const key = o => o.assetId || o.storagePath;
+      for (const [, it] of gone) { const k = key(it); if (k && ![...S.items.values()].some(o => key(o) === k)) Promise.resolve(S.assets.delete(k)).catch(() => {}); }
+    },
   }, 6000);
 }
 function duplicateSel() {
@@ -626,14 +727,28 @@ function downscale(file, max = 1400) {
     img.onerror = rej; img.src = url;
   });
 }
+function shrink(file, max = 1600) {
+  return new Promise(res => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      const png = file.type === 'image/png';
+      c.toBlob(b => res(b && b.size < file.size ? b : file), png ? 'image/png' : 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(file); };
+    img.src = url;
+  });
+}
 const UPLOAD_MSG = { too_large: 'is too big (20 MB max)', unsupported_type: 'is a file type that cannot be stored', quota_or_state: 'does not fit: storage is full', rate_limited: 'was not sent: too many uploads, try again in a minute', not_granted: 'was not sent: uploads are not allowed for you here' };
 async function addFiles(files, pos) {
   let i = 0;
   for (const f of files) {
     const isImg = f.type.startsWith('image/'), isVid = f.type.startsWith('video/');
     const at = pos ? { x: pos.x + i * 30, y: pos.y + i * 30 } : null; i++;
-    if (f.size > MAX_UPLOAD && S.assets) { toast(`${f.name || 'This file'} ${UPLOAD_MSG.too_large}.`); continue; }
-    if (!S.assets && !isImg) { toast('Videos and files need the synced canvas. Open it from claude.ai while signed in.'); continue; }
+    if (f.size > MAX_UPLOAD && S.assets && !(isImg && S.assets.kind === 'supa')) { toast(`${f.name || 'This file'} ${UPLOAD_MSG.too_large}.`); continue; }
+    if (!S.assets && !isImg) { toast(SUPA_ON ? 'Videos and files need sync. Sign in from the board menu.' : 'Videos and files need the synced canvas. Open it from claude.ai while signed in.'); continue; }
     const t = toast(`Adding ${f.name || (isImg ? 'image' : 'file')}…`, null, 60000);
     try {
       let data;
@@ -646,7 +761,13 @@ async function addFiles(files, pos) {
         const p = at ? { x: at.x - 150, y: at.y - 37 } : nextPos(300, 74);
         data = { type: 'link', x: p.x, y: p.y, w: 300, h: 74, fileName: f.name || 'File', title: f.name || 'File' };
       }
-      if (S.assets) {
+      if (S.assets?.kind === 'supa') {
+        // Les photos sont réduites avant l'envoi : c'est ce qui fait tenir des milliers d'images dans 1 Go.
+        const blob = isImg && !/gif|svg/.test(f.type) ? await shrink(f) : f;
+        const r = await S.assets.upload(blob, f.name || '');
+        data.src = r.url; data.storagePath = r.id;
+        if (data.type === 'link') data.url = r.url;
+      } else if (S.assets) {
         let type; if (!f.type) { const ext = (f.name || '').split('.').pop().toLowerCase(); type = { md: 'text/markdown', txt: 'text/plain', csv: 'text/csv', json: 'application/json' }[ext]; }
         const r = await S.assets.upload(f, type ? { type } : undefined);
         data.assetId = r.id;
@@ -886,8 +1007,17 @@ function renderBoardPop(renaming) {
   const rn = document.createElement('button'); rn.className = 'pop-item'; rn.textContent = 'Rename this board'; rn.onclick = () => renderBoardPop('rename');
   kids.push(nb, rn);
   const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '6px 10px 4px';
-  note.textContent = S.synced ? 'Saved to your claude.ai account. Open this page on any device to see the same boards.' : 'Saved in this browser only. Open the page from claude.ai while signed in to sync across devices.';
+  if (S.store?.kind === 'supa') note.textContent = `Signed in as ${S.email || 'you'}. Your boards sync on every device.`;
+  else if (S.synced) note.textContent = 'Saved to your claude.ai account. Open this page on any device to see the same boards.';
+  else if (SUPA_ON) note.textContent = 'Saved in this browser only. Sign in to see your boards on every device.';
+  else note.textContent = 'Saved in this browser only. Open the page from claude.ai while signed in to sync across devices.';
   kids.push(note);
+  if (SUPA_ON && S.sb) {
+    const a = document.createElement('button'); a.className = 'pop-item';
+    if (S.store?.kind === 'supa') { a.textContent = 'Sign out'; a.onclick = async () => { await S.sb.auth.signOut().catch(() => {}); location.reload(); }; }
+    else { a.textContent = 'Sign in to sync'; a.onclick = () => { closePops(); openSignin(); }; }
+    kids.push(a);
+  }
   pop.replaceChildren(...kids);
 }
 function setSync() {
@@ -954,8 +1084,73 @@ async function boot() {
     }
     toast('Could not reach your saved boards. Working in this browser for now.');
   }
+  if (SUPA_ON && await bootSupa()) return;
   S.store = localStore(); S.synced = false; setSync();
   S.store.watchBoards(onBoards);
+  if (S.sb && !lsGet('idea-canvas:signin-later')) openSignin();
+}
+
+/* ---------- synchronisation Supabase ---------- */
+async function bootSupa() {
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm');
+    S.sb = mod.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' } });
+  } catch { toast('Could not reach the sync service. Working in this browser for now.'); return false; }
+  const { data } = await S.sb.auth.getSession().catch(() => ({ data: {} }));
+  const user = data?.session?.user;
+  if (!user) {
+    // Un lien de connexion ouvert dans un autre onglet : on bascule dès que la session arrive.
+    S.sb.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && session && S.store?.kind !== 'supa') location.reload(); });
+    return false;
+  }
+  if (location.hash.includes('access_token')) history.replaceState(null, '', location.pathname + location.search);
+  S.email = user.email; S.store = supaStore(S.sb, user.id); S.synced = true; S.assets = supaAssets(S.sb, user.id); setSync();
+  const mark = 'idea-canvas:moved:' + user.id; let first = true;
+  S.store.watchBoards(async (list, meta) => {
+    if (first) {
+      first = false;
+      if (!list.length && !lsGet(mark)) {
+        lsSet(mark, '1');
+        const n = await importLocal(S.store);
+        if (n) { toast(n === 1 ? 'Moved your board from this browser to your account.' : `Moved ${n} boards from this browser to your account.`); return; }
+      }
+    }
+    onBoards(list, meta);
+  }, () => toast('Lost the connection to your saved boards. Reload the page to reconnect.'));
+  return true;
+}
+// Premier passage connecté : les tableaux de ce navigateur rejoignent le compte au lieu d'être laissés derrière.
+async function importLocal(store) {
+  let d; try { d = JSON.parse(lsGet('idea-canvas:v1')); } catch {}
+  const boards = Object.entries(d?.boards || {});
+  const used = boards.filter(([b]) => Object.keys(d.items?.[b] || {}).length);
+  if (!used.length) return 0;
+  try {
+    for (const [b, meta] of used) {
+      await store.setBoard(b, meta);
+      await Promise.all(Object.entries(d.items[b] || {}).map(([id, it]) => store.set(b, 'items', id, it)));
+      await Promise.all(Object.entries(d.links?.[b] || {}).map(([id, l]) => store.set(b, 'links', id, l)));
+    }
+  } catch (e) { toast('Some of this browser\'s boards could not be moved. They are still saved here.'); }
+  store.refresh();
+  return used.length;
+}
+function openSignin() {
+  const p = $('#signin'), email = $('#si-email'), msg = $('#si-msg'), send = $('#si-send');
+  msg.textContent = ''; send.disabled = false; send.textContent = 'Send link';
+  p.hidden = false; setTimeout(() => email.focus(), 50);
+  const go = async () => {
+    const v = email.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { msg.textContent = 'Enter a full email address.'; return; }
+    send.disabled = true; send.textContent = 'Sending…';
+    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname } });
+    if (error) { send.disabled = false; send.textContent = 'Send link'; msg.textContent = /rate|seconds|many/i.test(error.message) ? 'Too many emails for now. Wait a few minutes, then try again.' : 'Could not send the link. Check the address and try again.'; return; }
+    send.textContent = 'Link sent';
+    msg.textContent = `Check ${v} and open the link on this device. This page switches over by itself.`;
+  };
+  send.onclick = go;
+  email.onkeydown = e => { if (e.key === 'Enter') go(); if (e.key === 'Escape') p.hidden = true; e.stopPropagation(); };
+  $('#si-later').onclick = () => { p.hidden = true; lsSet('idea-canvas:signin-later', '1'); };
 }
 addEventListener('resize', () => applyView());
 boot();
