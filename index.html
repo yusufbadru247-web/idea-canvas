@@ -314,7 +314,7 @@ button{font:inherit;color:inherit}
 </div>
 <div id="setcode" class="pop" hidden role="dialog" aria-modal="true" aria-labelledby="sc-title">
   <h3 id="sc-title">Your sign-in code</h3>
-  <p class="hint">Pick a code you'll remember: at least 8 characters, with letters and numbers. With your email, it signs you in on any computer.</p>
+  <p class="hint">Pick a code you'll remember, at least 6 digits or characters. With your email, it signs you in on any computer.</p>
   <input type="password" id="sc-new" class="field" autocomplete="new-password" placeholder="New code" aria-label="New code">
   <input type="password" id="sc-again" class="field" autocomplete="new-password" placeholder="Type it again" aria-label="Type the code again">
   <div class="row"><button class="btn" id="sc-cancel">Cancel</button><button class="btn primary grow" id="sc-save" disabled>Save code</button></div>
@@ -1237,16 +1237,16 @@ function setSync() {
 
 
 /* ---------- code de connexion personnel ---------- */
-// Un mot de passe Supabase, présenté comme un code : assez long pour ne pas se deviner.
+// Un mot de passe Supabase, présenté comme un code. Six caractères au moins, le minimum de Supabase : choix du propriétaire, seul utilisateur pour l'instant.
 function openSetCode() {
   const p = $('#setcode'), a = $('#sc-new'), b = $('#sc-again'), save = $('#sc-save'), msg = $('#sc-msg');
   a.value = ''; b.value = ''; msg.textContent = ''; msg.className = 'hint'; save.disabled = true; save.textContent = 'Save code';
   p.hidden = false; setTimeout(() => a.focus(), 50);
   const check = () => {
-    const v = a.value, ok = v.length >= 8 && /[a-z]/i.test(v) && /\d/.test(v);
+    const v = a.value, ok = v.length >= 6;
     save.disabled = !(ok && v === b.value);
     msg.className = 'hint';
-    msg.textContent = !v ? '' : !ok ? 'At least 8 characters, with letters and numbers.' : b.value && v !== b.value ? 'The two codes are not the same yet.' : '';
+    msg.textContent = !v ? '' : !ok ? 'At least 6 digits or characters.' : b.value && v !== b.value ? 'The two codes are not the same yet.' : '';
   };
   a.oninput = check; b.oninput = check;
   save.onclick = async () => {
