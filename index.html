@@ -304,6 +304,16 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .pv-md>*{margin:0 0 10px}
 .pv-ta{display:block;width:100%;min-height:200px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.65;resize:none;outline:none;padding:0;overflow:hidden}
 .md hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+.tag{display:inline-block;font:inherit;font-size:.86em;font-weight:500;line-height:1.45;padding:0 6px;border-radius:5px;background:var(--tb);color:var(--tc);text-decoration:none;border:0;cursor:pointer;white-space:nowrap;vertical-align:1px}
+.tag:hover{filter:brightness(.97);text-decoration:none}
+.md a.tag,.md a.tag:hover,a.tag{color:var(--tc);text-decoration:none}
+.tag.on{box-shadow:0 0 0 1.5px var(--tc)}
+.tag button{border:0;background:none;color:inherit;font:inherit;padding:0 0 0 4px;cursor:pointer;opacity:.7}
+.ctags{position:absolute;left:4px;top:calc(100% + 5px);display:flex;flex-wrap:wrap;gap:4px;max-width:100%;pointer-events:auto;font-size:12px}
+.lv-tags{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 4px;font-size:14px}
+.lv-ctags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:13px}
+.tg-cur,.tg-sug{display:flex;flex-wrap:wrap;gap:5px;padding:4px 6px;font-size:13px}
+.tg-cur .hint{margin:0}
 .md a.wl,.wl{color:var(--accent);text-decoration:none;font-weight:500;border-radius:3px;background:var(--accent-soft);padding:0 3px;cursor:pointer}
 .md a.wl:hover{text-decoration:underline}
 .md a.wl.missing{background:none;color:var(--muted);border-bottom:1px dashed var(--edge);border-radius:0;padding:0}
@@ -513,7 +523,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   </div>
 </div>
 
-<div id="listview" hidden aria-label="All cards"><div class="lv-wrap"><div class="lv-bar" id="lv-bar"></div><div class="lv-list" id="lv-list"></div></div></div>
+<div id="listview" hidden aria-label="All cards"><div class="lv-wrap"><div class="lv-bar" id="lv-bar"></div><div class="lv-tags" id="lv-tags" hidden></div><div class="lv-list" id="lv-list"></div></div></div>
 <div id="empty" hidden><b>An empty canvas</b>Double-click (or double-tap) anywhere for a note. Paste a link, an image or some text, or drop files here.</div>
 
 <div id="top" class="chrome">
@@ -577,6 +587,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Tags</dt><dd>Write #idea in a note or a page, or use Tags on any card. Tap a tag to see everything with it</dd>
     <dt>Links</dt><dd>Type [[ in a note or a page and pick a card, or write [[A new name]] to make a page. Each page lists what links to it</dd>
     <dt>Tables</dt><dd>T, the Table button, or /table in a page. Click a column name to rename it, change its type or sort; switch to Board to see cards by Status</dd>
     <dt>Dates</dt><dd>Add @today, @friday, @25/11 or /date to a to-do, then tap the date to change it</dd>
@@ -1019,10 +1030,62 @@ function renameRefs(oldT, newT) {
   }
   if (n) { render(); toast(n === 1 ? 'Updated 1 link' : `Updated links in ${n} cards`); }
 }
+/* ---------- étiquettes ---------- */
+// « #idée » dans le texte, ou ajoutées à n'importe quelle carte (champ « tags »). Rangées en minuscules.
+const TAG_RE = /(^|[\s(])#([\p{L}\p{N}][\p{L}\p{N}_-]{0,40})/gu;
+const okTag = t => /\p{L}/u.test(t);
+function tagsIn(txt) {
+  const out = new Set(); if (!txt || !txt.includes('#')) return out;
+  TAG_RE.lastIndex = 0; let m; while ((m = TAG_RE.exec(txt))) if (okTag(m[2])) out.add(m[2].toLowerCase());
+  return out;
+}
+function tagsOf(it) {
+  const s = tagsIn([it.text, it.tree && flatTree(it.tree).join('\n'), it.cols && (it.rows || []).flatMap(r => Object.values(r.v || {}).filter(v => typeof v === 'string')).join('\n')].filter(Boolean).join('\n'));
+  for (const t of it.tags || []) s.add(String(t).toLowerCase());
+  return s;
+}
+function boardTags() {
+  const n = new Map();
+  for (const it of S.items.values()) for (const t of tagsOf(it)) n.set(t, (n.get(t) || 0) + 1);
+  return [...n].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+const tagColor = t => { let h = 0; for (const ch of t) h = (h * 31 + ch.charCodeAt(0)) | 0; return String((Math.abs(h) % 6) + 1); };
+const tagHTML = t => `<a href="#" class="tag" data-tag="${esc(t.toLowerCase())}" style="--tb:var(--c${tagColor(t.toLowerCase())}b);--tc:var(--c${tagColor(t.toLowerCase())})">#${esc(t)}</a>`;
+function showTag(t) {
+  S.lvTag = t.toLowerCase();
+  if (S.mapId) closeMap(); if (S.tableId) closeTable(); if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; try { if (history.state?.icPage) history.back(); } catch {} }
+  if (S.lvFilter !== 'tasks') S.lvFilter = 'all';
+  setMode('list'); renderList();
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest?.('.tag'); if (!a || !a.dataset.tag) return;
+  e.preventDefault(); e.stopPropagation(); showTag(a.dataset.tag);
+});
+// Étiquettes d'une carte : ajouter, retirer, reprendre celles déjà utilisées.
+function tagEditor(anchor, id) {
+  const draw = () => {
+    const it = S.items.get(id); if (!it) { closeTPop(); return; }
+    const own = it.tags || [], kids = [];
+    const cur = document.createElement('div'); cur.className = 'tg-cur';
+    for (const t of own) { const c = document.createElement('span'); c.className = 'tag'; c.style.cssText = `--tb:var(--c${tagColor(t)}b);--tc:var(--c${tagColor(t)})`; c.textContent = '#' + t; const x = document.createElement('button'); x.textContent = '×'; x.setAttribute('aria-label', 'Remove #' + t); x.onclick = () => { persist(id, { tags: own.filter(o => o !== t) }); render(); draw(); }; c.append(x); cur.append(c); }
+    if (!own.length) { const p = document.createElement('span'); p.className = 'hint'; p.textContent = 'No tag yet.'; cur.append(p); }
+    const inp = document.createElement('input'); inp.className = 'tbl-in pop-in'; inp.placeholder = 'Add a tag, then Enter'; inp.setAttribute('aria-label', 'New tag');
+    const add = v => { const t = v.replace(/^#+/, '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\p{L}\p{N}_-]/gu, '').slice(0, 40); if (!t || !okTag(t) || own.includes(t)) return; persist(id, { tags: [...own, t] }); render(); draw(); setTimeout(() => tPop?.querySelector('input')?.focus(), 0); };
+    inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); add(inp.value); } else if (e.key === 'Escape') { e.stopPropagation(); closeTPop(); } };
+    const sug = document.createElement('div'); sug.className = 'tg-sug';
+    for (const [t] of boardTags().filter(([t]) => !own.includes(t)).slice(0, 12)) { const b = document.createElement('button'); b.className = 'tag'; b.style.cssText = `--tb:var(--c${tagColor(t)}b);--tc:var(--c${tagColor(t)})`; b.textContent = '#' + t; b.onclick = () => add(t); sug.append(b); }
+    kids.push(cur, inp); if (sug.childElementCount) { const l = document.createElement('span'); l.className = 'lbl-sm'; l.textContent = 'Used on this board'; kids.push(l, sug); }
+    if (tPop) tPop.replaceChildren(...kids); else popAt(anchor, kids);
+    if (!matchMedia('(hover:none)').matches) setTimeout(() => inp.focus(), 0);
+  };
+  closeTPop(); draw();
+}
 function inline(s) {
   // Les liens [[…]] sont mis de côté avant l'échappement, puis reposés en HTML.
   const wl = [];
   s = String(s).replace(WL_RE, (all, n, label) => { if (isEmbedRef(n)) return all; wl.push([n.trim(), (label || n).trim()]); return '\u0001' + (wl.length - 1) + '\u0001'; });
+  const tg = [];
+  s = s.replace(TAG_RE, (all, pre, t) => { if (!okTag(t)) return all; tg.push(t); return pre + '\u0002' + (tg.length - 1) + '\u0002'; });
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -1031,6 +1094,7 @@ function inline(s) {
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
   s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}">${esc(dueLabel(d))}</span>` : all; });
+  if (tg.length) s = s.replace(/\u0002(\d+)\u0002/g, (all, i) => tagHTML(tg[+i]));
   if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
   return s;
 }
@@ -1142,7 +1206,7 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : ''].join('|'); }
+function sig(it) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(',')].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
@@ -1260,6 +1324,7 @@ function buildContent(el, it) {
   const r = document.createElement('div'); r.className = 'h h-resize'; r.dataset.h = 'resize';
   const c = document.createElement('div'); c.className = 'h h-connect'; c.dataset.h = 'connect'; c.title = 'Drag to connect';
   el.append(r, c);
+  if (it.tags?.length) { const tg = document.createElement('div'); tg.className = 'ctags'; tg.innerHTML = it.tags.map(tagHTML).join(''); el.append(tg); }
   el._sig = sig(it) + (editing ? '|e' : '');
 }
 function place(el, it) {
@@ -1343,6 +1408,7 @@ function renderSelbar() {
     if (it?.type === 'table') kids.push(btn('Open', () => openTable([...S.sel][0])));
     if (it?.type === 'page' || it?.type === 'note') kids.push(btn('Mind map', () => mapFromItem([...S.sel][0])));
   }
+  if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
   kids.push(btn('Duplicate', duplicateSel), btn('Delete', deleteSel, 'danger'));
   bar.replaceChildren(...kids); bar.hidden = false;
 }
@@ -2253,8 +2319,20 @@ function insertWiki(ta, title) {
   const after = v.slice(a).startsWith(']]') ? v.slice(a + 2) : v.slice(a);
   setTA(ta, v.slice(0, a) + ins + after, a + ins.length, a + ins.length);
 }
+// « #… » : reprendre une étiquette déjà utilisée.
+function tagCheck(ta) {
+  const v = ta.value, c = ta.selectionStart; if (c !== ta.selectionEnd) return false;
+  const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/(^|[\s(])#([\p{L}\p{N}_-]{1,40})$/u);
+  if (!m) return false;
+  const q = m[2].toLowerCase();
+  const items = boardTags().filter(([t]) => t.startsWith(q) && t !== q).slice(0, 6).map(([t, n]) => ({ k: t, t: '#' + t, d: n === 1 ? '1 card' : n + ' cards', run: () => { const vv = ta.value, a = ta.selectionStart; setTA(ta, vv.slice(0, a) + '#' + t + ' ' + vv.slice(a), a + t.length + 2, a + t.length + 2); } }));
+  if (!items.length) { if (SL?.tag) closeSlash(); return true; }
+  SL = { start: ls + m.index + m[1].length, end: c, items, idx: SL && SL.tag ? Math.min(SL.idx, items.length - 1) : 0, ta, tag: true };
+  drawSlash(); return true;
+}
 function slashCheck(ta) {
   if (wikiCheck(ta)) return;
+  if (tagCheck(ta)) return;
   const v = ta.value, c = ta.selectionStart;
   const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/^(\s*)\/(\w*)$/);
   if (!m || ta.selectionStart !== ta.selectionEnd) return closeSlash();
@@ -2359,10 +2437,18 @@ function renderList() {
   if (S.mode !== 'list') return;
   const bar = $('#lv-bar'), list = $('#lv-list');
   const all = [...S.items].sort((a, b) => (b[1].created || 0) - (a[1].created || 0));
-  const shown = all.filter(([, it]) => passes(it, S.lvFilter));
+  const tags = boardTags(); if (S.lvTag && !tags.some(([t]) => t === S.lvTag)) S.lvTag = null;
+  const shown = all.filter(([, it]) => passes(it, S.lvFilter) && (!S.lvTag || tagsOf(it).has(S.lvTag)));
   bar.replaceChildren(...FILTERS.filter(([k]) => k === 'all' || all.some(([, it]) => passes(it, k))).map(([k, t]) => {
     const c = document.createElement('button'); c.className = 'chip'; c.textContent = t; c.setAttribute('aria-pressed', String(S.lvFilter === k));
     c.onclick = () => { S.lvFilter = k; renderList(); }; return c;
+  }));
+  const tr = $('#lv-tags');
+  tr.hidden = !tags.length;
+  tr.replaceChildren(...tags.slice(0, 30).map(([t, c]) => {
+    const b = document.createElement('button'); b.className = 'tag' + (S.lvTag === t ? ' on' : ''); b.style.cssText = `--tb:var(--c${tagColor(t)}b);--tc:var(--c${tagColor(t)})`;
+    b.textContent = '#' + t + (S.lvTag === t ? '  ×' : ''); b.title = c === 1 ? '1 card' : c + ' cards'; b.setAttribute('aria-pressed', String(S.lvTag === t));
+    b.onclick = () => { S.lvTag = S.lvTag === t ? null : t; renderList(); }; return b;
   }));
   const n = document.createElement('span'); n.className = 'lv-count';
   if (S.lvFilter === 'tasks') {
@@ -2406,6 +2492,11 @@ function renderList() {
   list.replaceChildren(...shown.map(([id, it]) => listItem(id, it)));
 }
 function listItem(id, it) {
+  const el = listItem0(id, it);
+  if (it.tags?.length) { const tg = document.createElement('div'); tg.className = 'lv-ctags'; tg.innerHTML = it.tags.map(tagHTML).join(''); el.append(tg); }
+  return el;
+}
+function listItem0(id, it) {
   const el = document.createElement('article'); el.className = 'lv-item' + (it.color ? ' colored' : ''); el.dataset.id = id;
   if (it.color) { el.style.setProperty('--cb', `var(--c${it.color}b)`); el.style.setProperty('--cc', `var(--c${it.color})`); }
   const head = document.createElement('div'); head.className = 'lv-head';
