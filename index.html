@@ -230,6 +230,20 @@ button{font:inherit;color:inherit}
 @media (max-width:640px){ #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px));bottom:auto} #selbar.fmt{padding:3px} #selbar.fmt .tb{min-width:29px;padding:0 4px} #selbar.fmt .sep{margin:0 1px} }
 
 /* Recherche */
+#trash-pop,#hist-pop{position:fixed;z-index:45;top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px}
+.tr-h{display:flex;align-items:center;justify-content:space-between}
+.tr-h h3{margin:0;font-size:16px}
+#trash-pop .hint,#hist-pop .hint{margin:2px 0 10px}
+.tr-empty{color:var(--muted);font-size:14px;padding:18px 0;text-align:center}
+.tr-list{display:flex;flex-direction:column}
+.tr-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.tr-info{flex:1;min-width:0}
+.tr-t{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-d{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-row .btn{height:30px;padding:0 10px;font-size:13px}
+.tb.danger svg{color:var(--danger)}
+#trash-pop>.btn.danger{margin-top:10px}
+.hi-prev{font-size:12.5px;color:var(--muted);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 #search-pop{top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));padding:8px}
 #search-q{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:9px 12px;border-radius:6px;border:0;background:var(--hover);color:var(--ink);outline:none;margin-bottom:6px}
 #search-res{max-height:min(360px,55vh);overflow:auto}
@@ -564,6 +578,8 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <textarea id="add-text" placeholder="https://… or an idea"></textarea>
   <div class="row"><button class="btn" id="add-cancel">Cancel</button><button class="btn primary grow" id="add-ok">Add to canvas</button></div>
 </div>
+<div id="trash-pop" class="pop" hidden role="dialog" aria-label="Trash"></div>
+<div id="hist-pop" class="pop" hidden role="dialog" aria-label="Page history"></div>
 <div id="search-pop" class="pop" hidden role="dialog" aria-label="Search this board">
   <input type="text" id="search-q" placeholder="Search this board" aria-label="Search this board" autocomplete="off">
   <div id="search-res"></div>
@@ -587,6 +603,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Trash</dt><dd>Board menu, then Trash: deleted cards stay 30 days and can be restored. Pages keep earlier versions under the clock button</dd>
     <dt>Tags</dt><dd>Write #idea in a note or a page, or use Tags on any card. Tap a tag to see everything with it</dd>
     <dt>Links</dt><dd>Type [[ in a note or a page and pick a card, or write [[A new name]] to make a page. Each page lists what links to it</dd>
     <dt>Tables</dt><dd>T, the Table button, or /table in a page. Click a column name to rename it, change its type or sort; switch to Board to see cards by Status</dd>
@@ -661,6 +678,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <button class="tb icon" id="pv-back" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M15 18l-6-6 6-6"/></svg></button>
     <nav class="pv-crumbs" id="pv-crumbs" aria-label="Where this page is"></nav>
     <button class="tb" id="pv-map" title="Turn this page into a mind map"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Mind map</span></button>
+    <button class="tb icon" id="pv-hist" title="Page history" aria-label="Page history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></button>
     <button class="tb danger" id="pv-del">Delete</button>
   </div>
   <div class="pv-scroll" id="pv-scroll"><div class="pv-doc">
@@ -765,7 +783,7 @@ function localStore() {
   const subs = new Set();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { toast('This browser is out of space. Remove a few images.'); } };
   const emit = () => subs.forEach(f => f());
-  const coll = (b, k) => (data[k][b] ||= {});
+  const coll = (b, k) => ((data[k] ||= {})[b] ||= {});
   const list = o => Object.entries(o).map(([id, v]) => ({ id, ...v }));
   const watchFn = f => { subs.add(f); queueMicrotask(f); return () => subs.delete(f); };
   const done = () => { save(); emit(); return Promise.resolve(); };
@@ -1455,18 +1473,80 @@ function deleteSel() {
   for (const [id] of gone) { S.items.delete(id); if (!S.readonly) enqueue('i/' + id, () => S.store.del(S.boardId, 'items', id)); }
   for (const [id] of goneLinks) removeLink(id);
   S.sel.clear(); S.editing = null; render();
-  let undone = false;
-  toast(gone.length === 1 ? 'Deleted' : `Deleted ${gone.length} items`, {
+  // Tout ce qui est supprimé passe par la corbeille, gardée 30 jours ; les fichiers envoyés ne partent qu'en la vidant.
+  const tid = uid(), board = S.boardId;
+  if (!S.readonly && gone.length) enqueue('t/' + tid, () => S.store.set(board, 'trash', tid, { at: Date.now(), items: Object.fromEntries(gone), links: Object.fromEntries(goneLinks) }));
+  toast(gone.length === 1 ? 'Moved to Trash' : `Moved ${gone.length} items to Trash`, {
     label: 'Undo',
-    run: () => { undone = true; for (const [id, it] of gone) createItem(it, { id, keepSel: true }); for (const [id, l] of goneLinks) { S.links.set(id, l); enqueue('l/' + id, () => S.store.set(S.boardId, 'links', id, l)); } render(); },
-    // Le fichier envoyé n'est effacé qu'une fois l'annulation devenue impossible.
-    expire: () => {
-      if (undone || !S.assets) return;
-      const key = o => o.assetId || o.storagePath;
-      for (const [, it] of gone) { const k = key(it); if (k && ![...S.items.values()].some(o => key(o) === k)) Promise.resolve(S.assets.delete(k)).catch(() => {}); }
-    },
+    run: () => { for (const [id, it] of gone) createItem(it, { id, keepSel: true }); for (const [id, l] of goneLinks) { S.links.set(id, l); enqueue('l/' + id, () => S.store.set(S.boardId, 'links', id, l)); } if (!S.readonly) enqueue('t/' + tid, () => S.store.del(board, 'trash', tid)); render(); },
   }, 6000);
 }
+/* ---------- corbeille ---------- */
+const TRASH_DAYS = 30;
+const assetKey = o => o?.assetId || o?.storagePath;
+function trashTitle(e) {
+  const its = Object.values(e.items || {}), top = its.find(x => !x.parent) || its[0];
+  const t = top ? itemTitle(top) : 'Cards', more = its.length - 1;
+  return { t, kind: top ? KIND[top.type] || '' : '', more };
+}
+function purgeTrash(e) {
+  const items = Object.values(e.items || {});
+  if (S.assets) for (const it of items) { const k = assetKey(it); if (k && ![...S.items.values()].some(o => assetKey(o) === k) && !(S.trash || []).some(x => x.id !== e.id && Object.values(x.items || {}).some(o => assetKey(o) === k))) Promise.resolve(S.assets.delete(k)).catch(() => {}); }
+  S.trash = (S.trash || []).filter(x => x.id !== e.id);
+  enqueue('t/' + e.id, () => S.store.del(S.boardId, 'trash', e.id));
+}
+function restoreTrash(e) {
+  const items = Object.entries(e.items || {});
+  const at = viewCenter(); let k = 0;
+  for (const [id, it0] of items) {
+    if (S.items.has(id)) continue;
+    const it = { ...it0 };
+    // Sa page a disparu entre-temps : la carte revient sur la toile.
+    if (it.parent && !S.items.has(it.parent) && !e.items[it.parent]) { delete it.parent; it.x = Math.round(at.x - 130 + k * 24); it.y = Math.round(at.y - 75 + k * 24); it.w = it.w || 260; it.h = it.h || 150; k++; }
+    createItem(it, { id, keepSel: true });
+  }
+  for (const [lid, l] of Object.entries(e.links || {})) if (S.items.has(l.from) && S.items.has(l.to)) { S.links.set(lid, l); enqueue('l/' + lid, () => S.store.set(S.boardId, 'links', lid, l)); }
+  S.trash = (S.trash || []).filter(x => x.id !== e.id);
+  enqueue('t/' + e.id, () => S.store.del(S.boardId, 'trash', e.id));
+  render(); toast('Restored ' + trashTitle(e).t);
+}
+function onTrash(docs) {
+  S.trash = docs.sort((a, b) => (b.at || 0) - (a.at || 0));
+  if (!S.readonly) for (const e of S.trash.filter(x => Date.now() - (x.at || 0) > TRASH_DAYS * 864e5)) purgeTrash(e);
+  if (!$('#trash-pop').hidden) renderTrash();
+}
+function ago(t) {
+  const d = Math.floor((Date.now() - t) / 864e5);
+  if (d < 1) { const h = Math.floor((Date.now() - t) / 36e5); return h < 1 ? 'just now' : h === 1 ? '1 hour ago' : h + ' hours ago'; }
+  return d === 1 ? 'yesterday' : d + ' days ago';
+}
+function renderTrash() {
+  const p = $('#trash-pop'), list = S.trash || [], kids = [];
+  const h = document.createElement('div'); h.className = 'tr-h';
+  const t = document.createElement('h3'); t.textContent = 'Trash';
+  const x = document.createElement('button'); x.className = 'tb icon'; x.setAttribute('aria-label', 'Close'); x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px"><path d="M6 6l12 12M18 6 6 18"/></svg>'; x.onclick = () => { p.hidden = true; };
+  h.append(t, x); kids.push(h);
+  const hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = `Deleted cards stay here for ${TRASH_DAYS} days.`; kids.push(hint);
+  if (!list.length) { const e = document.createElement('div'); e.className = 'tr-empty'; e.textContent = 'Nothing in the Trash.'; kids.push(e); }
+  const box = document.createElement('div'); box.className = 'tr-list';
+  for (const e of list) {
+    const { t: title, kind, more } = trashTitle(e), left = Math.max(0, TRASH_DAYS - Math.floor((Date.now() - (e.at || 0)) / 864e5));
+    const r = document.createElement('div'); r.className = 'tr-row';
+    const info = document.createElement('div'); info.className = 'tr-info';
+    const a = document.createElement('div'); a.className = 'tr-t'; a.textContent = title + (more > 0 ? ` and ${more} more` : '');
+    const b = document.createElement('div'); b.className = 'tr-d'; b.textContent = [kind, 'deleted ' + ago(e.at || 0), left <= 7 ? (left <= 1 ? 'gone tomorrow' : `gone in ${left} days`) : ''].filter(Boolean).join(' · ');
+    info.append(a, b);
+    const rs = document.createElement('button'); rs.className = 'btn'; rs.textContent = 'Restore'; rs.hidden = S.readonly; rs.onclick = () => { restoreTrash(e); renderTrash(); };
+    const del = document.createElement('button'); del.className = 'tb icon danger'; del.title = 'Delete forever'; del.setAttribute('aria-label', 'Delete forever'); del.hidden = S.readonly;
+    del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+    del.onclick = () => { if (confirm('Delete “' + title + '” forever? This cannot be undone.')) { purgeTrash(e); renderTrash(); } };
+    r.append(info, rs, del); box.append(r);
+  }
+  kids.push(box);
+  if (list.length > 1 && !S.readonly) { const em = document.createElement('button'); em.className = 'btn danger'; em.textContent = 'Empty the Trash'; em.onclick = () => { if (confirm(`Delete ${list.length} items forever? This cannot be undone.`)) { [...list].forEach(purgeTrash); renderTrash(); } }; kids.push(em); }
+  p.replaceChildren(...kids);
+}
+function openTrash() { closePops(); renderTrash(); $('#trash-pop').hidden = false; }
 function duplicateSel() {
   const ids = [...S.sel]; const map = {}; S.sel = new Set();
   for (const id of ids) { const it = S.items.get(id); if (!it) continue; const nid = uid(); map[id] = nid; createItem({ ...it, x: it.x + 30, y: it.y + 30 }, { id: nid, keepSel: true }); S.sel.add(nid); }
@@ -1622,7 +1702,7 @@ function srcOffsetAt(root, x, y, src) {
 function stopEdit() {
   if (!S.editing) return;
   const id = S.editing, it = S.items.get(id); S.editing = null;
-  if (it) { const p = {}; if (it.type === 'note' || it.type === 'page') { it.text = normDates(it.text); p.text = it.text || ''; } if (it.type === 'link') p.title = it.title || ''; if (it.type === 'group') p.label = it.label || ''; persist(id, p); }
+  if (it) { const p = {}; if (it.type === 'note' || it.type === 'page') { it.text = normDates(it.text); p.text = it.text || ''; if (it.type === 'page') { const h = snapshot(id, it); if (h) p.hist = h; } } if (it.type === 'link') p.title = it.title || ''; if (it.type === 'group') p.label = it.label || ''; persist(id, p); }
   render();
 }
 document.addEventListener('focusout', e => {
@@ -1811,7 +1891,7 @@ vp.addEventListener('drop', e => {
 });
 
 /* ---------- barres et fenêtres ---------- */
-function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop', 'search-pop']) if (id !== except) $('#' + id).hidden = true; }
+function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop', 'search-pop', 'trash-pop', 'hist-pop']) if (id !== except) $('#' + id).hidden = true; }
 function toggle(id) { const p = $('#' + id); const open = p.hidden; closePops(id); p.hidden = !open; return open; }
 $('#t-note').onclick = () => { setMode('canvas'); addNote(); };
 $('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
@@ -1860,7 +1940,8 @@ function renderBoardPop(renaming) {
     const b = document.createElement('button'); b.textContent = t; b.setAttribute('aria-pressed', String(S.bg === k));
     b.onclick = () => { setBg(k); renderBoardPop(); }; seg.append(b);
   }
-  kids.push(nb, rn, ex);
+  const trb = document.createElement('button'); trb.className = 'pop-item'; trb.textContent = 'Trash' + ((S.trash || []).length ? ` (${S.trash.length})` : ''); trb.onclick = openTrash;
+  kids.push(nb, rn, ex, trb);
   if (CAN_SW && !isStandalone()) { const ia = document.createElement('button'); ia.className = 'pop-item'; ia.textContent = 'Install as an app'; ia.onclick = () => { closePops(); installApp(); }; kids.push(ia); }
   if (!S.readonly) kids.push(im);
   kids.push(document.createElement('hr'), bl, seg);
@@ -2189,6 +2270,44 @@ function renderPage() {
   body.replaceChildren(d);
   d.querySelectorAll('.tbl-embed').forEach(el => mountTable(el, el.dataset.table));
 }
+/* Versions d'une page : le texte d'avant chaque séance d'écriture, 25 au plus,
+   une toutes les 10 minutes au plus pour ne pas noyer l'historique. */
+function snapshot(id, it) {
+  const st = S.editStart; S.editStart = null;
+  if (!st || st.id !== id || !st.text.trim() || st.text === (it.text || '')) return null;
+  const hist = [...(it.hist || [])], last = hist[hist.length - 1];
+  if (last && Date.now() - last.at < 10 * 60e3) return null;
+  hist.push({ at: Date.now(), text: st.text });
+  while (hist.length > 25) hist.shift();
+  return hist;
+}
+function openHistory() {
+  const id = S.pageId, it = S.items.get(id); if (!it) return;
+  closePops();
+  const p = $('#hist-pop'), hist = [...(it.hist || [])].reverse(), kids = [];
+  const h = document.createElement('div'); h.className = 'tr-h';
+  const t = document.createElement('h3'); t.textContent = 'Page history';
+  const x = document.createElement('button'); x.className = 'tb icon'; x.setAttribute('aria-label', 'Close'); x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px"><path d="M6 6l12 12M18 6 6 18"/></svg>'; x.onclick = () => { p.hidden = true; };
+  h.append(t, x); kids.push(h);
+  const hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = hist.length ? 'Earlier versions of this page, saved each time you write. Restoring keeps the current text as a version too.' : 'No earlier version yet. One is saved each time you change the page.'; kids.push(hint);
+  const box = document.createElement('div'); box.className = 'tr-list';
+  for (const v of hist) {
+    const r = document.createElement('div'); r.className = 'tr-row';
+    const info = document.createElement('div'); info.className = 'tr-info';
+    const a = document.createElement('div'); a.className = 'tr-t'; const d = new Date(v.at);
+    a.textContent = d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const b = document.createElement('div'); b.className = 'hi-prev'; b.textContent = pageSnippet({ text: v.text }) || 'Empty';
+    info.append(a, b);
+    const rs = document.createElement('button'); rs.className = 'btn'; rs.textContent = 'Restore'; rs.hidden = S.readonly;
+    rs.onclick = () => {
+      const cur = S.items.get(id); if (!cur) return;
+      const hh = [...(cur.hist || [])]; if ((cur.text || '').trim()) hh.push({ at: Date.now(), text: cur.text }); while (hh.length > 25) hh.shift();
+      persist(id, { text: v.text, hist: hh }); p.hidden = true; renderPage(); render(); toast('Page restored to that version.');
+    };
+    r.append(info, rs); box.append(r);
+  }
+  kids.push(box); p.replaceChildren(...kids); p.hidden = false;
+}
 function drawBacklinks(id) {
   const box = $('#pv-bl'), bl = backlinks(id);
   box.hidden = !bl.length; if (!bl.length) { box.replaceChildren(); return; }
@@ -2217,6 +2336,7 @@ function buildPageEditor(id, it) {
 function startPageEdit(pt) {
   if (S.readonly || !S.pageId) return;
   const id = S.pageId, it = S.items.get(id); if (!it) return;
+  S.editStart = { id, text: it.text || '' };
   const md0 = $('#pv-body .pv-md'), at = pt ? srcOffsetAt(md0, pt.x, pt.y, it.text || '') : null;
   // Garder sous le doigt la ligne touchée : le texte brut est plus long que le rendu.
   const sc = $('#pv-scroll'), blk = pt && document.elementFromPoint(pt.x, pt.y)?.closest('[data-l]'), y0 = blk ? blk.getBoundingClientRect().top : null;
@@ -2256,6 +2376,7 @@ async function uploadForPage(f) {
   finally { t.remove(); }
 }
 $('#pv-back').onclick = () => closePage();
+$('#pv-hist').onclick = openHistory;
 $('#pv-map').onclick = () => { const id = S.pageId; if (id) mapFromItem(id); };
 $('#pv-del').onclick = () => { const id = S.pageId; if (!id) return; S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; try { if (history.state?.icPage) history.back(); } catch {} S.sel = new Set([id]); deleteSel(); };
 $('#pv-icon').onclick = () => {
@@ -3582,6 +3703,8 @@ function openBoard(id) {
   S.unsub.push(S.store.watch(id, 'links', docs => {
     S.links = new Map(docs.map(({ id: lid, ...l }) => [lid, l])); render();
   }, () => {}));
+  S.trash = [];
+  S.unsub.push(S.store.watch(id, 'trash', onTrash, () => {}));
 }
 function onBoards(list, meta) {
   S.boards = list.sort((a, b) => (a.created || 0) - (b.created || 0));
