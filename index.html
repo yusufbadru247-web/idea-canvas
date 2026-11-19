@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Canvas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0;padding:0}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -297,6 +304,73 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .pv-md>*{margin:0 0 10px}
 .pv-ta{display:block;width:100%;min-height:200px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.65;resize:none;outline:none;padding:0;overflow:hidden}
 .md hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+/* Grilles */
+.tbl-host{margin:6px 0 14px}
+.tbl-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tbl-name{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:650;padding:4px 0;outline:none}
+.tbl-name::placeholder{color:var(--muted);opacity:.6}
+.tbl-views{margin:0;flex:none}
+.tbl-views button{flex:none;font-size:12px;padding:3px 10px}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
+.tbl{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.4}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th+th,.tbl td+td{border-left:1px solid var(--line)}
+.tbl th{font-weight:500;color:var(--muted);padding:0}
+.tbl-h{display:block;width:100%;border:0;background:none;color:inherit;font:inherit;font-size:13px;text-align:left;padding:7px 10px;cursor:pointer;white-space:nowrap}
+.tbl-h:hover{background:var(--hover)}
+.tbl td{padding:7px 10px;min-width:130px;height:36px;cursor:text;color:var(--ink);overflow-wrap:anywhere}
+.tbl td.t-check,.tbl td.t-date,.tbl td.t-select{cursor:pointer;min-width:100px}
+.tbl td.t-number{text-align:right;font-variant-numeric:tabular-nums}
+.tbl td:hover{background:var(--hover)}
+.tbl td:has(.tbl-in){padding:0}
+.tbl-in{display:block;width:100%;border:0;background:var(--card);color:var(--ink);font:inherit;font-size:16px;padding:7px 10px;outline:2px solid var(--accent);outline-offset:-2px;resize:none}
+@media (min-width:641px){ .tbl-in{font-size:14px} }
+.tbl-addc,.tbl-rowx{width:36px;min-width:36px!important;padding:0!important}
+.tbl-addc button,.tbl-rowx button{width:36px;height:34px;border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;border-radius:5px}
+.tbl-addc button:hover,.tbl-rowx button:hover{background:var(--hover);color:var(--ink)}
+.tbl tr:not(:hover) .tbl-rowx button{opacity:.35}
+.tbl-addr{display:block;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;padding:7px 10px;cursor:pointer;border-radius:6px;text-align:left}
+.tbl-addr:hover{background:var(--hover);color:var(--ink)}
+.tbl-sum td{color:var(--ink);font-weight:600;cursor:default;border-bottom:0}
+.tbl-sum td:hover{background:none}
+.tbl-sum span{color:var(--muted);font-weight:400;font-size:12px;margin-right:4px}
+.tcb{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--edge);color:transparent;font-size:11px;font-weight:700}
+.tcb.on{background:var(--accent);box-shadow:none;color:var(--on-accent)}
+.tpill{display:inline-block;padding:1px 8px;border-radius:5px;background:var(--pb);color:var(--pc);font-size:12.5px;font-weight:500;white-space:nowrap}
+.tbl-pop{position:fixed;z-index:65;width:240px;max-height:min(420px,70vh);overflow:auto;padding:6px}
+.tbl-pop .pop-in{margin:4px 0;border-radius:6px;outline-width:1px}
+.tbl-pop .pop-item.cur{background:var(--hover)}
+.tbl-types{display:flex;flex-wrap:wrap;gap:4px;padding:2px 6px 4px}
+.tbl-types .chip{font-size:12px}
+.tbl-board{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;align-items:flex-start;-webkit-overflow-scrolling:touch}
+.tb-lane{flex:none;width:250px;background:var(--hover);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.tb-lane.over{box-shadow:inset 0 0 0 2px var(--accent)}
+.tb-laneh{display:flex;align-items:center;gap:6px;padding:2px 2px 4px;font-size:13px}
+.tb-laneh .n{color:var(--muted);font-size:12px}
+.tb-card{background:var(--card);border-radius:8px;box-shadow:var(--shadow);padding:9px 10px;cursor:pointer;font-size:14px}
+.tb-card:hover{box-shadow:var(--chrome-shadow)}
+.tb-card.dragging{opacity:.4}
+.tb-t{font-weight:500;overflow-wrap:anywhere}
+.tb-m{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;font-size:12px;color:var(--muted);align-items:center}
+.tbl-empty{display:flex;flex-direction:column;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;padding:12px 0}
+.tbl-sheet-back{position:fixed;inset:0;z-index:64;background:rgba(15,15,15,.32);display:grid;place-items:center;padding:16px}
+.tbl-sheet{width:min(440px,100%);max-height:min(640px,90vh);overflow:auto;background:var(--chrome);border-radius:14px;box-shadow:var(--pop-shadow);padding:16px}
+.tbl-field{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;padding:6px 0}
+.tbl-field label{color:var(--muted);font-size:13px;padding-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl-field .tbl-in{outline:0;border:1px solid var(--line);border-radius:7px;background:transparent}
+.tbl-field .tbl-in:focus{border-color:var(--accent)}
+.tbl-fbtn{display:flex;align-items:center;min-height:36px;width:100%;border:1px solid var(--line);border-radius:7px;background:transparent;font:inherit;padding:5px 10px;cursor:pointer;color:var(--ink);text-align:left}
+.tbl-sheet .row{margin-top:14px}
+.tblcard{display:flex;flex-direction:column;gap:8px;padding:12px 14px;flex:1;min-height:0}
+.tblmini{border-collapse:collapse;font-size:11.5px;width:100%;table-layout:fixed}
+.tblmini th{color:var(--muted);font-weight:500;text-align:left;padding:3px 6px;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tblmini td{padding:3px 6px;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;height:22px}
+.tblmini .tpill,.tblmini .due{font-size:10.5px}
+#tblview{position:fixed;inset:0;z-index:27;background:var(--bg);display:flex;flex-direction:column}
+.tv-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.tv-doc{max-width:1100px;margin:0 auto;padding:24px 24px calc(100px + env(safe-area-inset-bottom,0px))}
+.tv-doc .tbl-name{font-size:28px;font-weight:700}
+@media (max-width:640px){ .tv-doc{padding:16px 16px calc(100px + env(safe-area-inset-bottom,0px))} .tv-doc .tbl-name{font-size:22px} .tbl-field{grid-template-columns:92px 1fr} #z-in,#z-out,#tools .sep.zoomctl{display:none} }
 /* Carte mentale : arbre horizontal, racine à gauche, branches repliables. */
 .mapcard{display:flex;flex-direction:column;flex:1;min-height:0;padding:10px 12px 12px;gap:6px}
 .mapcard svg{flex:1;min-height:0;width:100%}
@@ -390,6 +464,23 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
 #slash .pop-item small{color:var(--muted);font-size:12px}
 
 /* Toutes les tâches ouvertes du tableau */
+.lv-group{display:flex;align-items:center;gap:8px;margin:12px 2px 0;font-size:13px;font-weight:600;color:var(--ink)}
+.lv-group:first-child{margin-top:0}
+.lv-group span{color:var(--muted);font-weight:500}
+.lv-group.over{color:var(--danger)}
+.lv-calm{color:var(--muted);font-size:13px;margin:0 2px}
+.due{display:inline-block;font-size:.82em;font-weight:500;line-height:1.5;padding:0 6px;border-radius:5px;background:var(--tag);color:var(--muted);white-space:nowrap;vertical-align:1px}
+.due.today{background:var(--accent-soft);color:var(--accent)}
+.due.soon{color:var(--c2)}
+.due.over{background:var(--c1b);color:var(--c1)}
+.task.done .due{background:var(--tag);color:var(--muted)}
+.pv-md .due{cursor:pointer}
+.due-btn{flex:none;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;padding:2px 6px;border-radius:5px;cursor:pointer;margin-top:2px}
+.due-btn:not(.due){opacity:.55} .due-btn:hover{opacity:1;background:var(--hover)}
+.date-probe{position:fixed;width:1px;height:1px;opacity:0;border:0;padding:0;z-index:70}
+.today-btn{position:relative}
+.today-btn .badge{position:absolute;top:2px;right:1px;left:auto;width:max-content;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;line-height:15px;text-align:center}
+.today-btn .badge.calm{background:var(--accent)}
 .lv-tasks{background:var(--card);border-radius:8px;box-shadow:var(--shadow);padding:6px 0}
 .lv-task{display:flex;align-items:flex-start;gap:10px;padding:8px 14px}
 .lv-task+.lv-task{border-top:1px solid var(--line)}
@@ -422,6 +513,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <div id="sync"><span class="lbl">Loading</span></div>
 </div>
 <div id="corner" class="chrome">
+  <button class="tb icon today-btn" id="today-btn" aria-label="Today and tasks" title="Today and tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/></svg><span class="badge" hidden></span></button>
   <button class="tb icon" id="view-btn" aria-label="Show as a list"></button>
   <button class="tb icon" id="search-btn" aria-label="Search this board" title="Search (Ctrl/⌘ K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
   <button class="tb icon" id="theme-btn" aria-label="Switch theme"></button>
@@ -435,6 +527,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <button class="tb" id="t-add" title="Paste a link or text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="lbl">Link</span></button>
   <button class="tb" id="t-media" title="Photo, video or file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg><span class="lbl">Media</span></button>
   <button class="tb" id="t-page" title="New page (P)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg><span class="lbl">Page</span></button>
+  <button class="tb" id="t-table" title="New table (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 4v16"/></svg><span class="lbl">Table</span></button>
   <button class="tb" id="t-map" title="New mind map (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Map</span></button>
   <button class="tb" id="t-group" title="Group (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="3" y="4" width="18" height="16" rx="3"/></svg><span class="lbl">Group</span></button>
   <div class="sep zoomctl"></div>
@@ -475,7 +568,9 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
-    <dt>All tasks</dt><dd>List view, then Open tasks</dd>
+    <dt>Tables</dt><dd>T, the Table button, or /table in a page. Click a column name to rename it, change its type or sort; switch to Board to see cards by Status</dd>
+    <dt>Dates</dt><dd>Add @today, @friday, @25/11 or /date to a to-do, then tap the date to change it</dd>
+    <dt>Today</dt><dd>The calendar button: overdue, today, this week</dd>
     <dt>Mind maps</dt><dd>M, or the Map button. Click an idea to open it (notes, links, photos), + to add one, drag to move it. A map made from a page follows that page</dd>
   </dl>
 </div>
@@ -495,6 +590,14 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <input type="password" id="sc-again" class="field" autocomplete="new-password" placeholder="Type it again" aria-label="Type the code again">
   <div class="row"><button class="btn" id="sc-cancel">Cancel</button><button class="btn primary grow" id="sc-save" disabled>Save code</button></div>
   <p class="hint" id="sc-msg" aria-live="polite"></p>
+</div>
+<div id="tblview" hidden role="dialog" aria-modal="true" aria-label="Table">
+  <div class="pv-top">
+    <button class="tb icon" id="tv-back" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="mv-title">Table</div>
+    <button class="tb danger" id="tv-del">Delete</button>
+  </div>
+  <div class="tv-scroll"><div class="tv-doc"><div id="tv-host"></div></div></div>
 </div>
 <div id="mapview" hidden role="dialog" aria-modal="true" aria-label="Mind map">
   <div class="pv-top">
@@ -768,6 +871,57 @@ function fitAll() {
 
 /* ---------- rendu Markdown léger ---------- */
 const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* ---------- dates ---------- */
+// « @today », « @friday », « @25/11 » ou « @2026-11-25 » dans une ligne lui donnent une échéance.
+// Les mots relatifs deviennent une date fixe quand on quitte l'édition, pour ne pas glisser avec le temps.
+const DUE_TOK = /(^|[\s(])@(today|tomorrow|tmrw|yesterday|next-?week|mon(?:day)?|tue(?:s|sday)?|wed(?:nesday)?|thu(?:rs|rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)(?=$|[\s.,;!?)])/gi;
+const WDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const day0 = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function dueDate(tok, base = new Date()) {
+  const t = tok.toLowerCase(), b = day0(base); let m;
+  if (t === 'today') return b;
+  if (t === 'tomorrow' || t === 'tmrw') return addDays(b, 1);
+  if (t === 'yesterday') return addDays(b, -1);
+  if (/^next-?week$/.test(t)) return addDays(b, ((8 - b.getDay()) % 7) || 7);
+  if ((m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/))) { const d = new Date(+m[1], m[2] - 1, +m[3]); return d.getMonth() === m[2] - 1 ? d : null; }
+  if ((m = t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/))) {
+    let y = m[3] ? +m[3] : b.getFullYear(); if (y < 100) y += 2000;
+    let d = new Date(y, m[2] - 1, +m[1]); if (d.getMonth() !== m[2] - 1) return null;
+    if (!m[3] && d < addDays(b, -60)) d = new Date(y + 1, m[2] - 1, +m[1]);
+    return d;
+  }
+  const w = WDAYS.indexOf(t.slice(0, 3)); if (w >= 0) return addDays(b, (w - b.getDay() + 7) % 7);
+  return null;
+}
+const dayDiff = d => Math.round((day0(d) - day0(new Date())) / 864e5);
+function dueLabel(d) {
+  const n = dayDiff(d);
+  if (n === 0) return 'Today'; if (n === 1) return 'Tomorrow'; if (n === -1) return 'Yesterday';
+  if (n > 1 && n < 7) return d.toLocaleDateString([], { weekday: 'short' });
+  return d.toLocaleDateString([], { day: 'numeric', month: 'short', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+}
+const dueCls = d => { const n = dayDiff(d); return n < 0 ? 'over' : n === 0 ? 'today' : n <= 2 ? 'soon' : ''; };
+function firstDue(text) { DUE_TOK.lastIndex = 0; const m = DUE_TOK.exec(text || ''); DUE_TOK.lastIndex = 0; return m ? dueDate(m[2]) : null; }
+const stripDue = t => t.replace(DUE_TOK, '$1').replace(/\s{2,}/g, ' ').trim();
+const normDates = t => (t || '').replace(DUE_TOK, (all, pre, tok) => { if (/^\d{4}-/.test(tok)) return all; const d = dueDate(tok); return d ? pre + '@' + isoOf(d) : all; });
+function setTaskDate(id, n, iso) {
+  const it = S.items.get(id); if (!it) return;
+  const lines = (it.text || '').split('\n'); if (lines[n] == null) return;
+  const l = lines[n].replace(DUE_TOK, '$1').replace(/\s+$/, '');
+  lines[n] = iso ? l + ' @' + iso : l;
+  persist(id, { text: lines.join('\n') }); render();
+}
+// Le sélecteur de date natif, posé sur l'élément touché (iPhone, Android, ordinateur).
+function pickDate(anchor, iso, done) {
+  const i = document.createElement('input'); i.type = 'date'; i.value = iso || ''; i.className = 'date-probe';
+  const r = anchor.getBoundingClientRect(); i.style.left = r.left + 'px'; i.style.top = r.bottom + 'px';
+  document.body.append(i);
+  let fired = false; const finish = () => { if (fired) return; fired = true; done(i.value); setTimeout(() => i.remove(), 0); };
+  i.addEventListener('change', finish); i.addEventListener('blur', () => setTimeout(() => { if (!fired) i.remove(); }, 400));
+  i.focus(); try { i.showPicker(); } catch { i.click(); }
+}
 function inline(s) {
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -776,6 +930,7 @@ function inline(s) {
   s = s.replace(/(^|[^\w])_([^_\s][^_]*)_(?![\w])/g, '$1<em>$2</em>');
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}">${esc(dueLabel(d))}</span>` : all; });
   return s;
 }
 function md(src) {
@@ -794,6 +949,7 @@ function md(src) {
     if ((m = line.match(/^\s*\d+[.)] (.*)$/))) { open('ol'); out.push(`<li data-l="${i}">${inline(m[1])}</li>`); return; }
     close();
     if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) { out.push('<hr>'); return; }
+    if ((m = line.match(/^\s*\[\[table:([\w-]+)\]\]\s*$/))) { if (S.items.get(m[1])) out.push(`<div class="tbl-embed" data-table="${esc(m[1])}"></div>`); return; }
     if ((m = line.match(/^\s*\[\[page:([\w-]+)\]\]\s*$/))) {
       const sp = S.items.get(m[1]);
       if (sp) out.push(`<button class="subpage" data-page="${esc(m[1])}">${esc(sp.icon || '📄')} ${esc(sp.title || 'Untitled')}</button>`);
@@ -885,7 +1041,7 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : ''].join('|'); }
+function sig(it) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : ''].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
@@ -972,9 +1128,17 @@ function buildContent(el, it) {
     const t = document.createElement('div'); t.className = 'pc-title'; t.textContent = it.title || 'Untitled';
     const sn = document.createElement('div'); sn.className = 'pc-snip'; sn.textContent = pageSnippet(it) || 'Empty page';
     const f = document.createElement('div'); f.className = 'pc-foot';
-    const n = childPages(el.dataset.id).length; const ct = document.createElement('span'); ct.textContent = n ? (n === 1 ? '1 page inside' : n + ' pages inside') : '';
+    const n = childPages(el.dataset.id).filter(c => S.items.get(c)?.type === 'page').length; const ct = document.createElement('span'); ct.textContent = n ? (n === 1 ? '1 page inside' : n + ' pages inside') : '';
     const ob = document.createElement('button'); ob.className = 'pc-open'; ob.textContent = 'Open'; ob.onclick = e => { e.stopPropagation(); openPage(el.dataset.id); };
     f.append(ct, ob); c.append(ic, t, sn, f); inner.append(c);
+  } else if (it.type === 'table') {
+    const c = document.createElement('div'); c.className = 'tblcard';
+    const t = document.createElement('div'); t.className = 'pc-title'; t.textContent = it.name || 'Untitled table';
+    c.append(t); c.insertAdjacentHTML('beforeend', tablePreview(it));
+    const f = document.createElement('div'); f.className = 'pc-foot'; f.style.marginTop = 'auto';
+    const n = (it.rows || []).length; const ct = document.createElement('span'); ct.textContent = n === 1 ? '1 row' : n + ' rows';
+    const ob = document.createElement('button'); ob.className = 'pc-open'; ob.textContent = 'Open'; ob.onclick = e => { e.stopPropagation(); openTable(el.dataset.id); };
+    f.append(ct, ob); c.append(f); inner.append(c);
   } else if (it.type === 'mindmap') {
     const c = document.createElement('div'); c.className = 'mapcard';
     c.insertAdjacentHTML('beforeend', mapPreview(it.tree));
@@ -1023,6 +1187,8 @@ function render() {
   if (S.mode === 'list') scheduleList();
   if (S.pageId) schedulePage();
   if (S.mapId) scheduleMap();
+  if (S.tableId) refreshTables();
+  paintToday();
   syncMaps();
   $('#empty').hidden = !S.loaded || S.items.size > 0;
 }
@@ -1073,6 +1239,7 @@ function renderSelbar() {
     if (it && ['note', 'link', 'group'].includes(it.type)) kids.push(btn('Edit', () => startEdit([...S.sel][0])));
     if (it?.type === 'page') kids.push(btn('Open', () => openPage([...S.sel][0])));
     if (it?.type === 'mindmap') kids.push(btn('Open', () => openMap([...S.sel][0])));
+    if (it?.type === 'table') kids.push(btn('Open', () => openTable([...S.sel][0])));
     if (it?.type === 'page' || it?.type === 'note') kids.push(btn('Mind map', () => mapFromItem([...S.sel][0])));
   }
   kids.push(btn('Duplicate', duplicateSel), btn('Delete', deleteSel, 'danger'));
@@ -1288,7 +1455,7 @@ function srcOffsetAt(root, x, y, src) {
 function stopEdit() {
   if (!S.editing) return;
   const id = S.editing, it = S.items.get(id); S.editing = null;
-  if (it) { const p = {}; if (it.type === 'note' || it.type === 'page') p.text = it.text || ''; if (it.type === 'link') p.title = it.title || ''; if (it.type === 'group') p.label = it.label || ''; persist(id, p); }
+  if (it) { const p = {}; if (it.type === 'note' || it.type === 'page') { it.text = normDates(it.text); p.text = it.text || ''; } if (it.type === 'link') p.title = it.title || ''; if (it.type === 'group') p.label = it.label || ''; persist(id, p); }
   render();
 }
 document.addEventListener('focusout', e => {
@@ -1397,7 +1564,7 @@ function endPointer(e) {
     if (lastTap && lastTap.target === g.tapTarget && now - lastTap.t < 350 && Math.hypot(lastTap.x - e.clientX, lastTap.y - e.clientY) < 24) {
       lastTap = null;
       if (g.tapTarget === 'empty') addNote('', toWorld(e.clientX, e.clientY));
-      else { const it = S.items.get(g.tapTarget); if (it?.type === 'page') openPage(g.tapTarget); else if (it?.type === 'mindmap') openMap(g.tapTarget); else if (it && ['note', 'link', 'group'].includes(it.type)) startEdit(g.tapTarget, { x: e.clientX, y: e.clientY }); }
+      else { const it = S.items.get(g.tapTarget); if (it?.type === 'page') openPage(g.tapTarget); else if (it?.type === 'mindmap') openMap(g.tapTarget); else if (it?.type === 'table') openTable(g.tapTarget); else if (it && ['note', 'link', 'group'].includes(it.type)) startEdit(g.tapTarget, { x: e.clientX, y: e.clientY }); }
     } else lastTap = { target: g.tapTarget, t: now, x: e.clientX, y: e.clientY };
   }
 }
@@ -1436,6 +1603,7 @@ document.addEventListener('keydown', e => {
   if (isField(document.activeElement)) { if (e.key === 'Escape') { document.activeElement.blur(); stopEdit(); } return; }
   const mod = e.metaKey || e.ctrlKey;
   // Page ouverte : les raccourcis de la toile ne doivent pas agir derrière elle.
+  if (S.tableId) { if (e.key === 'Escape') { if (tPop) closeTPop(); else if (document.querySelector('.tbl-sheet-back')) document.querySelector('.tbl-sheet-back').click(); else closeTable(); } return; }
   if (S.pageId) { if (e.key === 'Escape') { if (!$('#pv-icons').hidden) $('#pv-icons').hidden = true; else closePage(); } else if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); closePage(); openSearch(); } return; }
   if (e.key === ' ') { spaceDown = true; e.preventDefault(); }
   else if ((mod && e.key.toLowerCase() === 'k') || (!mod && e.key === '/')) { e.preventDefault(); openSearch(); }
@@ -1444,7 +1612,8 @@ document.addEventListener('keydown', e => {
   else if (mod && e.key.toLowerCase() === 'd') { e.preventDefault(); duplicateSel(); }
   else if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); S.sel = new Set([...S.items].filter(([, it]) => !it.parent).map(([id]) => id)); render(); }
   else if (!mod && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); addPage(); }
-  else if (e.key === 'Enter' && S.sel.size === 1) { e.preventDefault(); const id = [...S.sel][0], ty = S.items.get(id)?.type; if (ty === 'page') openPage(id); else if (ty === 'mindmap') openMap(id); else startEdit(id); }
+  else if (e.key === 'Enter' && S.sel.size === 1) { e.preventDefault(); const id = [...S.sel][0], ty = S.items.get(id)?.type; if (ty === 'page') openPage(id); else if (ty === 'mindmap') openMap(id); else if (ty === 'table') openTable(id); else startEdit(id); }
+  else if (!mod && (e.key === 't' || e.key === 'T')) { e.preventDefault(); addTable(); }
   else if (!mod && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); addMap(); }
   else if (!mod && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); addNote(); }
   else if (!mod && (e.key === 'g' || e.key === 'G')) { e.preventDefault(); addGroup(); }
@@ -1455,7 +1624,7 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => { if (e.key === ' ') spaceDown = false; });
 document.addEventListener('paste', e => {
   if (S.mapId) { mmPaste(e); return; }
-  if (S.pageId) return;
+  if (S.pageId || S.tableId) return;
   if (isField(document.activeElement) && document.activeElement.id !== 'add-text') return;
   const cd = e.clipboardData; if (!cd) return;
   const files = [...(cd.files || [])];
@@ -1481,6 +1650,7 @@ $('#t-note').onclick = () => { setMode('canvas'); addNote(); };
 $('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
 $('#t-page').onclick = () => { setMode('canvas'); addPage(); };
 $('#t-map').onclick = () => { setMode('canvas'); addMap(); };
+$('#t-table').onclick = () => { setMode('canvas'); addTable(); };
 $('#t-media').onclick = () => { setMode('canvas'); $('#file').click(); };
 $('#file').onchange = e => { const f = [...e.target.files]; e.target.value = ''; addFiles(f); };
 $('#t-add').onclick = () => { setMode('canvas'); if (toggle('add-pop')) { $('#add-text').value = ''; setTimeout(() => $('#add-text').focus(), 0); } };
@@ -1524,6 +1694,7 @@ function renderBoardPop(renaming) {
     b.onclick = () => { setBg(k); renderBoardPop(); }; seg.append(b);
   }
   kids.push(nb, rn, ex);
+  if (CAN_SW && !isStandalone()) { const ia = document.createElement('button'); ia.className = 'pop-item'; ia.textContent = 'Install as an app'; ia.onclick = () => { closePops(); installApp(); }; kids.push(ia); }
   if (!S.readonly) kids.push(im);
   kids.push(document.createElement('hr'), bl, seg);
   const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '6px 10px 4px';
@@ -1676,8 +1847,8 @@ function toggleTask(id, n) {
 }
 
 /* ---------- recherche ---------- */
-const itemText = it => [it.text, it.title, it.url, it.label, it.fileName, it.desc, it.site, it.tree && flatTree(it.tree).join(' ')].filter(Boolean).join(' ');
-const KIND = { note: 'Note', link: 'Link', image: 'Image', video: 'Video', group: 'Group', page: 'Page', mindmap: 'Mind map' };
+const itemText = it => [it.text, it.title, it.url, it.label, it.fileName, it.desc, it.site, it.tree && flatTree(it.tree).join(' '), it.cols && [it.name, ...(it.rows || []).flatMap(r => Object.values(r.v || {}).filter(v => typeof v !== 'boolean'))].join(' ')].filter(Boolean).join(' ');
+const KIND = { note: 'Note', link: 'Link', image: 'Image', video: 'Video', group: 'Group', page: 'Page', mindmap: 'Mind map', table: 'Table' };
 function openSearch() {
   if (!toggle('search-pop')) return;
   const q = $('#search-q'); q.value = ''; renderSearch(''); setTimeout(() => q.focus(), 0);
@@ -1741,7 +1912,7 @@ async function importBoard(file) {
       const it = { ...it0 };
       if (it.parent) it.parent = map[it.parent] || undefined;
       if (!it.parent) delete it.parent;
-      if (typeof it.text === 'string') it.text = it.text.replace(/\[\[page:([\w-]+)\]\]/g, (all, o) => map[o] ? `[[page:${map[o]}]]` : '');
+      if (typeof it.text === 'string') it.text = it.text.replace(/\[\[(page|table):([\w-]+)\]\]/g, (all, k, o) => map[o] ? `[[${k}:${map[o]}]]` : '');
       await S.store.set(id, 'items', map[old], it);
     }
     for (const l of Object.values(d.links || {})) if (map[l?.from] && map[l?.to]) await S.store.set(id, 'links', uid(), { from: map[l.from], to: map[l.to], created: Date.now() });
@@ -1764,7 +1935,7 @@ function descendants(id) {
   return out;
 }
 function pageSnippet(it) {
-  return (it.text || '').split('\n').filter(l => l.trim() && !/^\s*(\[\[page:|!\[|---)/.test(l))
+  return (it.text || '').split('\n').filter(l => l.trim() && !/^\s*(\[\[(page|table):|!\[|---)/.test(l))
     .map(l => l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
 }
 function addPage() {
@@ -1800,7 +1971,7 @@ function closePage(fromHistory) {
   if (!fromHistory) { try { if (history.state?.icPage) history.back(); } catch {} }
   render();
 }
-addEventListener('popstate', () => { if (S.mapId) { closeMap(true); return; } if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; render(); } });
+addEventListener('popstate', () => { if (S.tableId) { closeTable(true); return; } if (S.mapId) { closeMap(true); return; } if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; render(); } });
 let pgRaf = 0;
 function schedulePage() { if (!pgRaf) pgRaf = requestAnimationFrame(() => { pgRaf = 0; renderPage(); }); }
 function renderPage() {
@@ -1834,15 +2005,21 @@ function renderPage() {
   }
   const body = $('#pv-body');
   if (S.editing === id) { if (!body.querySelector('textarea')) buildPageEditor(id, it); return; }
+  const ae = document.activeElement;
+  if (body.contains(ae) && ae.closest('.tbl-host') && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   const d = document.createElement('div'); d.className = 'md pv-md';
   d.innerHTML = (it.text || '').trim() ? md(it.text) : `<p class="ph">${S.readonly ? 'This page is empty.' : 'Click here to write. Type / for headings, lists, to-dos, a divider, a photo or a page inside this page.'}</p>`;
   d.onclick = e => {
+    if (e.target.closest('.tbl-embed')) return;
     const sp = e.target.closest('.subpage'); if (sp) { openPage(sp.dataset.page); return; }
     const cb = e.target.closest('.cb'); if (cb) { if (!S.readonly) toggleTask(id, +cb.dataset.line); return; }
+    const du = e.target.closest('.due'), dl = du?.closest('[data-l]');
+    if (du && dl && !S.readonly) { pickDate(du, du.dataset.due, v => setTaskDate(id, +dl.dataset.l, v)); return; }
     if (e.target.closest('a')) return;
     startPageEdit({ x: e.clientX, y: e.clientY });
   };
   body.replaceChildren(d);
+  d.querySelectorAll('.tbl-embed').forEach(el => mountTable(el, el.dataset.table));
 }
 function autosize(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
 function buildPageEditor(id, it) {
@@ -1926,8 +2103,10 @@ const SLASH = [
   { k: 'bullet', t: 'Bulleted list', d: 'Simple list', run: () => setLines('- ') },
   { k: 'number', t: 'Numbered list', d: '1, 2, 3', run: () => setLines('1. ') },
   { k: 'quote', t: 'Quote', d: 'Set a sentence apart', run: () => setLines('> ') },
+  { k: 'date', t: 'Due date', d: 'Shows Today; tap it to change', run: () => { const ta = noteTA(); if (ta) { const v = ta.value, c = ta.selectionEnd; const pre = c > 0 && !/\s/.test(v[c - 1]) ? ' ' : ''; setTA(ta, v.slice(0, c) + pre + '@' + isoOf(new Date()) + v.slice(c), c + pre.length + 11, c + pre.length + 11); } } },
   { k: 'divider', t: 'Divider', d: 'A line between sections', run: insertDivider },
   { k: 'image', t: 'Photo', d: 'From this device', run: () => { S.pickingFile = true; $('#page-file').click(); setTimeout(() => { S.pickingFile = false; }, 60000); }, pageOnly: true },
+  { k: 'table', t: 'Table', d: 'Rows and columns, or a board', run: insertTable, pageOnly: true },
   { k: 'page', t: 'Page inside', d: 'A sub-page you can open', run: insertSubpage, pageOnly: true },
 ];
 let SL = null;
@@ -2008,11 +2187,24 @@ function setMode(m) {
   if (m === 'list') renderList(); else render();
 }
 $('#view-btn').onclick = () => setMode(S.mode === 'list' ? 'canvas' : 'list');
+$('#today-btn').onclick = () => { if (S.mode === 'list' && S.lvFilter === 'tasks') { setMode('canvas'); return; } S.lvFilter = 'tasks'; setMode('list'); renderList(); };
+// Pastille : tâches en retard (rouge) ou du jour (bleu).
+let tdRaf = 0;
+function paintToday() {
+  if (tdRaf) return; tdRaf = requestAnimationFrame(() => {
+    tdRaf = 0; let over = 0, today = 0;
+    for (const it of S.items.values()) {
+      if (it.type !== 'note' && it.type !== 'page') continue;
+      for (const l of (it.text || '').split('\n')) { const m = l.match(/^\s*[-*] \[ \] (\S.*)$/); if (!m) continue; const d = firstDue(m[1]); if (!d) continue; const n = dayDiff(d); if (n < 0) over++; else if (n === 0) today++; }
+    }
+    const b = $('#today-btn .badge'); b.hidden = !(over + today); b.textContent = over + today; b.classList.toggle('calm', !over);
+  });
+}
 let lvRaf = 0;
 function scheduleList() { if (!lvRaf) lvRaf = requestAnimationFrame(() => { lvRaf = 0; renderList(); }); }
 const hasTodo = it => (it.type === 'note' || it.type === 'page') && /^\s*[-*] \[[ xX]\] /m.test(it.text || '');
 const hasOpenTask = it => (it.type === 'note' || it.type === 'page') && /^\s*[-*] \[ \] \S/m.test(it.text || '');
-const FILTERS = [['all', 'All'], ['tasks', 'Open tasks'], ['page', 'Pages'], ['mindmap', 'Mind maps'], ['note', 'Notes'], ['todo', 'To-dos'], ['link', 'Links'], ['media', 'Photos & videos'], ['group', 'Groups']];
+const FILTERS = [['all', 'All'], ['tasks', 'Tasks'], ['page', 'Pages'], ['mindmap', 'Mind maps'], ['table', 'Tables'], ['note', 'Notes'], ['todo', 'To-dos'], ['link', 'Links'], ['media', 'Photos & videos'], ['group', 'Groups']];
 const passes = (it, f) => f === 'all' || (f === 'tasks' ? hasOpenTask(it) : f === 'todo' ? hasTodo(it) : f === 'media' ? (it.type === 'image' || it.type === 'video') : it.type === f);
 function fmtDate(t) {
   if (!t) return '';
@@ -2030,21 +2222,36 @@ function renderList() {
   }));
   const n = document.createElement('span'); n.className = 'lv-count';
   if (S.lvFilter === 'tasks') {
+    // Aujourd'hui d'abord : en retard, aujourd'hui, demain, la semaine, plus tard, sans date.
     const rows = [];
-    for (const [id, it] of shown) (it.text || '').split('\n').forEach((l, i) => { const m = l.match(/^\s*[-*] \[ \] (\S.*)$/); if (m) rows.push([id, it, i, m[1]]); });
+    for (const [id, it] of shown) (it.text || '').split('\n').forEach((l, i) => { const m = l.match(/^\s*[-*] \[ \] (\S.*)$/); if (m) rows.push({ id, it, line: i, text: stripDue(m[1]) || m[1], due: firstDue(m[1]) }); });
+    const groups = [['over', 'Overdue'], ['today', 'Today'], ['tomorrow', 'Tomorrow'], ['week', 'Next 7 days'], ['later', 'Later'], ['none', 'No date']];
+    const bucket = r => { if (!r.due) return 'none'; const n = dayDiff(r.due); return n < 0 ? 'over' : n === 0 ? 'today' : n === 1 ? 'tomorrow' : n <= 7 ? 'week' : 'later'; };
+    const now = rows.filter(r => r.due && dayDiff(r.due) <= 0).length;
     n.textContent = rows.length === 1 ? '1 task' : rows.length + ' tasks'; bar.append(n);
-    if (!rows.length) { const e = document.createElement('div'); e.className = 'lv-empty'; e.innerHTML = '<b>All done</b>No open task on this board.'; list.replaceChildren(e); return; }
-    const box = document.createElement('div'); box.className = 'lv-tasks';
-    for (const [id, it, line, text] of rows) {
-      const r = document.createElement('div'); r.className = 'lv-task'; r.dataset.id = id;
-      const md0 = document.createElement('div'); md0.className = 'md';
-      md0.innerHTML = `<ul style="margin:0;padding:0"><li class="task" style="margin:0"><span class="cb" data-line="${line}" role="checkbox" aria-checked="false" aria-label="To do">✓</span><span class="tx">${inline(text)}</span></li></ul>`;
-      const src = document.createElement('button'); src.className = 'src';
-      src.textContent = it.type === 'page' ? (it.icon || '📄') + ' ' + (it.title || 'Untitled') : (((it.text || '').split('\n').find(x => x.trim()) || 'Note').replace(/^\s*(#{1,3} |[-*] \[[ xX]\] |[-*] |> )/, '').replace(/[*_`]/g, '').slice(0, 40));
-      src.onclick = () => it.type === 'page' ? openPage(id) : focusItem(id);
-      r.append(md0, src); box.append(r);
+    if (!rows.length) { const e = document.createElement('div'); e.className = 'lv-empty'; e.innerHTML = '<b>All done</b>No open task on this board. Add one in a note or a page with “- [ ]”, and a date with “@friday”.'; list.replaceChildren(e); return; }
+    const out = [];
+    if (!now) { const h = document.createElement('div'); h.className = 'lv-calm'; h.textContent = 'Nothing due today.'; out.push(h); }
+    for (const [k, label] of groups) {
+      const g = rows.filter(r => bucket(r) === k).sort((x, y) => (x.due || 0) - (y.due || 0) || (x.it.created || 0) - (y.it.created || 0));
+      if (!g.length) continue;
+      const h = document.createElement('h3'); h.className = 'lv-group' + (k === 'over' ? ' over' : ''); h.textContent = label; const c = document.createElement('span'); c.textContent = g.length; h.append(c); out.push(h);
+      const box = document.createElement('div'); box.className = 'lv-tasks';
+      for (const r of g) {
+        const row = document.createElement('div'); row.className = 'lv-task'; row.dataset.id = r.id;
+        const md0 = document.createElement('div'); md0.className = 'md';
+        md0.innerHTML = `<ul style="margin:0;padding:0"><li class="task" style="margin:0"><span class="cb" data-line="${r.line}" role="checkbox" aria-checked="false" aria-label="To do">✓</span><span class="tx">${inline(r.text)}</span></li></ul>`;
+        const db = document.createElement('button'); db.className = 'due-btn' + (r.due ? ' due ' + dueCls(r.due) : ''); db.textContent = r.due ? dueLabel(r.due) : 'Add date';
+        db.setAttribute('aria-label', r.due ? 'Change the date' : 'Add a date');
+        db.onclick = () => { if (!S.readonly) pickDate(db, r.due ? isoOf(r.due) : isoOf(new Date()), v => setTaskDate(r.id, r.line, v)); };
+        const src = document.createElement('button'); src.className = 'src';
+        src.textContent = r.it.type === 'page' ? (r.it.icon || '📄') + ' ' + (r.it.title || 'Untitled') : (((r.it.text || '').split('\n').find(x => x.trim()) || 'Note').replace(/^\s*(#{1,3} |[-*] \[[ xX]\] |[-*] |> )/, '').replace(/[*_`]/g, '').slice(0, 40));
+        src.onclick = () => r.it.type === 'page' ? openPage(r.id) : focusItem(r.id);
+        row.append(md0, db, src); box.append(row);
+      }
+      out.push(box);
     }
-    list.replaceChildren(box); return;
+    list.replaceChildren(...out); return;
   }
   n.textContent = shown.length === 1 ? '1 card' : shown.length + ' cards'; bar.append(n);
   if (!shown.length) {
@@ -2063,6 +2270,14 @@ function listItem(id, it) {
   const go = document.createElement('button'); go.className = 'go'; go.textContent = 'Show on canvas'; go.onclick = () => focusItem(id); head.append(go);
   el.append(head);
   if (it.type === 'note') { const d = document.createElement('div'); d.className = 'md'; d.innerHTML = (it.text || '').trim() ? md(it.text) : '<p class="ph">Empty note</p>'; el.append(d); }
+  else if (it.type === 'table') {
+    go.textContent = 'Open'; go.onclick = () => openTable(id);
+    const t = document.createElement('div'); t.className = 'lv-title'; t.textContent = it.name || 'Untitled table';
+    const d = document.createElement('div'); d.className = 'lv-desc'; d.textContent = (it.cols || []).map(c => c.name).join(' · ');
+    const f = document.createElement('div'); f.className = 'lv-foot'; const c = (it.rows || []).length; const par = it.parent && S.items.get(it.parent);
+    f.textContent = [c === 1 ? '1 row' : c + ' rows', par ? 'Inside ' + (par.title || 'Untitled') : ''].filter(Boolean).join(' · ');
+    el.append(t, d, f);
+  }
   else if (it.type === 'mindmap') {
     go.textContent = 'Open'; go.onclick = () => openMap(id);
     const t = document.createElement('div'); t.className = 'lv-title'; t.textContent = it.tree?.t || 'Mind map';
@@ -2074,7 +2289,7 @@ function listItem(id, it) {
     go.textContent = 'Open'; go.onclick = () => openPage(id);
     const t = document.createElement('div'); t.className = 'lv-title'; t.textContent = (it.icon || '📄') + ' ' + (it.title || 'Untitled');
     const d = document.createElement('div'); d.className = 'lv-desc'; d.textContent = pageSnippet(it) || 'Empty page';
-    const f = document.createElement('div'); f.className = 'lv-foot'; const c = childPages(id).length;
+    const f = document.createElement('div'); f.className = 'lv-foot'; const c = childPages(id).filter(x => S.items.get(x)?.type === 'page').length;
     const par = it.parent && S.items.get(it.parent);
     f.textContent = [par ? 'Inside ' + (par.title || 'Untitled') : '', c ? (c === 1 ? '1 page inside' : c + ' pages inside') : ''].filter(Boolean).join(' · ');
     el.append(t, d, f);
@@ -2746,6 +2961,368 @@ $('#mv-fold').onclick = () => mmFoldAll();
 $('#mv-del').onclick = () => { const id = S.mapId; if (!id) return; closeMap(); S.sel = new Set([id]); deleteSel(); };
 addEventListener('resize', () => { if (S.mapId) mmReveal(MM.sel); });
 
+/* ---------- grilles (tableaux de données) ---------- */
+// Une grille est une carte « table » : colonnes typées, lignes, vue Tableau ou Tableau de cartes (par colonne Choix).
+// Posée sur la toile, ou dans une page par une ligne « [[table:ID]] » (champ « parent »).
+const TTYPES = [['text', 'Text'], ['number', 'Number'], ['date', 'Date'], ['check', 'Checkbox'], ['select', 'Choice']];
+function newTableData(name = '') {
+  const c1 = uid(), c2 = uid(), c3 = uid();
+  return { type: 'table', name, view: 'table',
+    cols: [{ id: c1, name: 'Name', type: 'text' }, { id: c2, name: 'Status', type: 'select', opts: [{ n: 'To do', c: '5' }, { n: 'Doing', c: '2' }, { n: 'Done', c: '4' }] }, { id: c3, name: 'Date', type: 'date' }],
+    rows: [{ id: uid(), v: {} }, { id: uid(), v: {} }] };
+}
+const tSig = t => t ? JSON.stringify([t.name, t.cols, t.rows, t.view, t.sort, t.group]) : 'x';
+function tChange(id, fn) {
+  const t = S.items.get(id); if (!t || S.readonly) return;
+  const d = JSON.parse(JSON.stringify({ name: t.name || '', cols: t.cols || [], rows: t.rows || [], view: t.view || 'table', sort: t.sort || null, group: t.group || null }));
+  if (fn(d) === false) return;
+  persist(id, d); render(); refreshTables(true);
+}
+const optOf = (col, n) => (col.opts || []).find(o => o.n === n);
+function cellHTML(col, v) {
+  if (v == null || v === '') return col.type === 'check' ? '<span class="tcb"></span>' : '';
+  if (col.type === 'check') return `<span class="tcb${v ? ' on' : ''}">✓</span>`;
+  if (col.type === 'date') { const d = dueDate(v); return d ? `<span class="due ${dueCls(d)}">${esc(dueLabel(d))}</span>` : esc(v); }
+  if (col.type === 'select') { const o = optOf(col, v); return `<span class="tpill" style="--pb:var(--c${o?.c || 5}b);--pc:var(--c${o?.c || 5})">${esc(v)}</span>`; }
+  return esc(String(v));
+}
+function sortedRows(t) {
+  const rows = [...(t.rows || [])], s = t.sort, col = s && t.cols.find(c => c.id === s.c);
+  if (!col) return rows;
+  const key = r => { const v = r.v?.[col.id]; if (v == null || v === '') return null; if (col.type === 'number') return parseFloat(v); if (col.type === 'check') return v ? 1 : 0; if (col.type === 'select') return (col.opts || []).findIndex(o => o.n === v); return String(v).toLowerCase(); };
+  return rows.sort((a, b) => { const x = key(a), y = key(b); if (x === y) return 0; if (x == null) return 1; if (y == null) return -1; return (x < y ? -1 : 1) * s.d; });
+}
+// Petite fenêtre accrochée à un élément (menus de colonne, de ligne, choix).
+let tPop = null;
+function closeTPop() { if (tPop) { tPop.remove(); tPop = null; } }
+function popAt(anchor, kids) {
+  closeTPop();
+  const p = document.createElement('div'); p.className = 'pop tbl-pop'; p.append(...kids); document.body.append(p);
+  const r = anchor.getBoundingClientRect(), h = p.offsetHeight, w = p.offsetWidth;
+  p.style.left = clamp(r.left, 8, innerWidth - w - 8) + 'px';
+  p.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + 'px';
+  tPop = p; return p;
+}
+document.addEventListener('pointerdown', e => { if (tPop && !tPop.contains(e.target)) closeTPop(); }, true);
+const pItem = (label, fn, cls = '') => { const b = document.createElement('button'); b.className = 'pop-item ' + cls; b.textContent = label; b.onclick = () => { closeTPop(); fn(); }; return b; };
+
+function mountTable(host, id) { host.classList.add('tbl-host'); host._tbl = id; host._sig = null; drawTable(host); }
+function refreshTables(force) {
+  for (const h of document.querySelectorAll('.tbl-host')) { const t = S.items.get(h._tbl); if (force || h._sig !== tSig(t)) drawTable(h); }
+}
+function drawTable(host) {
+  const id = host._tbl, t = S.items.get(id);
+  if (!t) { host.innerHTML = '<p class="ph">This table was deleted.</p>'; host._sig = 'x'; return; }
+  const ae = document.activeElement;
+  if (host.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;   // ne pas reconstruire sous le curseur
+  host._sig = tSig(t);
+  const ro = S.readonly, cols = t.cols || [];
+  const top = document.createElement('div'); top.className = 'tbl-top';
+  const nm = document.createElement('input'); nm.className = 'tbl-name'; nm.value = t.name || ''; nm.placeholder = 'Untitled table'; nm.readOnly = ro; nm.setAttribute('aria-label', 'Table name');
+  nm.onchange = () => tChange(id, d => { d.name = nm.value.trim(); });
+  nm.onkeydown = e => { if (e.key === 'Enter') nm.blur(); };
+  const seg = document.createElement('div'); seg.className = 'seg tbl-views';
+  for (const [k, l] of [['table', 'Table'], ['board', 'Board']]) { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', String((t.view || 'table') === k)); b.onclick = () => tChange(id, d => { d.view = k; }); seg.append(b); }
+  top.append(nm, seg);
+  const kids = [top];
+  if ((t.view || 'table') === 'board') kids.push(drawBoard(id, t)); else kids.push(...drawGrid(id, t));
+  host.replaceChildren(...kids);
+}
+function drawGrid(id, t) {
+  const ro = S.readonly, cols = t.cols || [];
+  const wrap = document.createElement('div'); wrap.className = 'tbl-scroll';
+  const tb = document.createElement('table'); tb.className = 'tbl';
+  const hr = document.createElement('tr');
+  for (const c of cols) {
+    const th = document.createElement('th'); th.dataset.c = c.id;
+    const b = document.createElement('button'); b.className = 'tbl-h';
+    b.textContent = c.name || 'Untitled';
+    if (t.sort?.c === c.id) b.textContent += t.sort.d > 0 ? ' ↑' : ' ↓';
+    b.onclick = () => !ro && colMenu(b, id, c.id);
+    th.append(b); hr.append(th);
+  }
+  if (!ro) { const th = document.createElement('th'); th.className = 'tbl-addc'; const b = document.createElement('button'); b.textContent = '+'; b.title = 'Add a column'; b.setAttribute('aria-label', 'Add a column'); b.onclick = () => tChange(id, d => { d.cols.push({ id: uid(), name: 'Column ' + (d.cols.length + 1), type: 'text' }); }); th.append(b); hr.append(th); }
+  const thead = document.createElement('thead'); thead.append(hr);
+  const tbody = document.createElement('tbody');
+  for (const r of sortedRows(t)) {
+    const tr = document.createElement('tr'); tr.dataset.r = r.id;
+    for (const c of cols) {
+      const td = document.createElement('td'); td.dataset.c = c.id; td.className = 't-' + c.type;
+      td.innerHTML = cellHTML(c, r.v?.[c.id]);
+      if (!ro) td.onclick = e => { if (!e.target.closest('input')) editCell(td, id, r.id, c.id); };
+      tr.append(td);
+    }
+    if (!ro) { const td = document.createElement('td'); td.className = 'tbl-rowx'; const b = document.createElement('button'); b.textContent = '⋯'; b.setAttribute('aria-label', 'Row options'); b.onclick = () => rowMenu(b, id, r.id); td.append(b); tr.append(td); }
+    tbody.append(tr);
+  }
+  // Total sous les colonnes de nombres.
+  if (cols.some(c => c.type === 'number') && (t.rows || []).length > 1) {
+    const fr = document.createElement('tr'); fr.className = 'tbl-sum';
+    for (const c of cols) {
+      const td = document.createElement('td');
+      if (c.type === 'number') { const vals = t.rows.map(r => parseFloat(r.v?.[c.id])).filter(v => !isNaN(v)); if (vals.length) td.innerHTML = `<span>Total</span> ${esc(String(Math.round(vals.reduce((a, v) => a + v, 0) * 100) / 100))}`; td.className = 't-number'; }
+      fr.append(td);
+    }
+    if (!ro) fr.append(document.createElement('td'));
+    const tf = document.createElement('tfoot'); tf.append(fr); tb.append(thead, tbody, tf);
+  } else tb.append(thead, tbody);
+  wrap.append(tb);
+  const out = [wrap];
+  if (!ro) { const add = document.createElement('button'); add.className = 'tbl-addr'; add.textContent = '+ New row'; add.onclick = () => { const rid = uid(); tChange(id, d => { d.rows.push({ id: rid, v: {} }); }); focusCell(id, rid, cols[0]?.id); }; out.push(add); }
+  return out;
+}
+function focusCell(id, rid, cid) {
+  if (!cid) return;
+  requestAnimationFrame(() => {
+    for (const h of document.querySelectorAll('.tbl-host')) if (h._tbl === id) {
+      const td = h.querySelector(`tr[data-r="${rid}"] td[data-c="${cid}"]`); if (td) { editCell(td, id, rid, cid); return; }
+    }
+  });
+}
+function setCell(id, rid, cid, v) { tChange(id, d => { const r = d.rows.find(x => x.id === rid); if (!r) return false; r.v = r.v || {}; if (v === '' || v == null || v === false) delete r.v[cid]; else r.v[cid] = v; }); }
+function editCell(td, id, rid, cid) {
+  const t = S.items.get(id), c = t?.cols.find(x => x.id === cid), r = t?.rows.find(x => x.id === rid); if (!c || !r) return;
+  const v = r.v?.[cid];
+  if (c.type === 'check') { setCell(id, rid, cid, !v); return; }
+  if (c.type === 'date') { pickDate(td, v ? isoOf(dueDate(v) || new Date()) : isoOf(new Date()), x => setCell(id, rid, cid, x)); return; }
+  if (c.type === 'select') { selectMenu(td, id, c, v ?? '', x => setCell(id, rid, cid, x)); return; }
+  const inp = document.createElement('input'); inp.className = 'tbl-in'; inp.value = v ?? '';
+  if (c.type === 'number') { inp.inputMode = 'decimal'; }
+  td.replaceChildren(inp); inp.focus(); inp.select();
+  let done = false;
+  const commit = (move) => {
+    if (done) return; done = true;
+    inp.onblur = null; if (document.activeElement === inp) inp.blur();
+    let nv = inp.value.trim(); if (c.type === 'number' && nv) nv = nv.replace(',', '.');
+    if (nv !== String(v ?? '')) setCell(id, rid, cid, nv); else refreshTables(true);
+    if (move) {
+      const tt = S.items.get(id), rows = sortedRows(tt), ri = rows.findIndex(x => x.id === rid), ci = tt.cols.findIndex(x => x.id === cid);
+      if (move === 'right') { const nc = tt.cols[ci + 1]; if (nc && ['text', 'number'].includes(nc.type)) focusCell(id, rid, nc.id); else if (rows[ri + 1]) focusCell(id, rows[ri + 1].id, tt.cols[0].id); }
+      if (move === 'down' && rows[ri + 1]) focusCell(id, rows[ri + 1].id, cid);
+    }
+  };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit('down'); }
+    else if (e.key === 'Tab') { e.preventDefault(); commit('right'); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done = true; inp.onblur = null; inp.blur(); refreshTables(true); }
+  };
+  inp.onblur = () => commit();
+}
+function selectMenu(anchor, id, col, cur, done) {
+  const kids = [];
+  for (const o of col.opts || []) {
+    const b = document.createElement('button'); b.className = 'pop-item' + (o.n === cur ? ' cur' : '');
+    b.innerHTML = `<span class="tpill" style="--pb:var(--c${o.c}b);--pc:var(--c${o.c})">${esc(o.n)}</span>`;
+    b.onclick = () => { closeTPop(); done(o.n); }; kids.push(b);
+  }
+  if (cur) kids.push(pItem('Clear', () => done('')));
+  const inp = document.createElement('input'); inp.className = 'tbl-in pop-in'; inp.placeholder = 'New choice, then Enter';
+  inp.onkeydown = e => {
+    if (e.key !== 'Enter') return; e.preventDefault();
+    const n = inp.value.trim(); if (!n) return; closeTPop();
+    tChange(id, d => { const c = d.cols.find(x => x.id === col.id); if (!c) return false; c.opts = c.opts || []; if (!c.opts.some(o => o.n === n)) c.opts.push({ n, c: String((c.opts.length % 6) + 1) }); });
+    done(n);
+  };
+  kids.push(inp);
+  popAt(anchor, kids); setTimeout(() => { if (!matchMedia('(hover:none)').matches) inp.focus(); }, 0);
+}
+function colMenu(anchor, id, cid) {
+  const t = S.items.get(id), c = t.cols.find(x => x.id === cid); if (!c) return;
+  const name = document.createElement('input'); name.className = 'tbl-in pop-in'; name.value = c.name || ''; name.setAttribute('aria-label', 'Column name');
+  const save = () => { const v = name.value.trim(); if (v && v !== c.name) tChange(id, d => { d.cols.find(x => x.id === cid).name = v; }); };
+  name.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); save(); closeTPop(); } };
+  name.onchange = save;
+  const lab = document.createElement('span'); lab.className = 'lbl-sm'; lab.textContent = 'Type';
+  const types = document.createElement('div'); types.className = 'tbl-types';
+  for (const [k, l] of TTYPES) { const b = document.createElement('button'); b.className = 'chip'; b.textContent = l; b.setAttribute('aria-pressed', String(c.type === k)); b.onclick = () => { closeTPop(); tChange(id, d => { const x = d.cols.find(y => y.id === cid); x.type = k; if (k === 'select') { const seen = [...new Set(d.rows.map(r => r.v?.[cid]).filter(v => v != null && v !== '' && typeof v !== 'boolean'))]; x.opts = x.opts || seen.map((n, i) => ({ n: String(n), c: String((i % 6) + 1) })); } if (k === 'check') d.rows.forEach(r => { if (r.v?.[cid] != null) r.v[cid] = !!r.v[cid] && r.v[cid] !== 'false'; }); }); }; types.append(b); }
+  const kids = [name, lab, types, document.createElement('hr'),
+    pItem('Sort A → Z', () => tChange(id, d => { d.sort = { c: cid, d: 1 }; })),
+    pItem('Sort Z → A', () => tChange(id, d => { d.sort = { c: cid, d: -1 }; }))];
+  if (t.sort) kids.push(pItem('Remove sorting', () => tChange(id, d => { d.sort = null; })));
+  if (c.type === 'select') kids.push(pItem('Group the board by this', () => tChange(id, d => { d.group = cid; d.view = 'board'; })));
+  if (t.cols.length > 1) kids.push(pItem('Delete column', () => tChange(id, d => { d.cols = d.cols.filter(x => x.id !== cid); d.rows.forEach(r => { if (r.v) delete r.v[cid]; }); if (d.sort?.c === cid) d.sort = null; if (d.group === cid) d.group = null; }), 'danger'));
+  popAt(anchor, kids); setTimeout(() => { if (!matchMedia('(hover:none)').matches) name.select(); }, 0);
+}
+function rowMenu(anchor, id, rid) {
+  popAt(anchor, [
+    pItem('Open as a card', () => rowEditor(id, rid)),
+    pItem('Duplicate', () => tChange(id, d => { const i = d.rows.findIndex(r => r.id === rid); if (i < 0) return false; d.rows.splice(i + 1, 0, { id: uid(), v: { ...d.rows[i].v } }); })),
+    pItem('Delete row', () => { const t = S.items.get(id), i = t.rows.findIndex(r => r.id === rid), row = t.rows[i]; tChange(id, d => { d.rows = d.rows.filter(r => r.id !== rid); }); toast('Row deleted', { label: 'Undo', run: () => tChange(id, d => { d.rows.splice(i, 0, row); }) }, 6000); }, 'danger'),
+  ]);
+}
+// Une ligne vue comme une fiche : tous ses champs, pratique au téléphone et pour les cartes du tableau.
+function rowEditor(id, rid) {
+  const t = S.items.get(id), r = t?.rows.find(x => x.id === rid); if (!r) return;
+  closeTPop();
+  const back = document.createElement('div'); back.className = 'tbl-sheet-back';
+  const sh = document.createElement('div'); sh.className = 'tbl-sheet'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true');
+  const close = () => { back.remove(); render(); refreshTables(true); };
+  back.onclick = e => { if (e.target === back) close(); };
+  const draw = () => {
+    const tt = S.items.get(id), rr = tt?.rows.find(x => x.id === rid); if (!rr) { close(); return; }
+    const kids = [];
+    for (const c of tt.cols) {
+      const row = document.createElement('div'); row.className = 'tbl-field';
+      const l = document.createElement('label'); l.textContent = c.name || 'Untitled';
+      const v = rr.v?.[c.id], box = document.createElement('div'); box.className = 'tbl-fv';
+      if (c.type === 'text' || c.type === 'number') {
+        const i = document.createElement(c.type === 'text' ? 'textarea' : 'input'); i.className = 'tbl-in'; i.value = v ?? ''; if (c.type === 'text') i.rows = 1; else i.inputMode = 'decimal';
+        i.readOnly = S.readonly; i.onchange = () => setCell(id, rid, c.id, i.value.trim().replace(c.type === 'number' ? ',' : '\u0000', '.'));
+        if (c.type === 'text') { const fit = () => { i.style.height = 'auto'; i.style.height = i.scrollHeight + 'px'; }; i.oninput = fit; setTimeout(fit, 0); }
+        box.append(i);
+      } else {
+        const b = document.createElement('button'); b.className = 'tbl-fbtn t-' + c.type; b.innerHTML = cellHTML(c, v) || '<span class="ph">Empty</span>';
+        if (!S.readonly) b.onclick = () => {
+          if (c.type === 'check') { setCell(id, rid, c.id, !v); setTimeout(draw, 0); }
+          else if (c.type === 'date') pickDate(b, v ? isoOf(dueDate(v) || new Date()) : isoOf(new Date()), x => { setCell(id, rid, c.id, x); setTimeout(draw, 0); });
+          else selectMenu(b, id, c, v ?? '', x => { setCell(id, rid, c.id, x); setTimeout(draw, 0); });
+        };
+        box.append(b);
+      }
+      row.append(l, box); kids.push(row);
+    }
+    const foot = document.createElement('div'); foot.className = 'row';
+    const del = document.createElement('button'); del.className = 'btn danger'; del.textContent = 'Delete'; del.hidden = S.readonly;
+    del.onclick = () => { tChange(id, d => { d.rows = d.rows.filter(x => x.id !== rid); }); close(); };
+    const ok = document.createElement('button'); ok.className = 'btn primary grow'; ok.textContent = 'Done'; ok.onclick = () => { document.activeElement?.blur?.(); setTimeout(close, 0); };
+    foot.append(del, ok); kids.push(foot);
+    sh.replaceChildren(...kids);
+  };
+  draw(); back.append(sh); document.body.append(back);
+}
+function drawBoard(id, t) {
+  const ro = S.readonly, cols = t.cols || [];
+  const g = cols.find(c => c.id === t.group && c.type === 'select') || cols.find(c => c.type === 'select');
+  const box = document.createElement('div'); box.className = 'tbl-board';
+  if (!g) {
+    const e = document.createElement('div'); e.className = 'tbl-empty'; e.textContent = 'A board groups rows by a Choice column, like Status.';
+    if (!ro) { const b = document.createElement('button'); b.className = 'btn'; b.textContent = 'Add a Status column'; b.onclick = () => tChange(id, d => { const nid = uid(); d.cols.push({ id: nid, name: 'Status', type: 'select', opts: [{ n: 'To do', c: '5' }, { n: 'Doing', c: '2' }, { n: 'Done', c: '4' }] }); d.group = nid; }); e.append(b); }
+    box.append(e); return box;
+  }
+  const title = cols.find(c => c.type === 'text');
+  const lanes = [['', null], ...(g.opts || []).map(o => [o.n, o])];
+  for (const [val, o] of lanes) {
+    const rows = sortedRows(t).filter(r => (r.v?.[g.id] || '') === val);
+    if (!val && !rows.length) continue;
+    const lane = document.createElement('div'); lane.className = 'tb-lane'; lane.dataset.v = val;
+    const h = document.createElement('div'); h.className = 'tb-laneh';
+    h.innerHTML = o ? `<span class="tpill" style="--pb:var(--c${o.c}b);--pc:var(--c${o.c})">${esc(val)}</span>` : '<span class="ph">No ' + esc(g.name || 'value') + '</span>';
+    const n = document.createElement('span'); n.className = 'n'; n.textContent = rows.length; h.append(n);
+    lane.append(h);
+    for (const r of rows) {
+      const c = document.createElement('div'); c.className = 'tb-card'; c.dataset.r = r.id; c.draggable = !ro; c.tabIndex = 0;
+      const tt = document.createElement('div'); tt.className = 'tb-t'; tt.textContent = (title && r.v?.[title.id]) || 'Untitled'; c.append(tt);
+      const meta = cols.filter(x => x !== title && x !== g && r.v?.[x.id] != null && r.v?.[x.id] !== '' && r.v?.[x.id] !== false).map(x => cellHTML(x, r.v[x.id])).join(' ');
+      if (meta) { const m = document.createElement('div'); m.className = 'tb-m'; m.innerHTML = meta; c.append(m); }
+      c.onclick = () => rowEditor(id, r.id);
+      c.onkeydown = e => { if (e.key === 'Enter') rowEditor(id, r.id); };
+      c.addEventListener('dragstart', e => { e.dataTransfer.setData('text/x-row', r.id); e.dataTransfer.effectAllowed = 'move'; c.classList.add('dragging'); });
+      c.addEventListener('dragend', () => c.classList.remove('dragging'));
+      lane.append(c);
+    }
+    if (!ro) {
+      const add = document.createElement('button'); add.className = 'tbl-addr'; add.textContent = '+ New';
+      add.onclick = () => { const rid = uid(); tChange(id, d => { d.rows.push({ id: rid, v: val ? { [g.id]: val } : {} }); }); rowEditor(id, rid); };
+      lane.append(add);
+      lane.addEventListener('dragover', e => { if ([...e.dataTransfer.types].includes('text/x-row')) { e.preventDefault(); lane.classList.add('over'); } });
+      lane.addEventListener('dragleave', () => lane.classList.remove('over'));
+      lane.addEventListener('drop', e => { const rid = e.dataTransfer.getData('text/x-row'); lane.classList.remove('over'); if (!rid) return; e.preventDefault(); e.stopPropagation(); setCell(id, rid, g.id, val); });
+    }
+    box.append(lane);
+  }
+  return box;
+}
+function tablePreview(t) {
+  const cols = (t.cols || []).slice(0, 3), rows = (t.rows || []).slice(0, 4);
+  const th = cols.map(c => `<th>${esc(c.name || '')}</th>`).join('');
+  const tr = rows.map(r => `<tr>${cols.map(c => `<td>${cellHTML(c, r.v?.[c.id])}</td>`).join('')}</tr>`).join('');
+  return `<table class="tblmini"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>`;
+}
+function addTable() {
+  const p = nextPos(340, 200);
+  const id = createItem({ ...newTableData(''), x: p.x, y: p.y, w: 340, h: 200 });
+  openTable(id);
+}
+function insertTable() {
+  const ta = noteTA(), pid = S.editing; if (!ta || !pid) return;
+  const nid = uid();
+  createItem({ ...newTableData(''), parent: pid }, { id: nid, keepSel: true });
+  const v = ta.value, c = ta.selectionStart, ls = v.lastIndexOf('\n', c - 1) + 1;
+  let le = v.indexOf('\n', c); if (le < 0) le = v.length;
+  const line = v.slice(ls, le), ins = `[[table:${nid}]]`;
+  const nv = line.trim() ? v.slice(0, le) + '\n' + ins + v.slice(le) : v.slice(0, ls) + ins + v.slice(le);
+  const it = S.items.get(pid); it.text = nv; ta.value = nv;
+  persist(pid, { text: nv });
+  // Sortir de l'édition pour voir la grille et la remplir tout de suite.
+  S.editing = null; ta.blur(); renderPage(); render();
+}
+function openTable(id) {
+  const it = S.items.get(id); if (!it) return;
+  if (it.parent) { openPage(it.parent); return; }
+  if (S.editing) { document.activeElement?.blur?.(); stopEdit(); }
+  closePops();
+  const first = !S.tableId; S.tableId = id;
+  document.body.classList.add('paging'); $('#tblview').hidden = false;
+  try { if (first) history.pushState({ icTable: id }, ''); } catch {}
+  mountTable($('#tv-host'), id);
+  if (!it.name && !S.readonly) setTimeout(() => $('#tv-host .tbl-name')?.focus(), 30);
+}
+function closeTable(fromHistory) {
+  if (!S.tableId) return;
+  document.activeElement?.blur?.(); closeTPop();
+  S.tableId = null; $('#tblview').hidden = true; $('#tv-host').replaceChildren();
+  if (!S.pageId && !S.mapId) document.body.classList.remove('paging');
+  if (!fromHistory) { try { if (history.state?.icTable) history.back(); } catch {} }
+  render();
+}
+$('#tv-back').onclick = () => closeTable();
+$('#tv-del').onclick = () => { const id = S.tableId; if (!id) return; closeTable(); S.sel = new Set([id]); deleteSel(); };
+
+/* ---------- application installée et partage ---------- */
+// Installée sur l'écran d'accueil, la toile reçoit liens, textes et photos depuis le bouton Partager (Android, ordinateur).
+// Sur iPhone, un Raccourci ouvre « ?add=… » : même chemin pour les liens et le texte.
+const CAN_SW = 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !/claude\.ai|claudeusercontent/.test(location.hostname);
+if (CAN_SW) navigator.serviceWorker.register('./sw.js').catch(() => {});
+let installEvt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function installApp() {
+  if (installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; }); return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  toast(ios ? 'In Safari, tap Share, then “Add to Home Screen”.' : 'Use your browser menu, then “Install app” or “Add to Home screen”.', null, 7000);
+}
+let shareTaken = false;
+async function takeShare() {
+  if (shareTaken) return;
+  // Fenêtre de connexion ouverte : on attend de savoir dans quel compte ranger le partage.
+  if (!$('#signin').hidden) return;
+  shareTaken = true;
+  const q = new URLSearchParams(location.search);
+  const got = { text: [q.get('add'), q.get('text'), q.get('url')].filter(Boolean), files: [] };
+  if (q.has('shared') && 'caches' in window) {
+    try {
+      const c = await caches.open('ic-share'), mk = new URL('./__share/meta', location.href).href, r = await c.match(mk);
+      if (r) {
+        const m = await r.json();
+        const words = [m.url, m.text].filter(Boolean).join(' ').trim();
+        // Un lien partagé arrive souvent avec son titre dans « text » : on garde le lien.
+        const link = (words.match(/https?:\/\/\S+/) || [])[0];
+        if (link) got.text.push(link); else if (words || m.title) got.text.push(words || m.title);
+        for (const k of m.files || []) { const fr = await c.match(k); if (fr) { const b = await fr.blob(); got.files.push(new File([b], decodeURIComponent(fr.headers.get('x-name') || '') || 'shared', { type: b.type })); } await c.delete(k); }
+        await c.delete(mk);
+      }
+    } catch {}
+  }
+  if (q.has('add') || q.has('text') || q.has('url') || q.has('shared')) { try { history.replaceState(history.state, '', location.pathname); } catch {} }
+  if (!got.text.length && !got.files.length) return;
+  if (S.readonly) { toast('This board is view-only, so the shared item was not added.'); return; }
+  setMode('canvas');
+  const at = viewCenter();
+  for (const t of got.text) addText(t, at);
+  if (got.files.length) addFiles(got.files, at);
+  toast('Added to ' + (S.boards.find(b => b.id === S.boardId)?.name || 'your board') + '.');
+}
+
 /* ---------- tableaux ---------- */
 function openBoard(id) {
   if (S.boardId === id && S.unsub.length) return;
@@ -2762,7 +3339,7 @@ function openBoard(id) {
     S.items = next;
     for (const sid of [...S.sel]) if (!next.has(sid)) S.sel.delete(sid);
     S.loaded = true;
-    if (first) { first = false; if (saved && typeof saved.z === 'number') { S.view = saved; applyView(); } else fitAll(); }
+    if (first) { first = false; if (saved && typeof saved.z === 'number') { S.view = saved; applyView(); } else fitAll(); setTimeout(takeShare, 300); }
     render();
   }, err => { toast('Lost the connection to your saved boards. Reload the page to reconnect.'); }));
   S.unsub.push(S.store.watch(id, 'links', docs => {
@@ -2883,7 +3460,7 @@ function openSignin() {
   send.onclick = signIn; link.onclick = sendLink;
   const keys = e => { if (e.key === 'Enter') { e.preventDefault(); signIn(); } if (e.key === 'Escape') p.hidden = true; e.stopPropagation(); };
   email.onkeydown = keys; code.onkeydown = keys;
-  $('#si-later').onclick = () => { p.hidden = true; lsSet('idea-canvas:signin-later', '1'); };
+  $('#si-later').onclick = () => { p.hidden = true; lsSet('idea-canvas:signin-later', '1'); setTimeout(takeShare, 200); };
 }
 addEventListener('resize', () => applyView());
 boot();
