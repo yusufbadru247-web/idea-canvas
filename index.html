@@ -203,6 +203,25 @@ button{font:inherit;color:inherit}
 .lk-img{position:relative;flex:1;min-height:56px;background:var(--tag);overflow:hidden}
 .lk-img img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .lk-img iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.lk-img.pdf{background:#fff} .lk-img.pdf img{object-fit:cover;object-position:top}
+.lk.emb .lk-img{background:var(--tag)}
+.emb-bar{flex:none;padding:8px 10px;margin:0;cursor:grab}
+.emb-bar .site{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:500}
+.emb-btn{flex:none;border:0;background:var(--accent-soft);color:var(--accent);font:inherit;font-size:12px;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.emb-btn:hover{background:var(--accent);color:var(--on-accent)}
+.link .emb-btn{align-self:center}
+.md-embed{position:relative;width:100%;border-radius:8px;overflow:hidden;background:var(--tag);margin:6px 0 12px;max-height:80vh}
+.md-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.md-pdf{display:flex;align-items:center;gap:10px;width:100%;max-width:520px;border:0;background:var(--hover);border-radius:8px;padding:12px 14px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-align:left;margin:6px 0 12px}
+.md-pdf span{margin-left:auto;color:var(--accent);font-weight:600;font-size:13px}
+#pdfview{position:fixed;inset:0;z-index:28;background:var(--bg);display:flex;flex-direction:column}
+.pd-count{flex:none;font-size:12px;color:var(--muted);margin-right:4px;white-space:nowrap}
+.pd-scroll{flex:1;overflow:auto;background:var(--tag);-webkit-overflow-scrolling:touch}
+.pd-pages{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 12px calc(40px + env(safe-area-inset-bottom,0px));min-width:min-content}
+.pd-page{background:#fff;box-shadow:var(--shadow);flex:none}
+.pd-page canvas{display:block;width:100%;height:100%}
+#pd-open{text-decoration:none;color:var(--ink)}
+@media (max-width:640px){ #pd-open{display:none} }
 .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:40px;border-radius:12px;border:0;padding:0;
   background:rgba(15,15,15,.72);color:#fff;cursor:pointer;display:grid;place-items:center}
 .play:hover{background:#E52D27}
@@ -603,6 +622,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Embeds &amp; PDFs</dt><dd>Links to Google Docs, Sheets, Slides, Figma, Spotify, Vimeo, Loom, Canva, Instagram, TikTok or Maps get “Show here”. On a page, a link alone on its line shows inside the page. PDFs open in a reader</dd>
     <dt>Trash</dt><dd>Board menu, then Trash: deleted cards stay 30 days and can be restored. Pages keep earlier versions under the clock button</dd>
     <dt>Tags</dt><dd>Write #idea in a note or a page, or use Tags on any card. Tap a tag to see everything with it</dd>
     <dt>Links</dt><dd>Type [[ in a note or a page and pick a card, or write [[A new name]] to make a page. Each page lists what links to it</dd>
@@ -628,6 +648,17 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <input type="password" id="sc-again" class="field" autocomplete="new-password" placeholder="Type it again" aria-label="Type the code again">
   <div class="row"><button class="btn" id="sc-cancel">Cancel</button><button class="btn primary grow" id="sc-save" disabled>Save code</button></div>
   <p class="hint" id="sc-msg" aria-live="polite"></p>
+</div>
+<div id="pdfview" hidden role="dialog" aria-modal="true" aria-label="PDF">
+  <div class="pv-top">
+    <button class="tb icon" id="pd-back" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="mv-title" id="pd-title"></div>
+    <span class="pd-count" id="pd-count"></span>
+    <button class="tb icon" id="pd-out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg></button>
+    <button class="tb icon" id="pd-in" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12M12 6v12"/></svg></button>
+    <a class="tb" id="pd-open" target="_blank" rel="noopener noreferrer">Open ↗</a>
+  </div>
+  <div class="pd-scroll" id="pd-scroll"><div class="pd-pages" id="pd-pages"></div></div>
 </div>
 <div id="tblview" hidden role="dialog" aria-modal="true" aria-label="Table">
   <div class="pv-top">
@@ -1116,7 +1147,116 @@ function inline(s) {
   if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
   return s;
 }
-function md(src) {
+/* ---------- intégrations et PDF ---------- */
+// Services qui se laissent afficher dans une carte ou une page. Chargés à la demande : un cadre par carte pèserait trop.
+function embedOf(url) {
+  let u; try { u = new URL(url); } catch { return null; }
+  const h = u.hostname.replace(/^www\./, ''), p = u.pathname; let m;
+  const yt = ytId(url); if (yt) return { src: `https://www.youtube-nocookie.com/embed/${yt}?rel=0&playsinline=1`, w: 420, h: 236, label: 'YouTube', video: true };
+  if (h === 'docs.google.com' && (m = p.match(/^\/(document|spreadsheets|presentation|drawings)\/d\/([\w-]+)/))) return { src: `https://docs.google.com/${m[1]}/d/${m[2]}/${m[1] === 'presentation' ? 'embed' : 'preview'}`, w: 560, h: 420, label: { document: 'Google Doc', spreadsheets: 'Google Sheet', presentation: 'Google Slides', drawings: 'Google Drawing' }[m[1]] };
+  if (h === 'docs.google.com' && (m = p.match(/^\/forms\/d\/e?\/?([\w-]+)/))) return { src: `https://docs.google.com${p.replace(/\/(viewform|edit).*$/, '')}/viewform?embedded=true`, w: 520, h: 560, label: 'Google Form' };
+  if (h === 'drive.google.com' && (m = p.match(/^\/file\/d\/([\w-]+)/))) return { src: `https://drive.google.com/file/d/${m[1]}/preview`, w: 520, h: 420, label: 'Google Drive' };
+  if (/(^|\.)figma\.com$/.test(h) && /^\/(file|design|proto|board|slides)\//.test(p)) return { src: `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(url)}`, w: 560, h: 400, label: 'Figma' };
+  if (h === 'open.spotify.com' && (m = p.match(/^\/(?:intl-\w+\/)?(track|album|playlist|episode|show|artist)\/(\w+)/))) return { src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, w: 380, h: m[1] === 'track' || m[1] === 'episode' ? 152 : 352, label: 'Spotify', fixed: true };
+  if (h === 'vimeo.com' && (m = p.match(/^\/(\d+)/))) return { src: `https://player.vimeo.com/video/${m[1]}`, w: 420, h: 236, label: 'Vimeo', video: true };
+  if (h === 'loom.com' && (m = p.match(/^\/share\/(\w+)/))) return { src: `https://www.loom.com/embed/${m[1]}`, w: 420, h: 236, label: 'Loom', video: true };
+  if (h === 'canva.com' && (m = p.match(/^\/design\/([\w-]+)/))) return { src: `https://www.canva.com/design/${m[1]}/view?embed`, w: 520, h: 300, label: 'Canva' };
+  if (h === 'instagram.com' && (m = p.match(/^\/(p|reel|tv)\/([\w-]+)/))) return { src: `https://www.instagram.com/${m[1]}/${m[2]}/embed`, w: 360, h: 540, label: 'Instagram' };
+  if (h === 'tiktok.com' && (m = p.match(/\/video\/(\d+)/))) return { src: `https://www.tiktok.com/embed/v2/${m[1]}`, w: 330, h: 600, label: 'TikTok', video: true };
+  if (/(^|\.)google\.[a-z.]+$/.test(h) && p.startsWith('/maps')) {
+    const q = u.searchParams.get('q') || (p.match(/\/maps\/(?:place|search)\/([^/]+)/) || [])[1] || (p.match(/@(-?[\d.]+,-?[\d.]+)/) || [])[1];
+    if (q) return { src: `https://maps.google.com/maps?q=${encodeURIComponent(decodeURIComponent(q).replace(/\+/g, ' '))}&output=embed`, w: 420, h: 320, label: 'Google Maps' };
+  }
+  return null;
+}
+const EMB = new Set();   // cartes dont l'intégration est ouverte (le temps de la visite)
+function frameFor(e, title) {
+  const f = document.createElement('iframe'); f.src = e.src; f.title = title || e.label; f.loading = 'lazy';
+  f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write'; f.allowFullscreen = true; f.referrerPolicy = 'strict-origin-when-cross-origin';
+  return f;
+}
+function showEmbed(id, on = true) {
+  const it = S.items.get(id), e = it && embedOf(it.url || ''); if (!e) return;
+  if (on) {
+    EMB.add(id);
+    const W = Math.max(it.w, e.w), H = Math.round(W * e.h / e.w) + 46;
+    if (it.h < H - 10 || it.w < e.w) persist(id, { w: W, h: H });
+  } else EMB.delete(id);
+  render();
+}
+const isPdf = it => it?.type === 'link' && (/\.pdf$/i.test(it.fileName || '') || /\.pdf($|[?#])/i.test(it.url || ''));
+let pdfLib = null;
+function loadPdfJs() {
+  if (pdfLib) return pdfLib;
+  pdfLib = new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload = () => { const L = window.pdfjsLib || window['pdfjs-dist/build/pdf']; if (!L) return rej(new Error('pdf.js')); L.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(L); };
+    sc.onerror = () => { pdfLib = null; rej(new Error('pdf.js')); }; document.head.append(sc);
+  });
+  return pdfLib;
+}
+// Première page en vignette, gardée dans la carte (donc synchronisée) : une fois, puis plus besoin de pdf.js pour la voir.
+const pdfAsked = new Set();
+const needsPdfThumb = it => isPdf(it) && !it.image && !(it.pdfFail && Date.now() - it.pdfFail < 864e5);
+async function pdfThumb(id) {
+  if (S.readonly || pdfAsked.has(id)) return; pdfAsked.add(id);
+  const it = S.items.get(id); if (!it) return;
+  try {
+    const L = await loadPdfJs(), doc = await L.getDocument({ url: linkHref(it) }).promise, pg = await doc.getPage(1);
+    const v0 = pg.getViewport({ scale: 1 }), sc = 360 / v0.width, v = pg.getViewport({ scale: sc });
+    const c = document.createElement('canvas'); c.width = Math.round(v.width); c.height = Math.round(Math.min(v.height, v.width * 0.75));
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    await pg.render({ canvasContext: ctx, viewport: v }).promise;
+    const p = { image: c.toDataURL('image/jpeg', 0.72), site: 'PDF · ' + (doc.numPages === 1 ? '1 page' : doc.numPages + ' pages'), pages: doc.numPages };
+    const cur = S.items.get(id); if (!cur) return;
+    if (cur.w === 300 && cur.h === 74) { p.w = 300; p.h = 300; }
+    persist(id, p); render();
+  } catch { persist(id, { pdfFail: Date.now() }); }
+}
+// Liseuse plein écran : les pages se dessinent quand elles approchent de l'écran.
+let pdfDoc = null, pdfZoom = 1, pdfObs = null;
+async function openPdf(url, name) {
+  closePops();
+  const v = $('#pdfview'); v.hidden = false; document.body.classList.add('paging');
+  $('#pd-title').textContent = name || 'PDF'; $('#pd-open').href = safeHref(url); $('#pd-count').textContent = '';
+  const box = $('#pd-pages'); box.innerHTML = '<p class="hint" style="text-align:center;padding:40px 0">Opening…</p>';
+  try { history.pushState({ icPdf: 1 }, ''); } catch {}
+  try {
+    const L = await loadPdfJs();
+    pdfDoc = await L.getDocument({ url }).promise;
+    $('#pd-count').textContent = pdfDoc.numPages === 1 ? '1 page' : pdfDoc.numPages + ' pages';
+    pdfZoom = 1; await layoutPdf();
+  } catch { box.innerHTML = '<p class="hint" style="text-align:center;padding:40px 16px">This PDF could not be opened here. Use “Open ↗” to see it in a new tab.</p>'; }
+}
+async function layoutPdf() {
+  if (!pdfDoc) return;
+  const box = $('#pd-pages'), W = Math.min(box.clientWidth - 24, 900) * pdfZoom;
+  pdfObs?.disconnect(); box.replaceChildren();
+  pdfObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !e.target._done) { e.target._done = true; drawPdfPage(e.target); } }), { root: $('#pd-scroll'), rootMargin: '800px 0px' });
+  const first = await pdfDoc.getPage(1), r = first.getViewport({ scale: 1 });
+  for (let n = 1; n <= pdfDoc.numPages; n++) {
+    const d = document.createElement('div'); d.className = 'pd-page'; d.dataset.n = n; d.style.width = W + 'px'; d.style.height = Math.round(W * r.height / r.width) + 'px';
+    box.append(d); pdfObs.observe(d);
+  }
+}
+async function drawPdfPage(d) {
+  try {
+    const pg = await pdfDoc.getPage(+d.dataset.n), W = parseFloat(d.style.width), v0 = pg.getViewport({ scale: 1 });
+    const dpr = Math.min(devicePixelRatio || 1, 2), v = pg.getViewport({ scale: W / v0.width * dpr });
+    d.style.height = Math.round(W * v0.height / v0.width) + 'px';
+    const c = document.createElement('canvas'); c.width = v.width; c.height = v.height;
+    await pg.render({ canvasContext: c.getContext('2d'), viewport: v }).promise; d.replaceChildren(c);
+  } catch {}
+}
+function closePdf(fromHistory) {
+  if ($('#pdfview').hidden) return;
+  $('#pdfview').hidden = true; pdfObs?.disconnect(); pdfDoc = null; $('#pd-pages').replaceChildren();
+  if (!S.pageId && !S.mapId && !S.tableId) document.body.classList.remove('paging');
+  if (!fromHistory) { try { if (history.state?.icPdf) history.back(); } catch {} }
+}
+const urlFile = u => { try { return decodeURIComponent(new URL(u, location.href).pathname.split('/').pop() || ''); } catch { return ''; } };
+function openPdfItem(id) { const it = S.items.get(id); if (it) openPdf(linkHref(it), it.title || it.fileName || urlFile(it.url) || 'PDF'); }
+function md(src, opts) {
   if (!src || !src.trim()) return '<p class="ph">Empty note. Double-click to write.</p>';
   const out = []; let list = null;
   const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
@@ -1143,6 +1283,10 @@ function md(src) {
     }
     if ((m = line.match(/^(#{1,3}) (.*)$/))) out.push(`<h${m[1].length} data-l="${i}">${inline(m[2])}</h${m[1].length}>`);
     else if ((m = line.match(/^> ?(.*)$/))) out.push(`<blockquote data-l="${i}">${inline(m[1])}</blockquote>`);
+    else if (opts?.embeds && (m = line.match(/^\s*(https?:\/\/\S+)\s*$/)) && (/\.pdf($|[?#])/i.test(m[1]) || embedOf(m[1]))) {
+      if (/\.pdf($|[?#])/i.test(m[1])) out.push(`<button class="md-pdf" data-pdf="${esc(m[1])}" data-l="${i}">📄 ${esc(decodeURIComponent(m[1].split(/[?#]/)[0].split('/').pop() || 'PDF'))}<span>Read</span></button>`);
+      else { const e = embedOf(m[1]); out.push(`<div class="md-embed" data-l="${i}" style="${e.fixed ? `height:${e.h}px` : `aspect-ratio:${e.w}/${e.h}`};max-width:${Math.max(e.w, 560)}px"><iframe src="${esc(e.src)}" title="${esc(e.label)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`); }
+    }
     else if (line.trim()) out.push(`<p data-l="${i}">${inline(line)}</p>`);
   });
   close();
@@ -1179,7 +1323,7 @@ function ytId(url) {
 }
 // Aperçus récupérés une fois, puis gardés dans la carte (donc synchronisés). Un échec est retenté le lendemain.
 const pv = { queue: [], running: 0, asked: new Set() };
-const needsPreview = it => it.type === 'link' && it.url && !it.assetId && !it.storagePath && /^https?:/i.test(it.url)
+const needsPreview = it => it.type === 'link' && it.url && !it.assetId && !it.storagePath && /^https?:/i.test(it.url) && !/\.pdf($|[?#])/i.test(it.url)
   && (!it.preview || (it.preview < 0 && Date.now() + it.preview > 864e5));
 function wantPreview(id) {
   if (S.readonly || pv.asked.has(id)) return;
@@ -1224,7 +1368,7 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(',')].join('|'); }
+function sig(it, id) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
@@ -1264,8 +1408,21 @@ function buildContent(el, it) {
     } else {
       const href = safeHref(linkHref(it));
       const openA = () => { const a = document.createElement('a'); a.className = 'open'; a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Open ↗'; return a; };
-      const titleText = it.title || it.fileName || (info.kind ? info.kind + ' link' : info.host);
-      if (it.image) {
+      const titleText = it.title || it.fileName || (isPdf(it) && urlFile(it.url)) || (info.kind ? info.kind + ' link' : info.host);
+      const emb = !it.assetId && !it.storagePath ? embedOf(it.url || '') : null, pdf = isPdf(it), yt0 = ytId(it.url || '');
+      const actBtn = () => {
+        if (pdf) { const b = document.createElement('button'); b.className = 'emb-btn'; b.textContent = 'Read'; b.onclick = e => { e.stopPropagation(); openPdfItem(el.dataset.id); }; return b; }
+        if (emb && !yt0) { const b = document.createElement('button'); b.className = 'emb-btn'; b.textContent = emb.video ? '▶ Play here' : 'Show here'; b.onclick = e => { e.stopPropagation(); showEmbed(el.dataset.id); }; return b; }
+        return null;
+      };
+      if (emb && EMB.has(el.dataset.id)) {
+        const c = document.createElement('div'); c.className = 'lk emb';
+        const im = document.createElement('div'); im.className = 'lk-img'; im.append(frameFor(emb, titleText));
+        const meta = document.createElement('div'); meta.className = 'lk-meta emb-bar';
+        const st = document.createElement('span'); st.className = 'site'; st.textContent = titleText;
+        const hb = document.createElement('button'); hb.className = 'emb-btn'; hb.textContent = 'Hide'; hb.onclick = e => { e.stopPropagation(); showEmbed(el.dataset.id, false); };
+        meta.append(st, hb, openA()); c.append(im, meta); inner.append(c);
+      } else if (it.image) {
         const c = document.createElement('div'); c.className = 'lk';
         const im = document.createElement('div'); im.className = 'lk-img';
         const img = document.createElement('img'); img.src = it.image; img.alt = ''; img.loading = 'lazy'; img.draggable = false; img.referrerPolicy = 'no-referrer';
@@ -1289,8 +1446,9 @@ function buildContent(el, it) {
         if (it.desc) { const ds = document.createElement('div'); ds.className = 'lk-desc'; ds.textContent = it.desc; body.append(ds); }
         const meta = document.createElement('div'); meta.className = 'lk-meta';
         if (it.icon) { const ic = document.createElement('img'); ic.className = 'ico'; ic.src = it.icon; ic.alt = ''; ic.referrerPolicy = 'no-referrer'; ic.onerror = () => ic.remove(); meta.append(ic); }
-        const st = document.createElement('span'); st.className = 'site'; st.textContent = it.site || info.host; meta.append(st, openA());
+        const st = document.createElement('span'); st.className = 'site'; st.textContent = it.site || info.host; meta.append(st); const ab = actBtn(); if (ab) meta.append(ab); meta.append(openA());
         body.append(meta);
+        if (pdf) { im.classList.add('pdf'); im.ondblclick = e => { e.stopPropagation(); openPdfItem(el.dataset.id); }; }
         c.append(im, body); inner.append(c);
       } else {
         const l = document.createElement('div'); l.className = 'link';
@@ -1302,7 +1460,7 @@ function buildContent(el, it) {
         lt.append(ti);
         if (it.desc) { const ds = document.createElement('div'); ds.className = 'desc'; ds.textContent = it.desc; lt.append(ds); }
         const ur = document.createElement('div'); ur.className = 'url'; ur.textContent = it.site || (info.host + (info.path && info.path !== '/' ? info.path : '')); lt.append(ur);
-        l.append(b, lt, openA()); inner.append(l);
+        const ab = actBtn(); l.append(b, lt); if (ab) l.append(ab); l.append(openA()); inner.append(l);
       }
     }
   } else if (it.type === 'page') {
@@ -1343,7 +1501,7 @@ function buildContent(el, it) {
   const c = document.createElement('div'); c.className = 'h h-connect'; c.dataset.h = 'connect'; c.title = 'Drag to connect';
   el.append(r, c);
   if (it.tags?.length) { const tg = document.createElement('div'); tg.className = 'ctags'; tg.innerHTML = it.tags.map(tagHTML).join(''); el.append(tg); }
-  el._sig = sig(it) + (editing ? '|e' : '');
+  el._sig = sig(it, el.dataset.id) + (editing ? '|e' : '');
 }
 function place(el, it) {
   el.style.left = it.x + 'px'; el.style.top = it.y + 'px';
@@ -1358,10 +1516,11 @@ function render() {
     if (!el) { el = document.createElement('div'); el.dataset.id = id; els.set(id, el); }
     const parent = it.type === 'group' ? groupsL : cardsL;
     if (el.parentNode !== parent) parent.append(el);
-    const s = sig(it) + (S.editing === id ? '|e' : '');
+    const s = sig(it, id) + (S.editing === id ? '|e' : '');
     // Une carte en cours d'édition garde son champ : la reconstruire à chaque sauvegarde faisait perdre le focus.
     if (el._sig !== s && !(S.editing === id && el._sig?.endsWith('|e'))) buildContent(el, it);
     if (S.loaded && needsPreview(it)) wantPreview(id);
+    else if (S.loaded && needsPdfThumb(it)) pdfThumb(id);
     place(el, it);
     el.classList.toggle('sel', S.sel.has(id));
     el.classList.toggle('solo', S.sel.size === 1 && S.sel.has(id) && S.editing !== id);
@@ -1424,6 +1583,8 @@ function renderSelbar() {
     if (it?.type === 'page') kids.push(btn('Open', () => openPage([...S.sel][0])));
     if (it?.type === 'mindmap') kids.push(btn('Open', () => openMap([...S.sel][0])));
     if (it?.type === 'table') kids.push(btn('Open', () => openTable([...S.sel][0])));
+    if (isPdf(it)) kids.push(btn('Read', () => openPdfItem([...S.sel][0])));
+    if (it?.type === 'link' && !isPdf(it) && !it.storagePath && !it.assetId && embedOf(it.url || '')) { const sid = [...S.sel][0]; kids.push(btn(EMB.has(sid) ? 'Hide' : 'Show here', () => showEmbed(sid, !EMB.has(sid)))); }
     if (it?.type === 'page' || it?.type === 'note') kids.push(btn('Mind map', () => mapFromItem([...S.sel][0])));
   }
   if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
@@ -1720,7 +1881,7 @@ function itemsInside(g) {
 vp.addEventListener('pointerdown', e => {
   closePops();
   const t = e.target;
-  if (isField(t) || t.tagName === 'VIDEO' || t.closest('a') || t.closest('.play') || t.closest('.pc-open')) return;
+  if (isField(t) || t.tagName === 'VIDEO' || t.closest('a') || t.closest('.play') || t.closest('.pc-open') || t.closest('.emb-btn')) return;
   const cb = t.closest('.md .cb');
   if (cb && !S.readonly && pts.size === 0) { e.preventDefault(); toggleTask(cb.closest('.item').dataset.id, +cb.dataset.line); return; }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1811,7 +1972,7 @@ function endPointer(e) {
     if (lastTap && lastTap.target === g.tapTarget && now - lastTap.t < 350 && Math.hypot(lastTap.x - e.clientX, lastTap.y - e.clientY) < 24) {
       lastTap = null;
       if (g.tapTarget === 'empty') addNote('', toWorld(e.clientX, e.clientY));
-      else { const it = S.items.get(g.tapTarget); if (it?.type === 'page') openPage(g.tapTarget); else if (it?.type === 'mindmap') openMap(g.tapTarget); else if (it?.type === 'table') openTable(g.tapTarget); else if (it && ['note', 'link', 'group'].includes(it.type)) startEdit(g.tapTarget, { x: e.clientX, y: e.clientY }); }
+      else { const it = S.items.get(g.tapTarget); if (it?.type === 'page') openPage(g.tapTarget); else if (it?.type === 'mindmap') openMap(g.tapTarget); else if (it?.type === 'table') openTable(g.tapTarget); else if (isPdf(it)) openPdfItem(g.tapTarget); else if (it && ['note', 'link', 'group'].includes(it.type)) startEdit(g.tapTarget, { x: e.clientX, y: e.clientY }); }
     } else lastTap = { target: g.tapTarget, t: now, x: e.clientX, y: e.clientY };
   }
 }
@@ -1847,6 +2008,7 @@ vp.addEventListener('gestureend', e => { e.preventDefault(); gz = null; });
 /* ---------- clavier, collage, dépôt ---------- */
 let spaceDown = false;
 document.addEventListener('keydown', e => {
+  if (!$('#pdfview').hidden) { if (e.key === 'Escape') closePdf(); return; }
   if (isField(document.activeElement)) { if (e.key === 'Escape') { document.activeElement.blur(); stopEdit(); } return; }
   const mod = e.metaKey || e.ctrlKey;
   // Page ouverte : les raccourcis de la toile ne doivent pas agir derrière elle.
@@ -2219,7 +2381,7 @@ function closePage(fromHistory) {
   if (!fromHistory) { try { if (history.state?.icPage) history.back(); } catch {} }
   render();
 }
-addEventListener('popstate', () => { if (S.tableId) { closeTable(true); return; } if (S.mapId) { closeMap(true); return; } if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; render(); } });
+addEventListener('popstate', () => { if (!$('#pdfview').hidden) { closePdf(true); return; } if (S.tableId) { closeTable(true); return; } if (S.mapId) { closeMap(true); return; } if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; render(); } });
 let pgRaf = 0;
 function schedulePage() { if (!pgRaf) pgRaf = requestAnimationFrame(() => { pgRaf = 0; renderPage(); }); }
 function renderPage() {
@@ -2256,10 +2418,14 @@ function renderPage() {
   if (S.editing === id) { if (!body.querySelector('textarea')) buildPageEditor(id, it); return; }
   const ae = document.activeElement;
   if (body.contains(ae) && ae.closest('.tbl-host') && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
-  const d = document.createElement('div'); d.className = 'md pv-md';
-  d.innerHTML = (it.text || '').trim() ? md(it.text) : `<p class="ph">${S.readonly ? 'This page is empty.' : 'Click here to write. Type / for headings, lists, to-dos, a divider, a photo or a page inside this page.'}</p>`;
+  const html = (it.text || '').trim() ? md(it.text, { embeds: true }) : '';
+  const prev = body.querySelector(':scope > .pv-md');
+  if (html && prev && prev._html === html) { refreshTables(); return; }
+  const d = document.createElement('div'); d.className = 'md pv-md'; d._html = html;
+  d.innerHTML = (it.text || '').trim() ? html : `<p class="ph">${S.readonly ? 'This page is empty.' : 'Click here to write. Type / for headings, lists, to-dos, a divider, a photo or a page inside this page.'}</p>`;
   d.onclick = e => {
-    if (e.target.closest('.tbl-embed')) return;
+    if (e.target.closest('.tbl-embed') || e.target.closest('.md-embed')) return;
+    const pb = e.target.closest('.md-pdf'); if (pb) { openPdf(pb.dataset.pdf, pb.textContent.replace(/Read$/, '').replace(/^📄\s*/, '')); return; }
     const sp = e.target.closest('.subpage'); if (sp) { openPage(sp.dataset.page); return; }
     const cb = e.target.closest('.cb'); if (cb) { if (!S.readonly) toggleTask(id, +cb.dataset.line); return; }
     const du = e.target.closest('.due'), dl = du?.closest('[data-l]');
@@ -3634,6 +3800,9 @@ function closeTable(fromHistory) {
   render();
 }
 $('#tv-back').onclick = () => closeTable();
+$('#pd-back').onclick = () => closePdf();
+$('#pd-in').onclick = () => { pdfZoom = Math.min(3, pdfZoom * 1.25); layoutPdf(); };
+$('#pd-out').onclick = () => { pdfZoom = Math.max(0.5, pdfZoom / 1.25); layoutPdf(); };
 $('#tv-del').onclick = () => { const id = S.tableId; if (!id) return; closeTable(); S.sel = new Set([id]); deleteSel(); };
 
 /* ---------- application installée et partage ---------- */
