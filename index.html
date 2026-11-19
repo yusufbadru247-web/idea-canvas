@@ -165,6 +165,7 @@ button{font:inherit;color:inherit}
 .row{display:flex;gap:8px;align-items:center}
 .btn{height:34px;padding:0 14px;border-radius:6px;border:0;box-shadow:inset 0 0 0 1px var(--line);background:transparent;cursor:pointer;font-weight:500;font-size:14px}
 .btn:hover{background:var(--hover)}
+.btn.danger{color:var(--danger)}
 .btn.primary{background:var(--accent);box-shadow:none;color:var(--on-accent)}
 .btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
 .btn.grow{flex:1}
@@ -304,24 +305,78 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .mapcard .mp-more{fill:var(--muted)}
 #mapview{position:fixed;inset:0;z-index:27;background:var(--bg);display:flex;flex-direction:column}
 .mv-title{flex:1;min-width:0;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+.mv-linked{flex:none;font-size:12px;color:var(--muted);background:var(--tag);border-radius:6px;padding:3px 7px;margin-right:4px;white-space:nowrap}
+.mv-body{flex:1;position:relative;min-height:0;display:flex}
 .mv-stage{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px}
 .mv-stage.panning{cursor:grabbing}
 .mv-world{position:absolute;left:0;top:0;transform-origin:0 0}
 .mv-edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
 .mv-edges path{fill:none;stroke:var(--edge);stroke-width:1.6}
-.mv-node{position:absolute;left:0;top:0;width:max-content;max-width:240px;min-width:36px;padding:9px 14px;border-radius:10px;border:0;font:inherit;font-size:14px;line-height:1.35;text-align:left;background:var(--card);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere;user-select:none;-webkit-user-select:none}
+.mv-node{position:absolute;left:0;top:0;width:max-content;max-width:240px;min-width:36px;padding:9px 14px;border-radius:10px;font-size:14px;line-height:1.35;background:var(--card);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;user-select:none;-webkit-user-select:none}
+.mv-t{display:block;white-space:pre-wrap;overflow-wrap:anywhere;outline:none;min-height:1.35em}
 .mv-node.d0{background:var(--accent);color:var(--on-accent);font-weight:600;font-size:16px;padding:12px 18px;max-width:280px}
 .mv-node.d1{background:var(--c5b)} .mv-node.d2{background:var(--c4b)} .mv-node.d3{background:var(--c6b)} .mv-node.d4{background:var(--c3b)}
 .mv-node.sel{outline:2px solid var(--accent);outline-offset:2px}
 .mv-node.d0.sel{outline-color:var(--ink)}
-.mv-node[contenteditable="true"]{cursor:text;user-select:text;-webkit-user-select:text;outline:2px solid var(--accent);outline-offset:2px;min-width:80px}
+.mv-node.editing{outline:2px solid var(--accent);outline-offset:2px;cursor:text;min-width:90px}
+.mv-node.editing .mv-t{user-select:text;-webkit-user-select:text}
+.mv-node.dragging{opacity:.35}
+.mv-node.drop-in{box-shadow:0 0 0 3px var(--accent)}
+.mv-node.drop-before{box-shadow:0 -4px 0 0 var(--accent)}
+.mv-node.drop-after{box-shadow:0 4px 0 0 var(--accent)}
+.mv-ghost{position:fixed;z-index:60;pointer-events:none;opacity:.9;transform:rotate(-2deg);box-shadow:var(--pop-shadow)!important}
+.mv-thumb{display:block;width:200px;max-width:100%;height:112px;object-fit:cover;border-radius:6px;margin:-2px 0 8px;background:var(--tag)}
+.mv-badges{display:flex;gap:8px;margin-top:5px;font-size:11.5px;font-weight:500;opacity:.7}
+.mv-badges span{display:inline-flex;align-items:center;gap:3px}
+.mv-badges svg{width:12px;height:12px}
+.mv-plus{position:absolute;width:24px;height:24px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);font:inherit;font-size:17px;font-weight:600;line-height:24px;padding:0;text-align:center;cursor:pointer;box-shadow:var(--chrome-shadow);opacity:0;transition:opacity .12s;z-index:2}
+.mv-plus.kid{right:-12px;top:50%;margin-top:-12px}
+.mv-plus.sib{left:50%;bottom:-12px;margin-left:-12px;width:20px;height:20px;line-height:20px;font-size:14px;background:var(--chrome);color:var(--ink)}
+.mv-node.sel .mv-plus,.mv-node:hover .mv-plus{opacity:1}
+.mv-node.editing .mv-plus,.mv-node.dragging .mv-plus{opacity:0;pointer-events:none}
+@media (hover:none){ .mv-node:not(.sel) .mv-plus{pointer-events:none} }
 .mv-tog{position:absolute;left:0;top:0;white-space:nowrap;min-width:22px;height:22px;padding:0 5px;border-radius:11px;border:1px solid var(--line);background:var(--chrome);color:var(--muted);font:inherit;font-size:11px;font-weight:600;line-height:20px;text-align:center;cursor:pointer;box-shadow:var(--shadow)}
 .mv-tog:hover{color:var(--ink)}
-.mv-bar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:2px;padding:5px;background:var(--chrome);border-radius:12px;box-shadow:var(--chrome-shadow);max-width:calc(100vw - 24px)}
-.mv-bar .tb{white-space:nowrap}
-.mv-bar .tb[disabled]{opacity:.4;pointer-events:none}
-.mv-hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(72px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;white-space:nowrap;pointer-events:none}
-@media (max-width:640px){ .mv-hint{display:none} .mv-node{font-size:13px;max-width:200px} .mv-node.d0{font-size:15px;max-width:220px} }
+.mv-hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;white-space:nowrap;pointer-events:none;background:var(--bg);padding:3px 8px;border-radius:6px}
+/* Panneau d'une idée : à droite au bureau, feuille basse au téléphone. */
+.mv-panel{flex:none;width:370px;border-left:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;min-height:0}
+.mp-head{flex:none;display:flex;align-items:center;gap:6px;padding:10px 10px 6px 18px}
+.mp-crumb{flex:1;min-width:0;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-scroll{flex:1;overflow:auto;padding:0 18px calc(24px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.mp-title{display:block;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.25;resize:none;outline:none;padding:2px 0 4px;overflow:hidden}
+.mp-src{font-size:12px;color:var(--muted);margin:0 0 6px}
+.mp-src button{border:0;background:none;color:var(--accent);font:inherit;padding:0;cursor:pointer}
+.mp-lab{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:18px 0 6px}
+.mp-notes{display:block;width:100%;min-height:72px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:14px;line-height:1.55;padding:8px 10px;resize:none;outline:none;overflow:hidden}
+.mp-notes:focus,.mp-in:focus{border-color:var(--accent)}
+.mp-in{display:block;width:100%;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:16px;padding:7px 10px;outline:none;resize:none}
+@media (min-width:641px){ .mp-in{font-size:14px} }
+.mp-links{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.mp-link{display:flex;align-items:center;gap:10px;padding:6px;border-radius:8px;background:var(--hover);text-decoration:none;color:var(--ink);min-width:0}
+.mp-link img,.mp-link .lt{flex:none;width:56px;height:40px;border-radius:5px;object-fit:cover;background:var(--tag);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted)}
+.mp-link .tx{flex:1;min-width:0}
+.mp-link .t1{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-link .t2{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-x{flex:none;border:0;background:none;color:var(--muted);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:16px;line-height:1}
+.mp-x:hover{background:var(--hover);color:var(--danger)}
+.mp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
+.mp-photos:empty{display:none}
+.mp-ph{position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;background:var(--tag)}
+.mp-ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.mp-ph .mp-x{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;width:22px;height:22px;font-size:13px}
+.mp-kids{display:flex;flex-direction:column;margin-bottom:6px}
+.mp-kid{display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--ink);font:inherit;font-size:14px;text-align:left;padding:6px 4px;border-radius:6px;cursor:pointer}
+.mp-kid:hover{background:var(--hover)}
+.mp-kid::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--edge)}
+.mp-kid .n{margin-left:auto;font-size:12px;color:var(--muted)}
+.mp-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:22px}
+@media (max-width:640px){
+  .mv-hint{display:none} .mv-node{font-size:13px;max-width:200px} .mv-node.d0{font-size:15px;max-width:220px}
+  .mv-thumb{width:170px;height:96px}
+  .mv-panel{position:absolute;left:0;right:0;bottom:0;width:auto;height:min(62%,560px);border-left:0;border-radius:16px 16px 0 0;box-shadow:var(--pop-shadow);z-index:3}
+  .mp-head{padding:8px 8px 4px 16px} .mp-scroll{padding:0 16px calc(24px + env(safe-area-inset-bottom,0px))}
+  .mp-head::before{content:"";position:absolute;left:50%;top:6px;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:var(--line)}
+}
 .md .md-img{display:block;max-width:100%;border-radius:6px;margin:6px 0}
 .item .md .md-img{pointer-events:none}
 .md .subpage{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;padding:6px 6px;margin:2px -6px;border-radius:6px;cursor:pointer;
@@ -421,7 +476,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
     <dt>All tasks</dt><dd>List view, then Open tasks</dd>
-    <dt>Mind maps</dt><dd>M, or the Map button. Tab adds an idea inside, Enter one next to it. A page or a note becomes a mind map with its Mind map button</dd>
+    <dt>Mind maps</dt><dd>M, or the Map button. Click an idea to open it (notes, links, photos), + to add one, drag to move it. A map made from a page follows that page</dd>
   </dl>
 </div>
 <div id="signin" class="pop" hidden role="dialog" aria-modal="true" aria-labelledby="si-title">
@@ -445,19 +500,36 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <div class="pv-top">
     <button class="tb icon" id="mv-back" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M15 18l-6-6 6-6"/></svg></button>
     <div class="mv-title" id="mv-title"></div>
+    <span class="mv-linked" id="mv-linked" hidden title="Ideas from the page follow it; ideas you add here stay">Follows its page</span>
     <button class="tb" id="mv-fold" title="Open or close every branch">Expand all</button>
     <button class="tb" id="mv-fit" title="Fit to screen">Fit</button>
     <button class="tb danger" id="mv-del">Delete</button>
   </div>
-  <div class="mv-stage" id="mv-stage">
-    <div class="mv-world" id="mv-world"><svg class="mv-edges" id="mv-edges"></svg><div id="mv-nodes"></div></div>
-    <div class="mv-hint" id="mv-hint">Tab: idea inside · Enter: idea next to it · Tap a selected idea to rename it</div>
-    <div class="mv-bar" id="mv-bar">
-      <button class="tb" id="mv-child">+ Inside</button>
-      <button class="tb" id="mv-sib">+ Next to it</button>
-      <button class="tb" id="mv-edit">Rename</button>
-      <button class="tb danger" id="mv-rm">Remove</button>
+  <div class="mv-body">
+    <div class="mv-stage" id="mv-stage">
+      <div class="mv-world" id="mv-world"><svg class="mv-edges" id="mv-edges"></svg><div id="mv-nodes"></div></div>
+      <div class="mv-hint" id="mv-hint">Click an idea to open it · + adds one · drag an idea onto another to move it · paste links or photos onto an idea</div>
     </div>
+    <aside class="mv-panel" id="mv-panel" hidden aria-label="Idea">
+      <div class="mp-head"><div class="mp-crumb" id="mp-crumb"></div><button class="tb icon" id="mp-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="mp-scroll" id="mp-scroll">
+        <textarea class="mp-title" id="mp-title" rows="1" aria-label="Idea" placeholder="Idea"></textarea>
+        <div class="mp-src" id="mp-src" hidden></div>
+        <label class="mp-lab" for="mp-notes">Notes</label>
+        <textarea class="mp-notes" id="mp-notes" placeholder="Develop the idea: details, questions, next steps…"></textarea>
+        <label class="mp-lab" for="mp-link-in">Links</label>
+        <div class="mp-links" id="mp-links"></div>
+        <input class="mp-in" id="mp-link-in" type="url" inputmode="url" placeholder="Paste a link, then Enter" autocomplete="off">
+        <div class="mp-lab">Photos</div>
+        <div class="mp-photos" id="mp-photos"></div>
+        <button class="btn" id="mp-photo-add">Add a photo</button>
+        <input type="file" id="mp-file" accept="image/*" multiple hidden>
+        <label class="mp-lab" for="mp-kid-in">Ideas inside</label>
+        <div class="mp-kids" id="mp-kids"></div>
+        <textarea class="mp-in" id="mp-kid-in" rows="1" placeholder="Add ideas, one per line, then Enter"></textarea>
+        <div class="mp-row"><button class="btn" id="mp-fold"></button><button class="btn" id="mp-page">Make it a page</button><button class="btn danger" id="mp-rm">Remove this idea</button></div>
+      </div>
+    </aside>
   </div>
 </div>
 <div id="pageview" hidden role="dialog" aria-modal="true" aria-label="Page">
@@ -951,6 +1023,7 @@ function render() {
   if (S.mode === 'list') scheduleList();
   if (S.pageId) schedulePage();
   if (S.mapId) scheduleMap();
+  syncMaps();
   $('#empty').hidden = !S.loaded || S.items.size > 0;
 }
 function rectOf(it) { return { x: it.x, y: it.y, w: it.w, h: it.h, cx: it.x + it.w / 2, cy: it.y + it.h / 2 }; }
@@ -1381,6 +1454,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => { if (e.key === ' ') spaceDown = false; });
 document.addEventListener('paste', e => {
+  if (S.mapId) { mmPaste(e); return; }
   if (S.pageId) return;
   if (isField(document.activeElement) && document.activeElement.id !== 'add-text') return;
   const cd = e.clipboardData; if (!cd) return;
@@ -2032,16 +2106,19 @@ $('#listview').addEventListener('click', e => {
 setMode(S.mode);
 
 /* ---------- cartes mentales ---------- */
-// L'arbre vit dans la carte : { id, t, c: [enfants], f: replié }. Il est petit, on l'enregistre entier à chaque changement.
+// L'arbre vit dans la carte : { id, t, c: [enfants], f: replié, s: vient de la page, n: notes, L: liens, P: photos }.
+// Il est petit : on l'enregistre entier à chaque changement.
 const mmNode = t => ({ id: uid(), t, c: [] });
 const countNodes = n => n ? 1 + (n.c || []).reduce((a, k) => a + countNodes(k), 0) : 0;
-const flatTree = n => n ? [n.t, ...(n.c || []).flatMap(flatTree)] : [];
+const flatTree = n => n ? [n.t, n.n, ...(n.L || []).map(l => l.t || l.u), ...(n.c || []).flatMap(flatTree)].filter(Boolean) : [];
 function findNode(n, id, parent = null) {
   if (n.id === id) return { node: n, parent, index: parent ? parent.c.indexOf(n) : -1 };
   for (const k of n.c || []) { const r = findNode(k, id, n); if (r) return r; }
   return null;
 }
+const isInside = (n, id) => n.id === id || (n.c || []).some(k => isInside(k, id));
 const plainMd = t => t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
+const MD_PRE = /^\s*(?:#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> ?)?/;
 // Une page ou une note devient un arbre : titres, puis listes selon leur retrait, les pages incluses dépliées dessous.
 function outlineTree(title, text, guard = 0) {
   const root = mmNode(title || 'Untitled'), stack = [{ lv: 0, n: root }];
@@ -2061,6 +2138,65 @@ function outlineTree(title, text, guard = 0) {
   }
   return root;
 }
+function sourceTree(src) {
+  if (src.type === 'page') return outlineTree(src.title || 'Untitled', src.text);
+  const lines = (src.text || '').split('\n'), i = lines.findIndex(l => l.trim());
+  return outlineTree(i < 0 ? 'Note' : plainMd(lines[i].replace(MD_PRE, '')), lines.slice(i + 1).join('\n'));
+}
+const markS = n => { n.s = 1; n.c.forEach(markS); return n; };
+const hasOwn = n => !!(n.n || n.L?.length || n.P?.length || (n.c || []).some(k => !k.s || hasOwn(k)));
+// Une idée de la page disparue garde ce qu'on y a ajouté : elle devient une idée à soi.
+const unS = n => { const o = { ...n }; delete o.s; o.c = (n.c || []).filter(k => !k.s || hasOwn(k)).map(k => k.s ? unS(k) : k); return o; };
+// La page a changé : on reprend ses idées, on garde les nôtres à leur place, et notes, liens, photos et plis.
+function mmMerge(old, gen, hid) {
+  const out = { ...old, t: gen.t, s: 1 }, oc = old.c || [], pool = [...oc], res = [];
+  for (const g of gen.c) {
+    if (hid.includes(g.t)) continue;
+    const i = pool.findIndex(o => o.s && o.t === g.t);
+    if (i >= 0) { res.push(mmMerge(pool[i], g, hid)); pool.splice(i, 1); } else res.push(markS(g));
+  }
+  oc.forEach((o, idx) => {
+    let node = null;
+    if (!o.s) node = o; else if (pool.includes(o) && hasOwn(o)) node = unS(o);
+    if (!node) return;
+    let at = 0;
+    for (let j = idx - 1; j >= 0; j--) { const k = res.findIndex(r => r.id === oc[j].id); if (k >= 0) { at = k + 1; break; } }
+    res.splice(at, 0, node);
+  });
+  out.c = res; return out;
+}
+const hashStr = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+function srcRaw(srcId) {
+  const it = S.items.get(srcId); if (!it) return null;
+  return [it.title || '', it.text || '', ...(it.type === 'page' ? descendants(srcId).map(d => { const x = S.items.get(d); return (x?.title || '') + '\u0002' + (x?.text || ''); }) : [])].join('\u0001');
+}
+const mmSeen = new Map();
+function syncMaps() {
+  if (S.readonly || !S.loaded) return;
+  for (const [id, it] of S.items) {
+    if (it.type !== 'mindmap' || !it.src || !it.tree) continue;
+    if (S.mapId === id && MM.editing) continue;
+    const raw = srcRaw(it.src); if (raw == null || mmSeen.get(id) === raw) continue;
+    mmSeen.set(id, raw);
+    const h = hashStr(raw); if (h === it.ss) continue;
+    const tree = mmMerge(it.tree, markS(sourceTree(S.items.get(it.src))), it.hid || []);
+    persist(id, { tree, ss: h });
+    if (S.mapId === id) scheduleMap();
+  }
+}
+// Renommer une idée venue de la page renomme aussi la ligne de la page.
+function renameInSource(it, oldT, newT, isRoot) {
+  const src = S.items.get(it.src); if (!src) return;
+  if (isRoot && src.type === 'page') { persist(it.src, { title: newT }); return; }
+  const cands = [it.src, ...(src.type === 'page' ? descendants(it.src) : [])];
+  for (const cid of cands) {
+    const ci = S.items.get(cid); if (!ci) continue;
+    if (cid !== it.src && (ci.title || 'Untitled') === oldT) { persist(cid, { title: newT }); return; }
+    const lines = (ci.text || '').split('\n');
+    const k = lines.findIndex(l => l.trim() && plainMd(l.replace(MD_PRE, '').replace(/^\s*> ?/, '')) === oldT);
+    if (k >= 0) { lines[k] = lines[k].match(MD_PRE)[0] + newT; persist(cid, { text: lines.join('\n') }); return; }
+  }
+}
 function mapPreview(tree) {
   const esc2 = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const cut = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
@@ -2077,47 +2213,61 @@ function mapPreview(tree) {
   if (!kids.length) g += `<text class="mp-more" x="${kx}" y="${H / 2 + 4}" font-size="11">Open to add ideas</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${g}</svg>`;
 }
-function addMap(tree, near) {
+function addMap(tree, near, extra = {}) {
   const p = near || nextPos(300, 190);
   const t = tree || mmNode('Central idea');
-  const id = createItem({ type: 'mindmap', tree: t, x: p.x, y: p.y, w: 300, h: 190 });
+  const id = createItem({ type: 'mindmap', tree: t, x: p.x, y: p.y, w: 300, h: 190, ...extra });
   openMap(id, !tree);
   return id;
 }
 function mapFromItem(id) {
   const it = S.items.get(id); if (!it) return;
-  let title, text;
-  if (it.type === 'page') { title = (it.title || 'Untitled'); text = it.text; }
-  else { const lines = (it.text || '').split('\n'); const i = lines.findIndex(l => l.trim()); title = i < 0 ? 'Note' : plainMd(lines[i].replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '')); text = lines.slice(i + 1).join('\n'); }
-  const tree = outlineTree(title, text);
+  const tree = markS(sourceTree(it));
   // Grandes pages : on montre d'abord les grandes branches, comme NotebookLM.
   if (countNodes(tree) > 24) (function fold(n, d) { for (const k of n.c) { if (d >= 1 && k.c.length) k.f = true; fold(k, d + 1); } })(tree, 0);
   // Placée à droite de la carte source (ou de sa page racine) et reliée à elle.
   let anchorId = id, a = it; while (a?.parent) { anchorId = a.parent; a = S.items.get(a.parent); }
   const near = a && typeof a.x === 'number' ? { x: a.x + (a.w || 260) + 80, y: a.y } : null;
   if (S.pageId) { S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; try { if (history.state?.icPage) history.replaceState(null, ''); } catch {} }
-  const nid = addMap(tree, near);
+  const raw = srcRaw(id);
+  const nid = addMap(tree, near, { src: id, ss: hashStr(raw), hid: [] });
+  mmSeen.set(nid, raw);
   if (near) createLink(anchorId, nid);
-  if (!tree.c.length) toast('This was empty, so the map has only its centre. Add ideas with Tab.');
+  if (!tree.c.length) toast('This was empty, so the map has only its centre. Tap + to add ideas.');
 }
 
-const MM = { tx: 0, ty: 0, z: 1, sel: null, editing: null, fresh: false, boxes: new Map() };
+const MM = { tx: 0, ty: 0, z: 1, sel: null, editing: null, fresh: false, boxes: new Map(), panel: false };
 const mmItem = () => S.mapId && S.items.get(S.mapId);
+const isPhone = () => matchMedia('(max-width:640px)').matches;
 function openMap(id, fresh) {
   const it = S.items.get(id); if (!it || it.type !== 'mindmap') return;
   if (S.editing) { document.activeElement?.blur?.(); stopEdit(); }
   closePops();
+  // Cartes faites avant le suivi : on retrouve leur page par le lien qui les relie.
+  if (!it.src && !S.readonly) {
+    for (const l of S.links.values()) {
+      const o = l.from === id ? l.to : l.to === id ? l.from : null, s = o && S.items.get(o);
+      if (s && (s.type === 'page' || s.type === 'note') && sourceTree(s).t === it.tree.t) {
+        // Les idées qui portent le nom d'une ligne de la page sont marquées comme venues d'elle, pour ne pas les doubler.
+        const names = new Set(flatTree(sourceTree(s))), tree = JSON.parse(JSON.stringify(it.tree));
+        (function m(n) { if (names.has(n.t)) n.s = 1; n.c.forEach(m); })(tree);
+        persist(id, { src: o, hid: [], tree }); break;
+      }
+    }
+  }
   const first = !S.mapId;
-  S.mapId = id; MM.sel = it.tree.id; MM.editing = null;
+  S.mapId = id; MM.sel = it.tree.id; MM.editing = null; MM.panel = false;
   document.body.classList.add('paging'); $('#mapview').hidden = false;
   try { if (first) history.pushState({ icMap: id }, ''); } catch {}
+  syncMaps();
   renderMap(); mmFit(false);
   if (fresh && !S.readonly) mmEdit(it.tree.id);
 }
 function closeMap(fromHistory) {
   if (!S.mapId) return;
-  if (MM.editing) nodeEl(MM.editing)?.blur();
-  S.mapId = null; $('#mapview').hidden = true;
+  if (MM.editing) mmCommit(MM.editing);
+  document.activeElement?.blur?.();
+  S.mapId = null; MM.panel = false; $('#mapview').hidden = true; $('#mv-panel').hidden = true;
   if (!S.pageId) document.body.classList.remove('paging');
   if (!fromHistory) { try { if (history.state?.icMap) history.back(); } catch {} }
   render();
@@ -2126,13 +2276,19 @@ let mmRaf = 0;
 function scheduleMap() { if (!mmRaf) mmRaf = requestAnimationFrame(() => { mmRaf = 0; renderMap(); }); }
 const nodeEl = id => document.querySelector(`#mv-nodes .mv-node[data-n="${id}"]`);
 function mmApply() { $('#mv-world').style.transform = `translate(${MM.tx}px,${MM.ty}px) scale(${MM.z})`; }
-const GX = 64, GY = 12;
+const GX = 76, GY = 14;
+const ICO = {
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  photo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m21 16-5-5-8 8"/></svg>',
+};
 function renderMap() {
   const it = mmItem(); if (!it) { if (S.mapId) closeMap(); return; }
   if (MM.editing) return;   // ne pas reconstruire sous le curseur
   const tree = it.tree;
   $('#mv-title').textContent = tree.t || 'Mind map';
-  $('#mv-del').hidden = S.readonly; $('#mv-bar').hidden = S.readonly; $('#mv-hint').hidden = S.readonly || matchMedia('(max-width:640px)').matches;
+  $('#mv-linked').hidden = !(it.src && S.items.get(it.src));
+  $('#mv-del').hidden = S.readonly; $('#mv-hint').hidden = S.readonly;
   const anyFold = (function f(n) { return n.c.some(k => (k.f && k.c.length) || f(k)); })(tree);
   $('#mv-fold').textContent = anyFold ? 'Expand all' : 'Collapse all';
   if (!findNode(tree, MM.sel)) MM.sel = tree.id;
@@ -2140,7 +2296,18 @@ function renderMap() {
   const vis = [];
   (function walk(n, d, parent) {
     const b = document.createElement('div'); b.className = 'mv-node d' + Math.min(d, 4) + (n.id === MM.sel ? ' sel' : '');
-    b.dataset.n = n.id; b.textContent = n.t || ' '; b.tabIndex = -1; b.setAttribute('role', 'treeitem');
+    b.dataset.n = n.id; b.setAttribute('role', 'treeitem');
+    if (n.P?.length) { const im = document.createElement('img'); im.className = 'mv-thumb'; im.src = n.P[0]; im.alt = ''; im.draggable = false; im.loading = 'lazy'; im.onload = () => scheduleMap(); b.append(im); }
+    const t = document.createElement('span'); t.className = 'mv-t'; t.textContent = n.t || ''; b.append(t);
+    const bad = [];
+    if (n.n) bad.push(`<span title="Notes">${ICO.note}</span>`);
+    if (n.L?.length) bad.push(`<span title="Links">${ICO.link}${n.L.length}</span>`);
+    if (n.P?.length > 1) bad.push(`<span title="Photos">${ICO.photo}${n.P.length}</span>`);
+    if (bad.length) { const bd = document.createElement('div'); bd.className = 'mv-badges'; bd.innerHTML = bad.join(''); b.append(bd); }
+    if (!S.readonly) {
+      const pk = document.createElement('button'); pk.className = 'mv-plus kid'; pk.textContent = '+'; pk.setAttribute('aria-label', 'Add an idea inside'); pk.title = 'Add an idea inside (Tab)'; b.append(pk);
+      if (parent) { const ps = document.createElement('button'); ps.className = 'mv-plus sib'; ps.textContent = '+'; ps.setAttribute('aria-label', 'Add an idea below'); ps.title = 'Add an idea below (Enter)'; b.append(ps); }
+    }
     wrap.append(b);
     const v = { n, d, parent, el: b }; vis.push(v);
     if (n.c.length) {
@@ -2163,8 +2330,7 @@ function renderMap() {
   const kidsOf = v => v.n.f ? [] : v.n.c.map(k => by.get(k.id));
   (function size(v, x) {
     v.x = x; const ks = kidsOf(v);
-    const nx = x + v.w + (v.tog ? 30 : 0) + GX - (v.tog ? 30 : 0);
-    ks.forEach(k => size(k, nx));
+    ks.forEach(k => size(k, x + v.w + GX));
     const tot = ks.reduce((a, k) => a + k.sh, 0) + GY * Math.max(0, ks.length - 1);
     v.sh = Math.max(v.h, tot);
   })(vis[0], 0);
@@ -2182,16 +2348,22 @@ function renderMap() {
   for (const v of vis) {
     v.el.style.transform = `translate(${v.x}px,${v.y}px)`;
     MM.boxes.set(v.n.id, { x: v.x, y: v.y, w: v.w, h: v.h });
-    if (v.tog) v.tog.style.transform = `translate(${v.x + v.w + 6}px,${v.y + v.h / 2 - 11}px)`;
-    const sx = v.x + v.w + (v.tog ? 6 + (v.tog.offsetWidth || 22) : 0), sy = v.y + v.h / 2;
+    if (v.tog) v.tog.style.transform = `translate(${v.x + v.w + 18}px,${v.y + v.h / 2 - 11}px)`;
+    const sx = v.x + v.w + (v.tog ? 18 + (v.tog.offsetWidth || 22) : 12), sy = v.y + v.h / 2;
     for (const k of kidsOf(v)) {
       const ex = k.x, ey = k.y + k.h / 2, mx = (sx + ex) / 2;
       paths += `<path d="M${sx} ${sy} C ${mx} ${sy}, ${mx} ${ey}, ${ex} ${ey}"/>`;
     }
   }
   $('#mv-edges').innerHTML = paths;
-  const isRoot = MM.sel === tree.id;
-  $('#mv-sib').disabled = isRoot; $('#mv-rm').disabled = isRoot;
+  renderPanel();
+}
+// Zone visible de la carte, sans le panneau.
+function mmView() {
+  const r = $('#mv-stage').getBoundingClientRect();
+  let w = r.width, h = r.height;
+  if (MM.panel && isPhone()) h -= $('#mv-panel').offsetHeight || 0;
+  return { w, h };
 }
 function mmBounds() {
   let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
@@ -2199,71 +2371,97 @@ function mmBounds() {
   return { x: a, y: b, w: c - a, h: d - b };
 }
 function mmFit(animate = true) {
-  const st = $('#mv-stage').getBoundingClientRect(), bb = mmBounds(); if (!isFinite(bb.w)) return;
-  const padB = S.readonly ? 40 : 90;
-  const z = clamp(Math.min((st.width - 48) / bb.w, (st.height - 40 - padB) / bb.h), 0.25, 1.1);
-  MM.z = z; MM.tx = (st.width - bb.w * z) / 2 - bb.x * z; MM.ty = (st.height - padB + 20 - bb.h * z) / 2 - bb.y * z;
+  const v = mmView(), bb = mmBounds(); if (!isFinite(bb.w)) return;
+  const pad = S.readonly ? 30 : 50;
+  const z = clamp(Math.min((v.w - 48) / bb.w, (v.h - 40 - pad) / bb.h), 0.25, 1.1);
+  MM.z = z; MM.tx = (v.w - bb.w * z) / 2 - bb.x * z; MM.ty = (v.h - pad + 20 - bb.h * z) / 2 - bb.y * z;
   const w = $('#mv-world'); w.style.transition = animate ? 'transform .25s ease' : ''; mmApply(); if (animate) setTimeout(() => { w.style.transition = ''; }, 260);
 }
-// Garder l'idée choisie à l'écran après un ajout.
+// Garder l'idée choisie à l'écran (au-dessus de la feuille basse au téléphone).
 function mmReveal(id) {
   const r = MM.boxes.get(id); if (!r) return;
-  const st = $('#mv-stage').getBoundingClientRect(), m = 24;
-  const x1 = r.x * MM.z + MM.tx, y1 = r.y * MM.z + MM.ty, x2 = x1 + r.w * MM.z, y2 = y1 + r.h * MM.z;
-  if (x2 > st.width - m) MM.tx -= x2 - (st.width - m) + 40; if (x1 < m) MM.tx += m - x1;
-  if (y2 > st.height - 90) MM.ty -= y2 - (st.height - 90); if (y1 < m) MM.ty += m - y1;
+  const v = mmView(), m = 28;
+  const x1 = r.x * MM.z + MM.tx, y1 = r.y * MM.z + MM.ty, x2 = x1 + (r.w + 30) * MM.z, y2 = y1 + r.h * MM.z;
+  if (x2 > v.w - m) MM.tx -= x2 - (v.w - m); else if (x1 < m) MM.tx += m - x1;
+  if (y2 > v.h - m) MM.ty -= y2 - (v.h - m); else if (y1 < m) MM.ty += m - y1;
   mmApply();
 }
-function mmChange(fn) {
-  const it = mmItem(); if (!it || S.readonly) return;
+function mmChange(fn, extra) {
+  const it = mmItem(); if (!it || S.readonly) return false;
   const tree = JSON.parse(JSON.stringify(it.tree));
-  if (fn(tree) === false) return;
-  persist(S.mapId, { tree }); render(); renderMap();
+  if (fn(tree) === false) return false;
+  persist(S.mapId, { tree, ...(extra || {}) }); render(); renderMap();
+  return true;
 }
-function mmAdd(kind) {
-  const it = mmItem(); if (!it || S.readonly) return;
+const mmSet = (id, patch) => mmChange(tree => { const f = findNode(tree, id); if (!f) return false; Object.assign(f.node, patch); for (const k of Object.keys(patch)) if (patch[k] == null || patch[k] === '' || (Array.isArray(patch[k]) && !patch[k].length)) delete f.node[k]; });
+function mmAdd(kind, from, text) {
+  const it = mmItem(); if (!it || S.readonly) return null;
   if (MM.editing) mmCommit(MM.editing);
+  const at = from || MM.sel;
   let nid = null;
   mmChange(tree => {
-    const f = findNode(tree, MM.sel) || { node: tree, parent: null };
-    const n = mmNode(''); nid = n.id;
+    const f = findNode(tree, at) || { node: tree, parent: null };
+    const n = mmNode(text || ''); nid = n.id;
     if (kind === 'child' || !f.parent) { f.node.f = false; f.node.c.push(n); }
     else f.parent.c.splice(f.index + 1, 0, n);
   });
+  if (text) return nid;
   MM.sel = nid; MM.fresh = true; renderMap(); mmReveal(nid); mmEdit(nid);
+  return nid;
 }
-function mmRemove() {
-  const it = mmItem(); if (!it || S.readonly || MM.sel === it.tree.id) return;
-  const before = JSON.parse(JSON.stringify(it.tree)); let next = null, n = 0;
+function mmRemove(id = MM.sel) {
+  const it = mmItem(); if (!it || S.readonly || id === it.tree.id) return;
+  const before = JSON.parse(JSON.stringify(it.tree)), hid0 = [...(it.hid || [])]; let next = null, n = 0, hid = hid0;
+  const f0 = findNode(it.tree, id); if (!f0) return;
+  // Une idée venue de la page reste masquée quand la page change.
+  if (f0.node.s && it.src) hid = [...hid0, f0.node.t];
   mmChange(tree => {
-    const f = findNode(tree, MM.sel); if (!f?.parent) return false;
+    const f = findNode(tree, id); if (!f?.parent) return false;
     n = countNodes(f.node); f.parent.c.splice(f.index, 1);
     next = (f.parent.c[f.index] || f.parent.c[f.index - 1] || f.parent).id;
-  });
+  }, { hid });
   MM.sel = next; renderMap();
   const mapId = S.mapId;
-  toast(n > 1 ? `Removed ${n} ideas` : 'Removed', { label: 'Undo', run: () => { if (!S.items.get(mapId)) return; persist(mapId, { tree: before }); render(); if (S.mapId === mapId) renderMap(); } }, 6000);
+  toast(n > 1 ? `Removed ${n} ideas` : 'Removed', { label: 'Undo', run: () => { if (!S.items.get(mapId)) return; persist(mapId, { tree: before, hid: hid0 }); render(); if (S.mapId === mapId) renderMap(); } }, 6000);
 }
 function mmToggle(id) { mmChange(tree => { const f = findNode(tree, id); if (!f || !f.node.c.length) return false; f.node.f = !f.node.f; }); }
 function mmFoldAll() {
   const it = mmItem(); if (!it) return;
   const anyFold = (function f(n) { return n.c.some(k => (k.f && k.c.length) || f(k)); })(it.tree);
-  mmChange(tree => { (function w(n, d) { for (const k of n.c) { if (k.c.length) k.f = anyFold ? false : true; w(k, d + 1); } })(tree, 0); });
-  MM.sel = it.tree.id; renderMap(); mmFit();
+  mmChange(tree => { (function w(n) { for (const k of n.c) { if (k.c.length) k.f = !anyFold; w(k); } })(tree); });
+  renderMap(); mmFit();
+}
+// Déplacer une idée : dans une autre (fin de ses idées), ou juste avant / après elle.
+function mmMoveTo(id, target, where) {
+  mmChange(tree => {
+    const f = findNode(tree, id), t = findNode(tree, target);
+    if (!f?.parent || !t || isInside(f.node, target)) return false;
+    f.parent.c.splice(f.index, 1);
+    const t2 = findNode(tree, target);
+    if (where === 'in' || !t2.parent) { t2.node.f = false; t2.node.c.push(f.node); }
+    else t2.parent.c.splice(t2.index + (where === 'after' ? 1 : 0), 0, f.node);
+  });
+  MM.sel = id; renderMap(); mmReveal(id);
+}
+function mmSelect(id, open) {
+  if (MM.editing && MM.editing !== id) mmCommit(MM.editing);
+  MM.sel = id; if (open) MM.panel = true;
+  renderMap(); if (open) setTimeout(() => mmReveal(id), 0);
 }
 function mmEdit(id) {
   if (S.readonly) return;
   MM.sel = id; renderMap();
-  const el = nodeEl(id); if (!el) return;
-  MM.editing = id; el.contentEditable = 'true'; el.focus({ preventScroll: true });
-  const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
-  el.onblur = () => { if (MM.editing === id) mmCommit(id); };
-  el.onpaste = e => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData?.getData('text/plain') || '').replace(/\s+/g, ' ')); };
+  const el = nodeEl(id), t = el?.querySelector('.mv-t'); if (!t) return;
+  MM.editing = id; el.classList.add('editing'); t.contentEditable = 'true'; t.focus({ preventScroll: true });
+  const r = document.createRange(); r.selectNodeContents(t); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  t.onblur = () => { if (MM.editing === id) mmCommit(id); };
+  t.onpaste = e => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData?.getData('text/plain') || '').replace(/\s+/g, ' ')); };
 }
 function mmCommit(id, cancel) {
-  const el = nodeEl(id); const text = (el?.innerText || '').replace(/\s+/g, ' ').trim();
-  MM.editing = null; if (el) { el.contentEditable = 'false'; el.onblur = null; }
+  const el = nodeEl(id), t = el?.querySelector('.mv-t'); const text = (t?.innerText || '').replace(/\s+/g, ' ').trim();
+  MM.editing = null; if (t) { t.contentEditable = 'false'; t.onblur = null; } el?.classList.remove('editing');
   const fresh = MM.fresh; MM.fresh = false;
+  const it = mmItem(); let renamed = null;
   mmChange(tree => {
     const f = findNode(tree, id); if (!f) return false;
     // Échap ou texte vidé : une idée neuve disparaît, une idée existante garde son ancien nom.
@@ -2273,59 +2471,219 @@ function mmCommit(id, cancel) {
       return false;
     }
     if (f.node.t === text) return false;
+    if (f.node.s && it?.src) renamed = [f.node.t, text, !f.parent];
     f.node.t = text;
   });
+  if (renamed) renameInSource(it, ...renamed);
   renderMap();
 }
-function mmMove(dir) {
+function mmNav(dir) {
   const it = mmItem(); if (!it) return;
   const f = findNode(it.tree, MM.sel); if (!f) return;
   let to = null;
   if (dir === 'ArrowLeft') to = f.parent?.id;
   else if (dir === 'ArrowRight') { if (f.node.c.length) { if (f.node.f) { mmToggle(f.node.id); return; } to = f.node.c[0].id; } }
   else if (f.parent) { const sib = f.parent.c[f.index + (dir === 'ArrowDown' ? 1 : -1)]; to = sib?.id; }
-  if (to) { MM.sel = to; renderMap(); mmReveal(to); }
+  if (to) { mmSelect(to, MM.panel); mmReveal(to); }
 }
+
+/* Panneau d'une idée */
+function linkMeta(u) {
+  const yt = ytId(u);
+  if (yt) return fetch('https://noembed.com/embed?url=' + encodeURIComponent(u)).then(r => r.json()).then(r => ({ t: r.title, i: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`, s: 'YouTube' })).catch(() => ({ i: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`, s: 'YouTube' }));
+  return fetch('https://api.microlink.io/?url=' + encodeURIComponent(u)).then(r => r.json()).then(r => {
+    if (r?.status !== 'success') return {};
+    const d = r.data || {}; return { t: d.title, i: /^https:/i.test(d.image?.url || '') ? d.image.url : undefined, s: d.publisher };
+  }).catch(() => ({}));
+}
+function mmAddLink(id, raw) {
+  const u = normUrl(raw.trim()); if (!/^https?:\/\//i.test(u)) { toast('That does not look like a link.'); return; }
+  const it = mmItem(); const f = it && findNode(it.tree, id); if (!f) return;
+  mmSet(id, { L: [...(f.node.L || []), { u }] });
+  const mapId = S.mapId;
+  linkMeta(u).then(m => {
+    const cur = S.items.get(mapId); if (!cur) return;
+    const tree = JSON.parse(JSON.stringify(cur.tree)), g = findNode(tree, id); if (!g) return;
+    const l = (g.node.L || []).find(x => x.u === u && !x.t); if (!l) return;
+    if (m.t) l.t = String(m.t).slice(0, 160); if (m.i) l.i = m.i; if (m.s) l.s = String(m.s).slice(0, 60);
+    persist(mapId, { tree }); render(); if (S.mapId === mapId) renderMap();
+  });
+}
+async function mmAddPhotos(id, files) {
+  const mapId = S.mapId;
+  for (const f of files.filter(x => x.type.startsWith('image/'))) {
+    const url = await uploadForPage(f); if (!url) continue;
+    const cur = S.items.get(mapId); if (!cur) return;
+    const tree = JSON.parse(JSON.stringify(cur.tree)), g = findNode(tree, id); if (!g) return;
+    g.node.P = [...(g.node.P || []), url];
+    persist(mapId, { tree }); render(); if (S.mapId === mapId) renderMap();
+  }
+}
+function mmAddLines(id, text) {
+  const lines = text.split('\n').map(l => plainMd(l.replace(MD_PRE, ''))).filter(Boolean);
+  let last = null;
+  for (const l of lines) { if (isUrl(l) && lines.length === 1) { mmAddLink(id, l); return; } last = mmAdd('child', id, l.slice(0, 200)); }
+  return last;
+}
+let panelFor = null;
+function renderPanel() {
+  const p = $('#mv-panel'), it = mmItem();
+  const f = it && findNode(it.tree, MM.sel);
+  p.hidden = !MM.panel || !f;
+  if (p.hidden) { panelFor = null; return; }
+  const n = f.node, ro = S.readonly, same = panelFor === n.id; panelFor = n.id;
+  // Fil : idées parentes.
+  const chain = []; let cur = f; while (cur?.parent) { cur = findNode(it.tree, cur.parent.id); chain.unshift(cur.node.t); }
+  $('#mp-crumb').textContent = chain.length ? chain.join(' › ') : 'Centre of the map';
+  const ti = $('#mp-title'); if (document.activeElement !== ti) { ti.value = n.t || ''; } ti.readOnly = ro; autosize(ti);
+  const srcIt = it.src && S.items.get(it.src), ps = $('#mp-src');
+  ps.hidden = !(n.s && srcIt);
+  if (!ps.hidden) { ps.innerHTML = ''; ps.append('From ', Object.assign(document.createElement('button'), { textContent: (srcIt.type === 'page' ? (srcIt.title || 'Untitled') : 'its note'), onclick: () => { const sid = it.src; closeMap(); srcIt.type === 'page' ? openPage(sid) : focusItem(sid); } }), '. Renaming it here renames it there too.'); }
+  const no = $('#mp-notes'); if (document.activeElement !== no) no.value = n.n || ''; no.readOnly = ro; autosize(no);
+  $('#mp-links').replaceChildren(...(n.L || []).map((l, i) => {
+    const a = document.createElement('a'); a.className = 'mp-link'; a.href = l.u; a.target = '_blank'; a.rel = 'noopener';
+    const info = linkInfo(l.u);
+    if (l.i) { const im = document.createElement('img'); im.src = l.i; im.alt = ''; im.loading = 'lazy'; a.append(im); }
+    else { const lt = document.createElement('span'); lt.className = 'lt'; lt.textContent = info.letter; a.append(lt); }
+    const tx = document.createElement('span'); tx.className = 'tx';
+    const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = l.t || info.host;
+    const t2 = document.createElement('div'); t2.className = 't2'; t2.textContent = l.s || info.host; tx.append(t1, t2); a.append(tx);
+    if (!ro) { const x = document.createElement('button'); x.className = 'mp-x'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove link'); x.onclick = e => { e.preventDefault(); e.stopPropagation(); mmSet(n.id, { L: n.L.filter((_, j) => j !== i) }); }; a.append(x); }
+    return a;
+  }));
+  $('#mp-link-in').hidden = ro;
+  $('#mp-photos').replaceChildren(...(n.P || []).map((u, i) => {
+    const d = document.createElement('div'); d.className = 'mp-ph';
+    const im = document.createElement('img'); im.src = u; im.alt = ''; im.loading = 'lazy'; im.onclick = () => window.open(u, '_blank', 'noopener');
+    d.append(im);
+    if (!ro) { const x = document.createElement('button'); x.className = 'mp-x'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove photo'); x.onclick = () => mmSet(n.id, { P: n.P.filter((_, j) => j !== i) }); d.append(x); }
+    return d;
+  }));
+  $('#mp-photo-add').hidden = ro;
+  $('#mp-kids').replaceChildren(...n.c.map(k => {
+    const b = document.createElement('button'); b.className = 'mp-kid'; b.textContent = k.t || 'Untitled';
+    const c = countNodes(k) - 1; if (c) { const s = document.createElement('span'); s.className = 'n'; s.textContent = c; b.append(s); }
+    b.onclick = () => mmSelect(k.id, true); return b;
+  }));
+  $('#mp-kid-in').hidden = ro;
+  const fb = $('#mp-fold'); fb.hidden = !n.c.length; fb.textContent = n.f ? 'Show its ideas' : 'Hide its ideas';
+  $('#mp-rm').hidden = ro || !f.parent; $('#mp-page').hidden = ro;
+  if (!same) $('#mp-scroll').scrollTop = 0;
+}
+$('#mp-close').onclick = () => { MM.panel = false; renderMap(); };
+$('#mp-title').addEventListener('input', e => {
+  autosize(e.target); const id = MM.sel, v = e.target.value.replace(/\s+/g, ' ');
+  clearTimeout(e.target.t); e.target.t = setTimeout(() => {
+    const it = mmItem(), f = it && findNode(it.tree, id); if (!f || !v.trim() || f.node.t === v.trim()) return;
+    const old = f.node.t; mmSet(id, { t: v.trim() });
+    if (f.node.s && it.src) renameInSource(it, old, v.trim(), !f.parent);
+  }, 600);
+});
+$('#mp-title').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
+$('#mp-notes').addEventListener('input', e => { autosize(e.target); const id = MM.sel, v = e.target.value; clearTimeout(e.target.t); e.target.t = setTimeout(() => mmSet(id, { n: v }), 600); });
+$('#mp-link-in').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const v = e.target.value.trim(); if (v) { mmAddLink(MM.sel, v); e.target.value = ''; } } });
+$('#mp-link-in').addEventListener('paste', e => { const v = e.clipboardData?.getData('text/plain')?.trim(); if (v && isUrl(v)) { e.preventDefault(); mmAddLink(MM.sel, v); } });
+$('#mp-photo-add').onclick = () => { S.pickingFile = true; $('#mp-file').click(); setTimeout(() => { S.pickingFile = false; }, 60000); };
+$('#mp-file').addEventListener('change', e => { const fs = [...e.target.files]; e.target.value = ''; S.pickingFile = false; if (fs.length) mmAddPhotos(MM.sel, fs); });
+$('#mp-kid-in').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const v = e.target.value; if (v.trim()) { mmAddLines(MM.sel, v); e.target.value = ''; autosize(e.target); } } });
+$('#mp-kid-in').addEventListener('input', e => autosize(e.target));
+$('#mp-fold').onclick = () => mmToggle(MM.sel);
+$('#mp-rm').onclick = () => mmRemove(MM.sel);
+// Une idée qui grandit trop pour une carte devient une page, avec ses notes, ses liens, ses photos et ses idées.
+$('#mp-page').onclick = () => {
+  const it = mmItem(), f = it && findNode(it.tree, MM.sel); if (!f) return;
+  const n = f.node, out = [];
+  if (n.n) out.push(n.n, '');
+  (function kids(list, d) { for (const k of list) { out.push('  '.repeat(d) + '- ' + k.t); kids(k.c, d + 1); } })(n.c, 0);
+  if (n.L?.length) out.push('', '## Links', ...n.L.map(l => `- [${(l.t || linkInfo(l.u).host).replace(/[[\]]/g, '')}](${l.u})`));
+  if (n.P?.length) out.push('', ...n.P.map(u => `![](${u})`));
+  const near = { x: it.x + (it.w || 300) + 60, y: it.y + 40 };
+  const pid = createItem({ type: 'page', title: n.t, icon: '💡', text: out.join('\n'), x: near.x, y: near.y, w: 260, h: 150 }, { keepSel: true });
+  createLink(S.mapId, pid);
+  closeMap(); openPage(pid);
+};
+
 document.addEventListener('keydown', e => {
   if (!S.mapId) return;
+  // Les champs du panneau gardent leurs touches ; seules les touches de la carte s'arrêtent ici.
+  if (!MM.editing && isField(document.activeElement)) { if (e.key === 'Escape') { document.activeElement.blur(); e.stopImmediatePropagation(); } return; }
   e.stopImmediatePropagation();
   if (MM.editing) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const id = MM.editing; mmCommit(id); if (!S.readonly && MM.sel === id && findNode(mmItem().tree, id)?.parent) mmAdd('sibling'); }
-    else if (e.key === 'Tab') { e.preventDefault(); mmCommit(MM.editing); mmAdd('child'); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const id = MM.editing; mmCommit(id); if (!S.readonly && findNode(mmItem().tree, id)?.parent) mmAdd('sibling', id); }
+    else if (e.key === 'Tab') { e.preventDefault(); const id = MM.editing; mmCommit(id); if (findNode(mmItem().tree, id)) mmAdd('child', id); }
     else if (e.key === 'Escape') { e.preventDefault(); mmCommit(MM.editing, true); }
     return;
   }
-  if (isField(document.activeElement)) return;
   const mod = e.metaKey || e.ctrlKey;
-  if (e.key === 'Escape') closeMap();
+  if (e.key === 'Escape') { if (MM.panel) { MM.panel = false; renderMap(); } else closeMap(); }
   else if (e.key === 'Tab') { e.preventDefault(); mmAdd('child'); }
   else if (e.key === 'Enter') { e.preventDefault(); if (MM.sel === mmItem()?.tree.id) mmAdd('child'); else mmAdd('sibling'); }
   else if (e.key === 'F2' || e.key === ' ') { e.preventDefault(); mmEdit(MM.sel); }
   else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); mmRemove(); }
-  else if (e.key.startsWith('Arrow')) { e.preventDefault(); mmMove(e.key); }
-  else if (e.key === '.' || (mod && e.key === '.')) { e.preventDefault(); const it = mmItem(); if (it) mmToggle(MM.sel); }
-  else if (e.key === '!' || (e.shiftKey && e.key === '1')) mmFit();
-  else if (!mod && e.key.length === 1 && !S.readonly) { mmEdit(MM.sel); }
+  else if (e.key.startsWith('Arrow')) { e.preventDefault(); mmNav(e.key); }
+  else if (e.key === '!') mmFit();
+  else if (!mod && e.key.length === 1 && !S.readonly) mmEdit(MM.sel);
 }, true);
-// Gestes : glisser le fond pour se déplacer, pincer ou Ctrl/⌘ + molette pour zoomer, toucher une idée pour la choisir.
+// Coller sur la carte : un lien ou une photo va dans l'idée choisie, du texte devient des idées dedans.
+function mmPaste(e) {
+  if (isField(document.activeElement) || S.readonly) return;
+  const cd = e.clipboardData; if (!cd) return;
+  const files = [...(cd.files || [])].filter(f => f.type.startsWith('image/'));
+  e.preventDefault();
+  if (files.length) { mmAddPhotos(MM.sel, files); MM.panel = true; renderMap(); return; }
+  const text = (cd.getData('text/plain') || '').trim(); if (!text) return;
+  if (isUrl(text)) { mmAddLink(MM.sel, text); MM.panel = true; renderMap(); return; }
+  mmAddLines(MM.sel, text);
+}
+// Gestes : glisser le fond pour se déplacer, pincer ou Ctrl/⌘ + molette pour zoomer,
+// toucher une idée pour l'ouvrir, la faire glisser (appui long au doigt) pour la déplacer.
 (() => {
-  const stage = $('#mv-stage'), P = new Map(); let pan = null, pinch = null, tapNode = null;
+  const stage = $('#mv-stage'), P = new Map(); let pan = null, pinch = null, tap = null, drag = null, lastTap = null;
+  const clearDrop = () => document.querySelectorAll('.mv-node.drop-in,.mv-node.drop-before,.mv-node.drop-after').forEach(x => x.classList.remove('drop-in', 'drop-before', 'drop-after'));
+  const startDrag = (e) => {
+    const el = nodeEl(tap.id); if (!el) return;
+    const g = el.cloneNode(true); g.classList.add('mv-ghost'); g.classList.remove('sel'); g.style.transform = ''; g.querySelectorAll('.mv-plus').forEach(x => x.remove());
+    g.style.width = el.offsetWidth * MM.z + 'px'; g.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * MM.z) + 'px';
+    document.body.append(g); el.classList.add('dragging');
+    drag = { id: tap.id, g, dx: 20, dy: 14, target: null, where: null };
+    try { navigator.vibrate?.(12); } catch {}
+    moveDrag(e);
+  };
+  const moveDrag = e => {
+    drag.g.style.left = (e.clientX - drag.dx) + 'px'; drag.g.style.top = (e.clientY - drag.dy) + 'px';
+    clearDrop(); drag.target = null;
+    const t = document.elementFromPoint(e.clientX, e.clientY)?.closest('.mv-node');
+    const it = mmItem(); if (!t || !it) return;
+    const tid = t.dataset.n, f = findNode(it.tree, drag.id); if (!f || isInside(f.node, tid)) return;
+    const r = t.getBoundingClientRect(), q = (e.clientY - r.top) / r.height, isRoot = tid === it.tree.id;
+    const where = isRoot ? 'in' : q < 0.25 ? 'before' : q > 0.75 ? 'after' : 'in';
+    t.classList.add('drop-' + where); drag.target = tid; drag.where = where;
+  };
+  const endDrag = ok => {
+    clearDrop(); drag.g.remove(); nodeEl(drag.id)?.classList.remove('dragging');
+    const d = drag; drag = null;
+    if (ok && d.target) mmMoveTo(d.id, d.target, d.where);
+  };
   stage.addEventListener('pointerdown', e => {
-    if (e.target.closest('.mv-bar') || e.target.closest('[contenteditable="true"]')) return;
-    const nodeB = e.target.closest('.mv-node'), tog = e.target.closest('.mv-tog');
+    if (e.target.closest('[contenteditable="true"]')) return;
+    const nodeB = e.target.closest('.mv-node'), tog = e.target.closest('.mv-tog'), plus = e.target.closest('.mv-plus');
     P.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (P.size === 2) {
+      clearTimeout(tap?.lp); if (drag) endDrag(false);
       const [a, b] = [...P.values()];
-      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: MM.z, tx: MM.tx, ty: MM.ty, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; pan = null; tapNode = null; return;
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: MM.z, tx: MM.tx, ty: MM.ty, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; pan = null; tap = null; return;
     }
-    if (MM.editing && !nodeB) mmCommit(MM.editing);
-    tapNode = tog ? { tog: tog.dataset.t } : nodeB ? { id: nodeB.dataset.n, wasSel: nodeB.dataset.n === MM.sel } : null;
-    pan = { sx: e.clientX, sy: e.clientY, tx: MM.tx, ty: MM.ty, moved: false };
+    if (MM.editing && (!nodeB || nodeB.dataset.n !== MM.editing)) mmCommit(MM.editing);
+    tap = plus ? { plus: plus.classList.contains('kid') ? 'child' : 'sibling', id: nodeB.dataset.n } : tog ? { tog: tog.dataset.t } : nodeB ? { id: nodeB.dataset.n, node: true } : null;
+    pan = { sx: e.clientX, sy: e.clientY, tx: MM.tx, ty: MM.ty, moved: false, mouse: e.pointerType === 'mouse' };
+    // Au doigt, un appui long sur une idée la prend ; un glisser simple déplace la vue.
+    if (tap?.node && !S.readonly && e.pointerType !== 'mouse' && tap.id !== mmItem()?.tree.id) tap.lp = setTimeout(() => { if (pan && !pan.moved && P.size === 1) { pan.moved = true; startDrag({ clientX: pan.sx, clientY: pan.sy }); } }, 420);
     try { stage.setPointerCapture(e.pointerId); } catch {}
   });
   stage.addEventListener('pointermove', e => {
     if (!P.has(e.pointerId)) return;
     P.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (drag) { moveDrag(e); return; }
     if (pinch && P.size >= 2) {
       const [a, b] = [...P.values()], d = Math.hypot(a.x - b.x, a.y - b.y), r = stage.getBoundingClientRect();
       const z = clamp(pinch.z * d / pinch.d, 0.2, 2.5), cx = pinch.cx - r.left, cy = pinch.cy - r.top;
@@ -2334,23 +2692,33 @@ document.addEventListener('keydown', e => {
     if (!pan) return;
     const dx = e.clientX - pan.sx, dy = e.clientY - pan.sy;
     if (!pan.moved && Math.hypot(dx, dy) < 6) return;
+    if (!pan.moved) {
+      clearTimeout(tap?.lp); pan.moved = true;
+      // À la souris, glisser une idée la déplace ; glisser le fond déplace la vue.
+      if (pan.mouse && tap?.node && !S.readonly && tap.id !== mmItem()?.tree.id && !MM.editing) { startDrag(e); return; }
+    }
     if (MM.editing) return;
-    pan.moved = true; stage.classList.add('panning');
+    stage.classList.add('panning');
     MM.tx = pan.tx + dx; MM.ty = pan.ty + dy; mmApply();
   });
   const end = e => {
     if (!P.has(e.pointerId)) return;
-    P.delete(e.pointerId);
+    P.delete(e.pointerId); clearTimeout(tap?.lp);
+    if (drag) { endDrag(e.type === 'pointerup'); pan = null; tap = null; return; }
     if (pinch) { if (P.size < 2) pinch = null; pan = null; return; }
     stage.classList.remove('panning');
     const p = pan; pan = null;
     if (!p || p.moved || e.type !== 'pointerup') return;
-    const t = tapNode; tapNode = null;
-    if (!t) { if (MM.editing) mmCommit(MM.editing); return; }
+    const t = tap; tap = null;
+    if (!t) { if (MM.editing) mmCommit(MM.editing); else if (MM.panel) { MM.panel = false; renderMap(); } return; }
+    if (t.plus) { MM.sel = t.id; mmAdd(t.plus, t.id); return; }
     if (t.tog) { mmToggle(t.tog); return; }
     if (MM.editing === t.id) return;
-    if (t.wasSel && !S.readonly) mmEdit(t.id);
-    else { if (MM.editing) mmCommit(MM.editing); MM.sel = t.id; renderMap(); }
+    // Double appui : renommer sur place.
+    const now = Date.now();
+    if (lastTap && lastTap.id === t.id && now - lastTap.t < 350 && !S.readonly) { lastTap = null; mmEdit(t.id); return; }
+    lastTap = { id: t.id, t: now };
+    mmSelect(t.id, true);
   };
   stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
   stage.addEventListener('wheel', e => {
@@ -2362,16 +2730,19 @@ document.addEventListener('keydown', e => {
     } else { MM.tx -= e.deltaX; MM.ty -= e.deltaY; }
     mmApply();
   }, { passive: false });
-  // Garder le focus dans l'idée en cours quand on touche la barre.
-  for (const b of ['mv-child', 'mv-sib', 'mv-edit', 'mv-rm']) $('#' + b).addEventListener('pointerdown', e => e.preventDefault());
+  stage.addEventListener('dragover', e => e.preventDefault());
+  stage.addEventListener('drop', e => {
+    e.preventDefault(); if (S.readonly) return;
+    const t = document.elementFromPoint(e.clientX, e.clientY)?.closest('.mv-node'), id = t?.dataset.n || MM.sel;
+    const fs = [...(e.dataTransfer?.files || [])];
+    if (fs.length) { MM.sel = id; MM.panel = true; mmAddPhotos(id, fs); renderMap(); return; }
+    const u = (e.dataTransfer?.getData('text/uri-list') || e.dataTransfer?.getData('text/plain') || '').split('\n').find(l => l && !l.startsWith('#'));
+    if (u) { MM.sel = id; MM.panel = true; if (isUrl(u.trim())) mmAddLink(id, u); else mmAddLines(id, u); renderMap(); }
+  });
 })();
 $('#mv-back').onclick = () => closeMap();
 $('#mv-fit').onclick = () => mmFit();
 $('#mv-fold').onclick = () => mmFoldAll();
-$('#mv-child').onclick = () => mmAdd('child');
-$('#mv-sib').onclick = () => mmAdd('sibling');
-$('#mv-edit').onclick = () => { if (MM.editing) mmCommit(MM.editing); else mmEdit(MM.sel); };
-$('#mv-rm').onclick = () => { if (MM.editing) { const id = MM.editing; MM.editing = null; const el = nodeEl(id); if (el) { el.contentEditable = 'false'; el.onblur = null; } MM.fresh = false; } mmRemove(); };
 $('#mv-del').onclick = () => { const id = S.mapId; if (!id) return; closeMap(); S.sel = new Set([id]); deleteSel(); };
 addEventListener('resize', () => { if (S.mapId) mmReveal(MM.sel); });
 
