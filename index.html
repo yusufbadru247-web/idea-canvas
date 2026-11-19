@@ -170,11 +170,15 @@ button{font:inherit;color:inherit}
 .btn.grow{flex:1}
 .hint{color:var(--muted);font-size:12px;line-height:1.45}
 #help-pop h3{margin:0 0 8px;font-size:15px}
-#signin{top:50%;left:50%;transform:translate(-50%,-50%);padding:18px;display:flex;flex-direction:column;gap:10px;z-index:35;width:min(360px,calc(100vw - 32px))}
-#signin h3{margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em}
-#signin p{margin:0}
-#si-email{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:9px 12px;border-radius:6px;border:0;box-shadow:inset 0 0 0 1px var(--line);background:var(--hover);color:var(--ink)}
-#si-msg:empty{display:none}
+#signin,#setcode{top:50%;left:50%;transform:translate(-50%,-50%);padding:18px;display:flex;flex-direction:column;gap:10px;z-index:35;width:min(360px,calc(100vw - 32px))}
+#signin h3,#setcode h3{margin:0;font-size:18px;font-weight:700;letter-spacing:-.01em}
+#signin p,#setcode p{margin:0}
+.linkbtn{border:0;background:none;padding:2px 0;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;align-self:center}
+.linkbtn:hover{color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+#sc-msg.ok{color:var(--ok)}
+.field{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:9px 12px;border-radius:6px;border:0;box-shadow:inset 0 0 0 1px var(--line);background:var(--hover);color:var(--ink)}
+#si-msg:empty,#sc-msg:empty{display:none}
 #help-pop dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:13px}
 #help-pop dt{color:var(--muted);white-space:nowrap}
 #help-pop dd{margin:0}
@@ -300,11 +304,21 @@ button{font:inherit;color:inherit}
   </dl>
 </div>
 <div id="signin" class="pop" hidden role="dialog" aria-modal="true" aria-labelledby="si-title">
-  <h3 id="si-title">See your boards everywhere</h3>
-  <p class="hint" id="si-text">Enter your email and we'll send you a sign-in link. Open it on this device. Your boards then sync to your phone, computer and any browser.</p>
-  <input type="email" id="si-email" autocomplete="email" inputmode="email" placeholder="you@example.com" aria-label="Email">
-  <div class="row"><button class="btn" id="si-later">Not now</button><button class="btn primary grow" id="si-send">Send link</button></div>
+  <h3 id="si-title">Sign in to your boards</h3>
+  <p class="hint">Use your email and your sign-in code. No code yet? Use the email link below once, then set a code from the board menu.</p>
+  <input type="email" id="si-email" class="field" autocomplete="username" inputmode="email" placeholder="you@example.com" aria-label="Email">
+  <input type="password" id="si-code" class="field" autocomplete="current-password" placeholder="Your sign-in code" aria-label="Sign-in code">
+  <div class="row"><button class="btn" id="si-later">Not now</button><button class="btn primary grow" id="si-send">Sign in</button></div>
+  <button class="linkbtn" id="si-link">Email me a sign-in link instead</button>
   <p class="hint" id="si-msg" aria-live="polite"></p>
+</div>
+<div id="setcode" class="pop" hidden role="dialog" aria-modal="true" aria-labelledby="sc-title">
+  <h3 id="sc-title">Your sign-in code</h3>
+  <p class="hint">Pick a code you'll remember: at least 8 characters, with letters and numbers. With your email, it signs you in on any computer.</p>
+  <input type="password" id="sc-new" class="field" autocomplete="new-password" placeholder="New code" aria-label="New code">
+  <input type="password" id="sc-again" class="field" autocomplete="new-password" placeholder="Type it again" aria-label="Type the code again">
+  <div class="row"><button class="btn" id="sc-cancel">Cancel</button><button class="btn primary grow" id="sc-save" disabled>Save code</button></div>
+  <p class="hint" id="sc-msg" aria-live="polite"></p>
 </div>
 <div id="toasts" aria-live="polite"></div>
 
@@ -1209,7 +1223,7 @@ function renderBoardPop(renaming) {
   kids.push(note);
   if (SUPA_ON && S.sb) {
     const a = document.createElement('button'); a.className = 'pop-item';
-    if (S.store?.kind === 'supa') { a.textContent = 'Sign out'; a.onclick = async () => { await S.sb.auth.signOut().catch(() => {}); location.reload(); }; }
+    if (S.store?.kind === 'supa') { const sc = document.createElement('button'); sc.className = 'pop-item'; sc.textContent = 'Set your sign-in code'; sc.onclick = () => { closePops(); openSetCode(); }; kids.push(sc); a.textContent = 'Sign out'; a.onclick = async () => { await S.sb.auth.signOut().catch(() => {}); location.reload(); }; }
     else { a.textContent = 'Sign in to sync'; a.onclick = () => { closePops(); openSignin(); }; }
     kids.push(a);
   }
@@ -1221,6 +1235,40 @@ function setSync() {
   s.title = S.synced ? 'Saved to your account, on every device' : 'Saved in this browser only';
 }
 
+
+/* ---------- code de connexion personnel ---------- */
+// Un mot de passe Supabase, présenté comme un code : assez long pour ne pas se deviner.
+function openSetCode() {
+  const p = $('#setcode'), a = $('#sc-new'), b = $('#sc-again'), save = $('#sc-save'), msg = $('#sc-msg');
+  a.value = ''; b.value = ''; msg.textContent = ''; msg.className = 'hint'; save.disabled = true; save.textContent = 'Save code';
+  p.hidden = false; setTimeout(() => a.focus(), 50);
+  const check = () => {
+    const v = a.value, ok = v.length >= 8 && /[a-z]/i.test(v) && /\d/.test(v);
+    save.disabled = !(ok && v === b.value);
+    msg.className = 'hint';
+    msg.textContent = !v ? '' : !ok ? 'At least 8 characters, with letters and numbers.' : b.value && v !== b.value ? 'The two codes are not the same yet.' : '';
+  };
+  a.oninput = check; b.oninput = check;
+  save.onclick = async () => {
+    if (save.disabled) return;
+    save.disabled = true; save.textContent = 'Saving…';
+    const { error } = await S.sb.auth.updateUser({ password: a.value });
+    if (error) {
+      save.disabled = false; save.textContent = 'Save code';
+      msg.textContent = /reauth|recent|nonce/i.test(error.message) ? 'For safety, sign out, sign in again with the email link, then set your code.'
+        : /same|different/i.test(error.message) ? 'That is already your code.'
+        : /weak|short|characters/i.test(error.message) ? 'That code is too easy to guess. Try a longer one.'
+        : 'Could not save the code. Check your connection and try again.';
+      return;
+    }
+    a.value = ''; b.value = ''; save.textContent = 'Saved';
+    msg.className = 'hint ok'; msg.textContent = 'Code saved. On another computer, sign in with your email and this code.';
+    setTimeout(() => { p.hidden = true; }, 2200);
+  };
+  const keys = e => { if (e.key === 'Escape') p.hidden = true; if (e.key === 'Enter') save.click(); e.stopPropagation(); };
+  a.onkeydown = keys; b.onkeydown = keys;
+  $('#sc-cancel').onclick = () => { p.hidden = true; };
+}
 
 /* ---------- mise en forme d'une note ---------- */
 const noteTA = () => S.editing && document.getElementById('edit-' + S.editing);
@@ -1491,20 +1539,33 @@ async function importLocal(store) {
   return used.length;
 }
 function openSignin() {
-  const p = $('#signin'), email = $('#si-email'), msg = $('#si-msg'), send = $('#si-send');
-  msg.textContent = ''; send.disabled = false; send.textContent = 'Send link';
+  const p = $('#signin'), email = $('#si-email'), code = $('#si-code'), msg = $('#si-msg'), send = $('#si-send'), link = $('#si-link');
+  msg.textContent = ''; send.disabled = false; send.textContent = 'Sign in'; link.disabled = false; link.textContent = 'Email me a sign-in link instead';
   p.hidden = false; setTimeout(() => email.focus(), 50);
-  const go = async () => {
+  const validEmail = () => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim());
+  const signIn = async () => {
+    if (!validEmail()) { msg.textContent = 'Enter your full email address.'; email.focus(); return; }
+    if (!code.value) { msg.textContent = 'Enter your sign-in code, or use the email link below.'; code.focus(); return; }
+    send.disabled = true; send.textContent = 'Signing in…'; msg.textContent = '';
+    const { error } = await S.sb.auth.signInWithPassword({ email: email.value.trim(), password: code.value });
+    if (!error) { location.reload(); return; }
+    send.disabled = false; send.textContent = 'Sign in';
+    msg.textContent = /rate|many|seconds/i.test(error.message) ? 'Too many tries. Wait a few minutes, then try again.'
+      : /confirm/i.test(error.message) ? 'This email is not confirmed yet. Use the email link below.'
+      : 'Wrong email or code. No code yet? Use the email link below.';
+  };
+  const sendLink = async () => {
+    if (!validEmail()) { msg.textContent = 'Enter your full email address first.'; email.focus(); return; }
+    link.disabled = true; link.textContent = 'Sending…';
     const v = email.value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { msg.textContent = 'Enter a full email address.'; return; }
-    send.disabled = true; send.textContent = 'Sending…';
-    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname } });
-    if (error) { send.disabled = false; send.textContent = 'Send link'; msg.textContent = /rate|seconds|many/i.test(error.message) ? 'Too many emails for now. Wait a few minutes, then try again.' : 'Could not send the link. Check the address and try again.'; return; }
-    send.textContent = 'Link sent';
+    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: false } });
+    if (error) { link.disabled = false; link.textContent = 'Email me a sign-in link instead'; msg.textContent = /rate|seconds|many/i.test(error.message) ? 'Too many emails for now. Wait a few minutes, then try again.' : 'Could not send the link. Check the address and try again.'; return; }
+    link.textContent = 'Link sent';
     msg.textContent = `Check ${v} and open the link on this device. This page switches over by itself.`;
   };
-  send.onclick = go;
-  email.onkeydown = e => { if (e.key === 'Enter') go(); if (e.key === 'Escape') p.hidden = true; e.stopPropagation(); };
+  send.onclick = signIn; link.onclick = sendLink;
+  const keys = e => { if (e.key === 'Enter') { e.preventDefault(); signIn(); } if (e.key === 'Escape') p.hidden = true; e.stopPropagation(); };
+  email.onkeydown = keys; code.onkeydown = keys;
   $('#si-later').onclick = () => { p.hidden = true; lsSet('idea-canvas:signin-later', '1'); };
 }
 addEventListener('resize', () => applyView());
