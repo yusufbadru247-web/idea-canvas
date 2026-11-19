@@ -227,9 +227,43 @@ button{font:inherit;color:inherit}
 #search-res{max-height:min(360px,55vh);overflow:auto}
 .sr .sr-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sr .sr-kind{flex:none;color:var(--muted);font-size:12px}
+
+/* Fond de la toile : uni par défaut, points ou quadrillage au choix */
+#vp.bg-plain{background-image:none}
+#vp.bg-grid{background-image:linear-gradient(var(--dot) 1px,transparent 1px),linear-gradient(90deg,var(--dot) 1px,transparent 1px)}
+.seg{display:flex;gap:2px;padding:2px;margin:2px 6px 6px;border-radius:7px;background:var(--hover)}
+.seg button{flex:1;border:0;background:transparent;border-radius:5px;padding:5px 0;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--chrome);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(15,15,15,.08);font-weight:500}
+.pop .lbl-sm{display:block;color:var(--muted);font-size:12px;margin:8px 10px 2px}
+
+/* Vue en liste : toutes les cartes du tableau, l'une sous l'autre */
+#listview{position:fixed;inset:0;z-index:15;overflow:auto;background:var(--bg);-webkit-overflow-scrolling:touch;
+  padding:calc(72px + env(safe-area-inset-top,0px)) 16px calc(96px + env(safe-area-inset-bottom,0px))}
+.lv-wrap{max-width:680px;margin:0 auto}
+.lv-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:0;border-radius:6px;padding:5px 10px;font-size:13px;cursor:pointer;background:var(--hover);color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.lv-count{margin-left:auto;color:var(--muted);font-size:12px}
+.lv-list{display:flex;flex-direction:column;gap:10px}
+.lv-item{background:var(--card);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
+.lv-item.colored{background:var(--cb)}
+.lv-head{display:flex;align-items:center;gap:8px;padding:10px 14px 0;color:var(--muted);font-size:12px}
+.lv-head .dot{width:8px;height:8px;border-radius:50%;background:var(--cc)}
+.lv-head .go{margin-left:auto;border:0;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 6px;border-radius:5px}
+.lv-head .go:hover{background:var(--hover);color:var(--ink)}
+.lv-item .md{padding:6px 14px 14px;overflow:visible}
+.lv-item .lv-title{font-weight:600;font-size:15px;padding:4px 14px 0}
+.lv-item .lv-desc{color:var(--muted);font-size:13px;line-height:1.45;padding:2px 14px 0}
+.lv-item .lv-foot{display:flex;align-items:center;gap:8px;padding:8px 14px 12px;color:var(--muted);font-size:12px}
+.lv-item .lv-foot a{margin-left:auto;color:var(--muted);text-decoration:none;padding:4px 8px;border-radius:6px;box-shadow:inset 0 0 0 1px var(--line)}
+.lv-media{display:block;width:100%;max-height:340px;object-fit:cover;background:var(--tag);margin-top:8px}
+video.lv-media{object-fit:contain;background:#000}
+.lv-empty{text-align:center;color:var(--muted);padding:48px 16px}
+.lv-empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
+body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 </style>
 
-<div id="vp" aria-label="Canvas">
+<div id="vp" class="bg-plain" aria-label="Canvas">
   <div id="world">
     <div id="groups"></div>
     <svg id="edges">
@@ -244,6 +278,7 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
+<div id="listview" hidden aria-label="All cards"><div class="lv-wrap"><div class="lv-bar" id="lv-bar"></div><div class="lv-list" id="lv-list"></div></div></div>
 <div id="empty" hidden><b>An empty canvas</b>Double-click (or double-tap) anywhere for a note. Paste a link, an image or some text, or drop files here.</div>
 
 <div id="top" class="chrome">
@@ -252,6 +287,7 @@ button{font:inherit;color:inherit}
   <div id="sync"><span class="lbl">Loading</span></div>
 </div>
 <div id="corner" class="chrome">
+  <button class="tb icon" id="view-btn" aria-label="Show as a list"></button>
   <button class="tb icon" id="search-btn" aria-label="Search this board" title="Search (Ctrl/⌘ K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
   <button class="tb icon" id="theme-btn" aria-label="Switch theme"></button>
   <button class="tb icon" id="help-btn" aria-label="Shortcuts and gestures">
@@ -264,10 +300,10 @@ button{font:inherit;color:inherit}
   <button class="tb" id="t-add" title="Paste a link or text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="lbl">Link</span></button>
   <button class="tb" id="t-media" title="Photo, video or file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg><span class="lbl">Media</span></button>
   <button class="tb" id="t-group" title="Group (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="3" y="4" width="18" height="16" rx="3"/></svg><span class="lbl">Group</span></button>
-  <div class="sep"></div>
-  <button class="tb icon" id="z-out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg></button>
-  <button class="tb" id="zoom-label" title="Fit everything (Shift+1)">100%</button>
-  <button class="tb icon" id="z-in" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12M12 6v12"/></svg></button>
+  <div class="sep zoomctl"></div>
+  <button class="tb icon zoomctl" id="z-out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg></button>
+  <button class="tb zoomctl" id="zoom-label" title="Fit everything (Shift+1)">100%</button>
+  <button class="tb icon zoomctl" id="z-in" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12M12 6v12"/></svg></button>
   <input type="file" id="file" accept="image/*,video/*,application/pdf,.txt,.md,.csv,.json" multiple hidden>
 </div>
 
@@ -762,6 +798,7 @@ function render() {
   }
   renderEdges();
   renderSelbar();
+  if (S.mode === 'list') scheduleList();
   $('#empty').hidden = !S.loaded || S.items.size > 0;
 }
 function rectOf(it) { return { x: it.x, y: it.y, w: it.w, h: it.h, cx: it.x + it.w / 2, cy: it.y + it.h / 2 }; }
@@ -1175,11 +1212,11 @@ vp.addEventListener('drop', e => {
 /* ---------- barres et fenêtres ---------- */
 function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop', 'search-pop']) if (id !== except) $('#' + id).hidden = true; }
 function toggle(id) { const p = $('#' + id); const open = p.hidden; closePops(id); p.hidden = !open; return open; }
-$('#t-note').onclick = () => addNote();
-$('#t-group').onclick = () => addGroup();
-$('#t-media').onclick = () => $('#file').click();
+$('#t-note').onclick = () => { setMode('canvas'); addNote(); };
+$('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
+$('#t-media').onclick = () => { setMode('canvas'); $('#file').click(); };
 $('#file').onchange = e => { const f = [...e.target.files]; e.target.value = ''; addFiles(f); };
-$('#t-add').onclick = () => { if (toggle('add-pop')) { $('#add-text').value = ''; setTimeout(() => $('#add-text').focus(), 0); } };
+$('#t-add').onclick = () => { setMode('canvas'); if (toggle('add-pop')) { $('#add-text').value = ''; setTimeout(() => $('#add-text').focus(), 0); } };
 $('#add-cancel').onclick = () => closePops();
 $('#add-ok').onclick = () => { const v = $('#add-text').value; closePops(); addText(v); };
 $('#add-text').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || isUrl(e.target.value.trim()))) { e.preventDefault(); $('#add-ok').click(); } });
@@ -1213,8 +1250,15 @@ function renderBoardPop(renaming) {
   const rn = document.createElement('button'); rn.className = 'pop-item'; rn.textContent = 'Rename this board'; rn.onclick = () => renderBoardPop('rename');
   const ex = document.createElement('button'); ex.className = 'pop-item'; ex.textContent = 'Download a backup of this board'; ex.onclick = () => { closePops(); exportBoard(); };
   const im = document.createElement('button'); im.className = 'pop-item'; im.textContent = 'Import a backup'; im.onclick = () => { closePops(); $('#import-file').click(); };
+  const bl = document.createElement('span'); bl.className = 'lbl-sm'; bl.textContent = 'Background';
+  const seg = document.createElement('div'); seg.className = 'seg';
+  for (const [k, t] of [['plain', 'Plain'], ['dots', 'Dots'], ['grid', 'Grid']]) {
+    const b = document.createElement('button'); b.textContent = t; b.setAttribute('aria-pressed', String(S.bg === k));
+    b.onclick = () => { setBg(k); renderBoardPop(); }; seg.append(b);
+  }
   kids.push(nb, rn, ex);
   if (!S.readonly) kids.push(im);
+  kids.push(document.createElement('hr'), bl, seg);
   const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '6px 10px 4px';
   if (S.store?.kind === 'supa') note.textContent = `Signed in as ${S.email || 'you'}. Your boards sync on every device.`;
   else if (S.synced) note.textContent = 'Saved to your claude.ai account. Open this page on any device to see the same boards.';
@@ -1382,6 +1426,7 @@ function renderSearch(q) {
 }
 function focusItem(id) {
   const it = S.items.get(id); if (!it) return;
+  setMode('canvas');
   const z = clamp(S.view.z < 0.6 ? 1 : S.view.z, 0.2, 2);
   S.view = { z, x: innerWidth / 2 - (it.x + it.w / 2) * z, y: innerHeight / 2 - (it.y + it.h / 2) * z }; applyView();
   S.sel = new Set([id]); S.selLink = null; render();
@@ -1428,6 +1473,88 @@ async function importBoard(file) {
   finally { t.remove(); }
 }
 $('#import-file').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importBoard(f); };
+
+
+/* ---------- fond et vue en liste ---------- */
+S.bg = ['plain', 'dots', 'grid'].includes(lsGet('idea-canvas:bg')) ? lsGet('idea-canvas:bg') : 'plain';
+function setBg(k) { S.bg = k; lsSet('idea-canvas:bg', k); vp.className = vp.className.replace(/\bbg-\w+/g, '').trim() + ' bg-' + k; }
+setBg(S.bg);
+
+const LIST_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>';
+const CANVAS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="width:18px;height:18px" aria-hidden="true"><rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="9" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/></svg>';
+S.mode = lsGet('idea-canvas:mode') === 'list' ? 'list' : 'canvas';
+S.lvFilter = 'all';
+function setMode(m) {
+  const b = $('#view-btn'); b.innerHTML = m === 'list' ? CANVAS_ICON : LIST_ICON;
+  b.setAttribute('aria-label', m === 'list' ? 'Show as a canvas' : 'Show as a list'); b.title = b.getAttribute('aria-label');
+  if (S.mode === m && document.body.classList.contains('list') === (m === 'list')) return;
+  if (m === 'list' && S.editing) { document.activeElement?.blur?.(); stopEdit(); }
+  S.mode = m; lsSet('idea-canvas:mode', m);
+  document.body.classList.toggle('list', m === 'list');
+  $('#listview').hidden = m !== 'list';
+  if (m === 'list') renderList(); else render();
+}
+$('#view-btn').onclick = () => setMode(S.mode === 'list' ? 'canvas' : 'list');
+let lvRaf = 0;
+function scheduleList() { if (!lvRaf) lvRaf = requestAnimationFrame(() => { lvRaf = 0; renderList(); }); }
+const hasTodo = it => it.type === 'note' && /^\s*[-*] \[[ xX]\] /m.test(it.text || '');
+const FILTERS = [['all', 'All'], ['note', 'Notes'], ['todo', 'To-dos'], ['link', 'Links'], ['media', 'Photos & videos'], ['group', 'Groups']];
+const passes = (it, f) => f === 'all' || (f === 'todo' ? hasTodo(it) : f === 'media' ? (it.type === 'image' || it.type === 'video') : it.type === f);
+function fmtDate(t) {
+  if (!t) return '';
+  const d = new Date(t), now = new Date();
+  return d.toDateString() === now.toDateString() ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString([], { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+}
+function renderList() {
+  if (S.mode !== 'list') return;
+  const bar = $('#lv-bar'), list = $('#lv-list');
+  const all = [...S.items].sort((a, b) => (b[1].created || 0) - (a[1].created || 0));
+  const shown = all.filter(([, it]) => passes(it, S.lvFilter));
+  bar.replaceChildren(...FILTERS.filter(([k]) => k === 'all' || all.some(([, it]) => passes(it, k))).map(([k, t]) => {
+    const c = document.createElement('button'); c.className = 'chip'; c.textContent = t; c.setAttribute('aria-pressed', String(S.lvFilter === k));
+    c.onclick = () => { S.lvFilter = k; renderList(); }; return c;
+  }));
+  const n = document.createElement('span'); n.className = 'lv-count'; n.textContent = shown.length === 1 ? '1 card' : shown.length + ' cards'; bar.append(n);
+  if (!shown.length) {
+    const e = document.createElement('div'); e.className = 'lv-empty';
+    e.innerHTML = all.length ? '<b>Nothing here yet</b>No card of this kind on this board.' : '<b>This board is empty</b>Add a note, a link or a photo with the bar below.';
+    list.replaceChildren(e); return;
+  }
+  list.replaceChildren(...shown.map(([id, it]) => listItem(id, it)));
+}
+function listItem(id, it) {
+  const el = document.createElement('article'); el.className = 'lv-item' + (it.color ? ' colored' : ''); el.dataset.id = id;
+  if (it.color) { el.style.setProperty('--cb', `var(--c${it.color}b)`); el.style.setProperty('--cc', `var(--c${it.color})`); }
+  const head = document.createElement('div'); head.className = 'lv-head';
+  if (it.color) { const d = document.createElement('span'); d.className = 'dot'; head.append(d); }
+  const k = document.createElement('span'); k.textContent = (KIND[it.type] || '') + (it.created ? ' · ' + fmtDate(it.created) : ''); head.append(k);
+  const go = document.createElement('button'); go.className = 'go'; go.textContent = 'Show on canvas'; go.onclick = () => focusItem(id); head.append(go);
+  el.append(head);
+  if (it.type === 'note') { const d = document.createElement('div'); d.className = 'md'; d.innerHTML = (it.text || '').trim() ? md(it.text) : '<p class="ph">Empty note</p>'; el.append(d); }
+  else if (it.type === 'image') { const i = document.createElement('img'); i.className = 'lv-media'; i.src = mediaSrc(it); i.alt = it.fileName || 'Image'; i.loading = 'lazy'; el.append(i); }
+  else if (it.type === 'video') { const v = document.createElement('video'); v.className = 'lv-media'; v.src = mediaSrc(it); v.controls = true; v.playsInline = true; v.preload = 'metadata'; el.append(v); }
+  else if (it.type === 'group') {
+    const t = document.createElement('div'); t.className = 'lv-title'; t.textContent = it.label || 'Group';
+    const c = itemsInside(it).length; const f = document.createElement('div'); f.className = 'lv-foot'; f.textContent = c === 1 ? '1 card inside' : c + ' cards inside';
+    el.append(t, f);
+  } else if (it.type === 'link') {
+    const info = linkInfo(linkHref(it));
+    if (it.image) { const i = document.createElement('img'); i.className = 'lv-media'; i.src = it.image; i.alt = ''; i.loading = 'lazy'; i.referrerPolicy = 'no-referrer'; i.onerror = () => i.remove(); el.append(i); }
+    const t = document.createElement('div'); t.className = 'lv-title'; t.textContent = it.title || it.fileName || info.host; el.append(t);
+    if (it.desc) { const d = document.createElement('div'); d.className = 'lv-desc'; d.textContent = it.desc; el.append(d); }
+    const f = document.createElement('div'); f.className = 'lv-foot';
+    const st = document.createElement('span'); st.textContent = it.site || info.host;
+    const a = document.createElement('a'); a.href = safeHref(linkHref(it)); a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Open ↗';
+    f.append(st, a); el.append(f);
+  }
+  return el;
+}
+// Cocher une tâche depuis la liste, sans repasser par la toile.
+$('#listview').addEventListener('click', e => {
+  const cb = e.target.closest('.cb'); if (!cb || S.readonly) return;
+  toggleTask(cb.closest('.lv-item').dataset.id, +cb.dataset.line);
+});
+setMode(S.mode);
 
 /* ---------- tableaux ---------- */
 function openBoard(id) {
