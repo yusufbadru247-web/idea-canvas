@@ -19,10 +19,10 @@
 <style>
 /* Toile infinie plein écran ; habillage calme, à la Notion : blanc cassé, encre chaude, un seul bleu d'action. */
 :root{
-  --bg:#FFFFFF; --dot:#E6E5E1; --card:#FFFFFF; --ink:#37352F; --muted:#787774; --line:rgba(55,53,47,.12);
+  --bg:#FFFFFF; --canvas:#F3F3F1; --dot:#DCDBD6; --card:#FFFFFF; --ink:#37352F; --muted:#787774; --line:rgba(55,53,47,.12);
   --accent:#2383E2; --accent-soft:rgba(35,131,226,.12); --on-accent:#FFFFFF; --edge:#A9A69E; --ok:#448361;
   --chrome:#FFFFFF; --hover:rgba(55,53,47,.06); --tag:#F1F1EF;
-  --shadow:0 0 0 1px rgba(15,15,15,.04),0 2px 6px rgba(15,15,15,.06);
+  --shadow:0 0 0 1px rgba(15,15,15,.09),0 1px 2px rgba(15,15,15,.06),0 3px 8px rgba(15,15,15,.05);
   --chrome-shadow:0 0 0 1px rgba(15,15,15,.05),0 3px 10px rgba(15,15,15,.08);
   --pop-shadow:0 0 0 1px rgba(15,15,15,.05),0 3px 6px rgba(15,15,15,.1),0 9px 24px rgba(15,15,15,.2);
   --group:rgba(55,53,47,.035); --danger:#E03E3E; --toast:#37352F; --on-toast:#FFFFFF;
@@ -33,7 +33,7 @@
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#191919; --dot:#2C2C2C; --card:#252525; --ink:#D4D4D4; --muted:#9B9B9B; --line:rgba(255,255,255,.094);
+  --bg:#191919; --canvas:#191919; --dot:#2C2C2C; --card:#252525; --ink:#D4D4D4; --muted:#9B9B9B; --line:rgba(255,255,255,.094);
   --accent:#2E8BE6; --accent-soft:rgba(46,139,230,.2); --on-accent:#FFFFFF; --edge:#5F5F5F; --ok:#5FAF7F;
   --chrome:#252525; --hover:rgba(255,255,255,.055); --tag:#2F2F2F;
   --shadow:0 0 0 1px rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.3);
@@ -44,7 +44,7 @@
   --c4b:#23332A;--c4:#5FAF7F; --c5b:#1D2E3D;--c5:#5B9FD6; --c6b:#2F2638;--c6:#A882C9;
   color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#191919; --dot:#2C2C2C; --card:#252525; --ink:#D4D4D4; --muted:#9B9B9B; --line:rgba(255,255,255,.094);
+  --bg:#191919; --canvas:#191919; --dot:#2C2C2C; --card:#252525; --ink:#D4D4D4; --muted:#9B9B9B; --line:rgba(255,255,255,.094);
   --accent:#2E8BE6; --accent-soft:rgba(46,139,230,.2); --on-accent:#FFFFFF; --edge:#5F5F5F; --ok:#5FAF7F;
   --chrome:#252525; --hover:rgba(255,255,255,.055); --tag:#2F2F2F;
   --shadow:0 0 0 1px rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.3);
@@ -60,7 +60,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-siz
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-#vp{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:default;
+#vp{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:default;background-color:var(--canvas);
   background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:24px 24px}
 #vp.panning{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
@@ -91,7 +91,22 @@ button{font:inherit;color:inherit}
 .md a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .md blockquote{border-left:3px solid currentColor;padding-left:10px;color:var(--muted)}
 .md .ph{color:var(--muted)}
-.edit-area{flex:1;border:0;resize:none;padding:12px 14px;font:inherit;line-height:1.5;color:var(--ink);background:transparent;outline:none;touch-action:auto;user-select:text;-webkit-user-select:text}
+.edit-area{flex:1;border:0;resize:none;padding:12px 14px;font:inherit;color:var(--ink);background:transparent;outline:none;touch-action:auto;user-select:text;-webkit-user-select:text}
+.ed{outline:none;cursor:text;user-select:text;-webkit-user-select:text;caret-color:var(--accent)}
+.ed:empty::before,.ed>p:only-child:has(br:only-child)::before{content:"Write something, or type / for options";color:var(--muted);pointer-events:none}
+.ed .ed-block{margin:6px 0;user-select:none;-webkit-user-select:none}
+.ed .ed-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);background:var(--hover);border-radius:6px;padding:6px 10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed .cb{cursor:pointer}
+.ed .tag,.ed .wl,.ed .due{cursor:default}
+.md s{color:var(--muted)}
+.md .hl{border-radius:3px;padding:0 2px;color:inherit}
+.fb-color{font-weight:700;text-decoration:underline;text-decoration-color:var(--c1);text-decoration-thickness:3px;text-underline-offset:3px}
+.cm-pop{width:auto!important;min-width:250px}
+.cm-row{padding:2px 4px 4px}
+.cm-grid{display:flex;gap:4px;padding:2px 2px 0}
+.cm-sw{width:28px;height:28px;border-radius:6px;border:0;background:var(--hover);font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);display:grid;place-items:center}
+.cm-sw.hl{box-shadow:inset 0 0 0 1px var(--line)}
+.cm-sw:hover{outline:2px solid var(--accent);outline-offset:1px}
 
 .item.image img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .item.video .grip{height:24px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:11px;color:var(--muted);
@@ -362,6 +377,16 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .tbl-name{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:650;padding:4px 0;outline:none}
 .tbl-name::placeholder{color:var(--muted);opacity:.6}
 .tbl-views{margin:0;flex:none}
+.tbl-icon{flex:none;width:34px;height:34px;border:0;background:none;border-radius:7px;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.tbl-icon.empty{font-size:18px;color:var(--muted);opacity:.6}
+.tbl-icon:hover{background:var(--hover);opacity:1}
+.r-ic{margin-right:6px;cursor:pointer;font-size:15px}
+.em-pop{width:282px!important}
+.em-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:2px}
+.em-grid button{border:0;background:none;font-size:20px;height:32px;border-radius:6px;cursor:pointer}
+.em-grid button:hover{background:var(--hover)}
+.tbl-sw{padding:2px 6px 6px}
+.cm-sw.on{outline:2px solid var(--accent);outline-offset:1px}
 .tbl-views button{flex:none;font-size:12px;padding:3px 10px}
 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
 .tbl{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.4}
@@ -1003,7 +1028,7 @@ function itemTitle(it) {
   if (it.type === 'page') return it.title || 'Untitled';
   if (it.type === 'mindmap') return it.tree?.t || 'Mind map';
   if (it.type === 'table') return it.name || 'Untitled table';
-  if (it.type === 'note') { const l = (it.text || '').split('\n').find(x => x.trim()) || ''; return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
+  if (it.type === 'note') { const l = ((it.text || '').split('\n').find(x => x.trim()) || '').replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, ''); return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
   if (it.type === 'link') return it.title || it.url || 'Link';
   if (it.type === 'group') return it.label || 'Group';
   return it.fileName || KIND[it.type] || 'Card';
@@ -1043,6 +1068,7 @@ function openWikiLink(title) {
 document.addEventListener('click', e => {
   const a = e.target.closest?.('.wl'); if (!a) return;
   e.preventDefault(); e.stopPropagation();
+  if (a.closest('[contenteditable="true"]') && !(e.metaKey || e.ctrlKey)) return;
   openWikiLink(a.dataset.wl);
 });
 // Toutes les cartes qui pointent vers un titre (texte des notes et pages, notes des idées d'une carte mentale).
@@ -1108,7 +1134,9 @@ function showTag(t) {
 }
 document.addEventListener('click', e => {
   const a = e.target.closest?.('.tag'); if (!a || !a.dataset.tag) return;
-  e.preventDefault(); e.stopPropagation(); showTag(a.dataset.tag);
+  e.preventDefault(); e.stopPropagation();
+  if (a.closest('[contenteditable="true"]') && !(e.metaKey || e.ctrlKey)) return;
+  showTag(a.dataset.tag);
 });
 // Étiquettes d'une carte : ajouter, retirer, reprendre celles déjà utilisées.
 function tagEditor(anchor, id) {
@@ -1137,14 +1165,17 @@ function inline(s) {
   s = s.replace(TAG_RE, (all, pre, t) => { if (!okTag(t)) return all; tg.push(t); return pre + '\u0002' + (tg.length - 1) + '\u0002'; });
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/~~([^~]+)~~/g, '<s>$1</s>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
   s = s.replace(/(^|[^\w])_([^_\s][^_]*)_(?![\w])/g, '$1<em>$2</em>');
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
-  s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}">${esc(dueLabel(d))}</span>` : all; });
+  s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}" contenteditable="false">${esc(dueLabel(d))}</span>` : all; });
   if (tg.length) s = s.replace(/\u0002(\d+)\u0002/g, (all, i) => tagHTML(tg[+i]));
-  if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
+  // {{c3|texte}} = texte en couleur, {{h3|texte}} = surligné ; du plus intérieur au plus extérieur.
+  for (let k = 0; k < 6 && s.includes('{{'); k++) s = s.replace(/\{\{([ch])([1-6])\|((?:(?!\{\{|\}\}).)*)\}\}/g, (all, kind, n, x) => kind === 'c' ? `<span class="tc" data-c="${n}" style="color:var(--c${n})">${x}</span>` : `<span class="hl" data-c="${n}" style="background:var(--c${n}b)">${x}</span>`);
+  if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" contenteditable="false" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
   return s;
 }
 /* ---------- intégrations et PDF ---------- */
@@ -1257,7 +1288,9 @@ function closePdf(fromHistory) {
 const urlFile = u => { try { return decodeURIComponent(new URL(u, location.href).pathname.split('/').pop() || ''); } catch { return ''; } };
 function openPdfItem(id) { const it = S.items.get(id); if (it) openPdf(linkHref(it), it.title || it.fileName || urlFile(it.url) || 'PDF'); }
 function md(src, opts) {
-  if (!src || !src.trim()) return '<p class="ph">Empty note. Double-click to write.</p>';
+  const ED = !!opts?.edit;
+  if (!src || !src.trim()) return ED ? '<p><br></p>' : '<p class="ph">Empty note. Double-click to write.</p>';
+  const raw = (line, html) => ED ? `<div class="ed-block" contenteditable="false" data-raw="${esc(line.trim())}">${html}</div>` : html;
   const out = []; let list = null;
   const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
   const open = t => { if (list !== t) { close(); out.push(`<${t}>`); list = t; } };
@@ -1265,29 +1298,31 @@ function md(src, opts) {
     let m;
     if ((m = line.match(/^\s*[-*] \[( |x|X)\] (.*)$/))) {
       open('ul'); const d = m[1] !== ' ';
-      out.push(`<li class="task${d ? ' done' : ''}" data-l="${i}"><span class="cb" data-line="${i}" role="checkbox" aria-checked="${d}" aria-label="${d ? 'Done' : 'To do'}">✓</span><span class="tx">${inline(m[2])}</span></li>`);
+      out.push(`<li class="task${d ? ' done' : ''}" data-l="${i}"><span class="cb" contenteditable="false" data-line="${i}" role="checkbox" aria-checked="${d}" aria-label="${d ? 'Done' : 'To do'}">✓</span><span class="tx">${inline(m[2])}</span></li>`);
       return;
     }
     if ((m = line.match(/^\s*[-*] (.*)$/))) { open('ul'); out.push(`<li data-l="${i}">${inline(m[1])}</li>`); return; }
     if ((m = line.match(/^\s*\d+[.)] (.*)$/))) { open('ol'); out.push(`<li data-l="${i}">${inline(m[1])}</li>`); return; }
     close();
-    if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) { out.push('<hr>'); return; }
-    if ((m = line.match(/^\s*\[\[table:([\w-]+)\]\]\s*$/))) { if (S.items.get(m[1])) out.push(`<div class="tbl-embed" data-table="${esc(m[1])}"></div>`); return; }
+    if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) { out.push(ED ? '<hr data-raw="---" contenteditable="false">' : '<hr>'); return; }
+    if ((m = line.match(/^\s*\[\[table:([\w-]+)\]\]\s*$/))) { const tt = S.items.get(m[1]); if (tt) out.push(ED ? raw(line, `<span class="ed-chip">▦ ${esc(tt.name || 'Untitled table')}</span>`) : `<div class="tbl-embed" data-table="${esc(m[1])}"></div>`); return; }
     if ((m = line.match(/^\s*\[\[page:([\w-]+)\]\]\s*$/))) {
       const sp = S.items.get(m[1]);
-      if (sp) out.push(`<button class="subpage" data-page="${esc(m[1])}">${esc(sp.icon || '📄')} ${esc(sp.title || 'Untitled')}</button>`);
+      if (sp) out.push(raw(line, `<button class="subpage" data-page="${esc(m[1])}">${esc(sp.icon || '📄')} ${esc(sp.title || 'Untitled')}</button>`));
       return;
     }
     if ((m = line.match(/^\s*!\[([^\]]*)\]\(([^)\s]+)\)\s*$/)) && /^(https:|data:image\/|\/_blob\/)/i.test(m[2])) {
-      out.push(`<img class="md-img" src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy">`); return;
+      out.push(raw(line, `<img class="md-img" src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy">`)); return;
     }
     if ((m = line.match(/^(#{1,3}) (.*)$/))) out.push(`<h${m[1].length} data-l="${i}">${inline(m[2])}</h${m[1].length}>`);
     else if ((m = line.match(/^> ?(.*)$/))) out.push(`<blockquote data-l="${i}">${inline(m[1])}</blockquote>`);
+    else if (ED && (m = line.match(/^\s*(https?:\/\/\S+)\s*$/)) && (/\.pdf($|[?#])/i.test(m[1]) || embedOf(m[1]))) out.push(raw(line, `<span class="ed-chip">${/\.pdf($|[?#])/i.test(m[1]) ? '📄 PDF' : '▶ ' + esc(embedOf(m[1]).label)}: ${esc(m[1])}</span>`));
     else if (opts?.embeds && (m = line.match(/^\s*(https?:\/\/\S+)\s*$/)) && (/\.pdf($|[?#])/i.test(m[1]) || embedOf(m[1]))) {
       if (/\.pdf($|[?#])/i.test(m[1])) out.push(`<button class="md-pdf" data-pdf="${esc(m[1])}" data-l="${i}">📄 ${esc(decodeURIComponent(m[1].split(/[?#]/)[0].split('/').pop() || 'PDF'))}<span>Read</span></button>`);
       else { const e = embedOf(m[1]); out.push(`<div class="md-embed" data-l="${i}" style="${e.fixed ? `height:${e.h}px` : `aspect-ratio:${e.w}/${e.h}`};max-width:${Math.max(e.w, 560)}px"><iframe src="${esc(e.src)}" title="${esc(e.label)}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`); }
     }
     else if (line.trim()) out.push(`<p data-l="${i}">${inline(line)}</p>`);
+    else if (ED) out.push(`<p data-l="${i}"><br></p>`);
   });
   close();
   return out.join('');
@@ -1378,13 +1413,9 @@ function buildContent(el, it) {
   const editing = S.editing === el.dataset.id;
   if (it.type === 'note') {
     if (editing) {
-      const ta = document.createElement('textarea'); ta.className = 'edit-area'; ta.value = it.text || ''; ta.id = 'edit-' + el.dataset.id;
-      ta.setAttribute('aria-label', 'Note text');
-      ta.addEventListener('input', () => { it.text = ta.value; clearTimeout(ta.t); ta.t = setTimeout(() => persist(el.dataset.id, { text: ta.value }), 700); });
-      ta.addEventListener('keydown', noteKeys);
-      ta.addEventListener('input', () => slashCheck(ta));
-      ta.addEventListener('blur', () => setTimeout(closeSlash, 120));
-      inner.append(ta);
+      const ed = makeEditor(el.dataset.id, it, 'md ed edit-area', 'Note text');
+      ed.addEventListener('blur', () => setTimeout(closeSlash, 120));
+      inner.append(ed);
     } else { const d = document.createElement('div'); d.className = 'md'; d.innerHTML = md(it.text); inner.append(d); }
   } else if (it.type === 'image') {
     const img = document.createElement('img'); img.src = mediaSrc(it); img.alt = it.fileName || 'Image'; img.draggable = false; img.loading = 'lazy'; inner.append(img);
@@ -1827,10 +1858,11 @@ async function addFiles(files, pos) {
 function startEdit(id, pt) {
   if (S.readonly) return;
   const it = S.items.get(id);
-  const at = pt && it?.type === 'note' ? srcOffsetAt(els.get(id)?.querySelector('.md'), pt.x, pt.y, it.text || '') : null;
   S.editing = id; S.sel = new Set([id]); S.selLink = null; render();
   const f = document.getElementById('edit-' + id);
-  if (f) { f.focus({ preventScroll: true }); if (f.setSelectionRange) { const n = at ?? f.value.length; f.setSelectionRange(n, n); } }
+  if (!f) return;
+  f.focus({ preventScroll: true });
+  if (f.isContentEditable) caretAt(f, pt); else if (f.setSelectionRange) { const n = f.value.length; f.setSelectionRange(n, n); }
 }
 // Traduit un appui sur le texte rendu en position dans le markdown : bloc touché (data-l), puis caractères visibles alignés sur la ligne source.
 function srcOffsetAt(root, x, y, src) {
@@ -2162,54 +2194,231 @@ function openSetCode() {
   $('#sc-cancel').onclick = () => { p.hidden = true; };
 }
 
-/* ---------- mise en forme d'une note ---------- */
+/* ---------- mise en forme d'une note : éditeur mis en forme ---------- */
+// On écrit sur le rendu, comme dans Notion ; le texte reste rangé en markdown (it.text), donc rien d'autre ne change.
 const noteTA = () => S.editing && document.getElementById('edit-' + S.editing);
-function setTA(ta, value, a, b) {
-  ta.value = value; ta.setSelectionRange(a, b);
-  ta.dispatchEvent(new Event('input')); ta.focus({ preventScroll: true });
+const curEd = () => { const e = noteTA(); return e && e.isContentEditable ? e : null; };
+function makeEditor(id, it, cls, label) {
+  const ed = document.createElement('div'); ed.className = cls; ed.id = 'edit-' + id; ed.contentEditable = 'true';
+  ed.setAttribute('role', 'textbox'); ed.setAttribute('aria-multiline', 'true'); ed.setAttribute('aria-label', label); ed.spellcheck = true;
+  ed.innerHTML = md(it.text || '', { edit: true });
+  const save = () => { it.text = htmlToMd(ed); clearTimeout(ed.t); ed.t = setTimeout(() => persist(id, { text: it.text }), 600); };
+  ed._save = save;
+  ed.addEventListener('input', () => { edNormalize(ed); edShortcuts(ed); save(); slashCheck(ed); });
+  ed.addEventListener('keydown', noteKeys);
+  ed.addEventListener('mousedown', e => {
+    const cb = e.target.closest('.cb'); if (!cb || !ed.contains(cb)) return;
+    e.preventDefault(); const li = cb.closest('li'); const on = !li.classList.contains('done');
+    li.classList.toggle('done', on); cb.setAttribute('aria-checked', String(on)); save();
+  });
+  ed.addEventListener('paste', async e => {
+    const cd = e.clipboardData; if (!cd) return;
+    const files = [...(cd.files || [])].filter(f => f.type.startsWith('image/'));
+    e.preventDefault();
+    if (files.length && it.type === 'page') { for (const f of files) { const url = await uploadForPage(f); if (url) edInsertBlock(ed, `![](${url})`, `<img class="md-img" src="${esc(url)}" alt="">`); } return; }
+    const t = cd.getData('text/plain'); if (t) document.execCommand('insertText', false, t);
+  });
+  ed.addEventListener('drop', e => { if (e.dataTransfer?.files?.length) e.preventDefault(); });
+  return ed;
 }
-function wrapSel(mark) {
-  const ta = noteTA(); if (!ta) return;
-  const v = ta.value, m = mark.length; let a = ta.selectionStart, b = ta.selectionEnd;
-  if (v.slice(a - m, a) === mark && v.slice(b, b + m) === mark) return setTA(ta, v.slice(0, a - m) + v.slice(a, b) + v.slice(b + m), a - m, b - m);
-  if (a === b) { while (a > 0 && /\S/.test(v[a - 1])) a--; while (b < v.length && /\S/.test(v[b])) b++; }
-  const sel = v.slice(a, b);
-  if (sel.length >= 2 * m && sel.startsWith(mark) && sel.endsWith(mark)) return setTA(ta, v.slice(0, a) + sel.slice(m, -m) + v.slice(b), a, b - 2 * m);
-  if (!sel) return setTA(ta, v.slice(0, a) + mark + mark + v.slice(b), a + m, a + m);
-  setTA(ta, v.slice(0, a) + mark + sel + mark + v.slice(b), a + m, b + m);
+// Curseur à l'endroit touché, sinon à la fin.
+function caretAt(ed, pt) {
+  const sel = getSelection(); let r = null;
+  if (pt) {
+    if (document.caretRangeFromPoint) r = document.caretRangeFromPoint(pt.x, pt.y);
+    else if (document.caretPositionFromPoint) { const c = document.caretPositionFromPoint(pt.x, pt.y); if (c) { r = document.createRange(); r.setStart(c.offsetNode, c.offset); } }
+  }
+  if (!r || !ed.contains(r.startContainer)) { r = document.createRange(); r.selectNodeContents(ed); r.collapse(false); }
+  sel.removeAllRanges(); sel.addRange(r);
 }
-const PREFIX = /^(\s*)(#{1,3} |[-*] \[[ xX]\] |[-*] |\d+[.)] |> )?/;
-function setLines(kind) {
-  const ta = noteTA(); if (!ta) return;
-  const v = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
-  const ls = v.lastIndexOf('\n', a - 1) + 1; let le = v.indexOf('\n', b); if (le < 0) le = v.length;
-  const lines = v.slice(ls, le).split('\n');
-  const norm = q => (q || '').replace(/\[[xX]\]/, '[ ]').replace(/^[*]/, '-').replace(/^\d+[.)] $/, '1. ');
-  const already = lines.every(l => norm(l.match(PREFIX)[2]) === kind);
-  let n = 0;
-  const out = lines.map(l => {
-    const [, ind, q] = l.match(PREFIX); const body = l.slice(ind.length + (q || '').length);
-    if (already) return ind + body;
-    n++; return ind + (kind === '1. ' ? n + '. ' : kind) + body;
-  }).join('\n');
-  const end = ls + out.length;
-  setTA(ta, v.slice(0, ls) + out + v.slice(le), lines.length === 1 ? end : ls, end);
+// Rendu modifié → markdown.
+function htmlToMd(root) {
+  const out = [];
+  const mark = (m, x) => { const g = x.match(/^(\s*)([\s\S]*?)(\s*)$/); return g[2] ? g[1] + m + g[2] + m + g[3] : x; };
+  const inl = n => { let s = ''; for (const c of n.childNodes) s += node(c); return s; };
+  const node = c => {
+    if (c.nodeType === 3) return c.nodeValue.replace(/ /g, ' ').replace(/​/g, '');
+    if (c.nodeType !== 1) return '';
+    const t = c.tagName, cl = c.classList;
+    if (cl.contains('cb') || t === 'UL' || t === 'OL') return '';
+    if (t === 'BR') return '\n';
+    if (cl.contains('wl')) return `[[${c.dataset.wl || c.textContent}]]`;
+    if (cl.contains('tag')) return '#' + c.textContent.replace(/^#/, '');
+    if (cl.contains('due') && c.dataset.due) return '@' + c.dataset.due;
+    if ((cl.contains('tc') || cl.contains('hl')) && c.dataset.c) { const x = inl(c); return x.trim() ? `{{${cl.contains('tc') ? 'c' : 'h'}${c.dataset.c}|${x}}}` : x; }
+    if (t === 'B' || t === 'STRONG') return mark('**', inl(c));
+    if (t === 'I' || t === 'EM') return mark('_', inl(c));
+    if (t === 'S' || t === 'STRIKE' || t === 'DEL') return mark('~~', inl(c));
+    if (t === 'CODE') return '`' + c.textContent + '`';
+    if (t === 'A') { const h = c.getAttribute('href') || '', x = inl(c); return /^https?:/i.test(h) ? (x.trim() === h ? h : `[${x}](${h})`) : x; }
+    if (t === 'IMG') return c.getAttribute('src') ? `![](${c.getAttribute('src')})` : '';
+    return inl(c);
+  };
+  const list = (n, ind) => {
+    let i = 1;
+    for (const li of n.children) {
+      if (li.tagName !== 'LI') { if (li.tagName === 'UL' || li.tagName === 'OL') list(li, ind + '  '); continue; }
+      const task = li.classList.contains('task');
+      const m = task ? (li.classList.contains('done') ? '- [x] ' : '- [ ] ') : n.tagName === 'OL' ? `${i++}. ` : '- ';
+      out.push(ind + m + inl(li).replace(/\n+/g, ' ').trim());
+      for (const k of li.children) if (k.tagName === 'UL' || k.tagName === 'OL') list(k, ind + '  ');
+    }
+  };
+  const BLK = 'P,DIV,H1,H2,H3,H4,UL,OL,BLOCKQUOTE,HR';
+  const block = n => {
+    if (n.nodeType === 3) { const v = n.nodeValue.replace(/​/g, '').replace(/ /g, ' '); if (v.trim()) out.push(v); return; }
+    if (n.nodeType !== 1) return;
+    const t = n.tagName;
+    if (n.dataset.raw != null) { out.push(n.dataset.raw); return; }
+    if (t === 'HR') { out.push('---'); return; }
+    if (/^H[1-6]$/.test(t)) { out.push('#'.repeat(Math.min(3, +t[1])) + ' ' + inl(n).replace(/\n+/g, ' ').trim()); return; }
+    if (t === 'UL' || t === 'OL') { list(n, ''); return; }
+    if (t === 'BLOCKQUOTE') { inl(n).split('\n').forEach(l => out.push('> ' + l)); return; }
+    if (t === 'BR') { out.push(''); return; }
+    if (t === 'IMG') { out.push(`![](${n.getAttribute('src')})`); return; }
+    if ([...n.children].some(k => k.matches(BLK))) { for (const k of n.childNodes) block(k); return; }
+    inl(n).split('\n').forEach(l => out.push(l));
+  };
+  for (const c of root.childNodes) block(c);
+  while (out.length && !out[out.length - 1].trim()) out.pop();
+  return out.join('\n');
 }
+// Après chaque frappe : cases à cocher en place, couleurs rangées en classes.
+const SENT = /^(?:#0([12])000([0-6])|rgba?\((1|2),\s*0,\s*([0-6])(?:,\s*1)?\))$/i;
+function sentinel(v) { const m = String(v || '').replace(/\s/g, ' ').trim().match(SENT); if (!m) return null; return { kind: (m[1] || m[3]) === '1' ? 'tc' : 'hl', n: +(m[2] ?? m[4]) }; }
+function edNormalize(ed) {
+  for (const li of ed.querySelectorAll('li.task')) {
+    if (!li.querySelector(':scope > .cb')) { const cb = document.createElement('span'); cb.className = 'cb'; cb.contentEditable = 'false'; cb.setAttribute('role', 'checkbox'); cb.textContent = '✓'; li.prepend(cb); }
+    if (!li.textContent.replace('✓', '').trim() && li.classList.contains('done')) { li.classList.remove('done'); li.querySelector('.cb')?.setAttribute('aria-checked', 'false'); }
+  }
+  for (const n of ed.querySelectorAll('font[color], span[style]')) {
+    let sv = null, kind = null;
+    if (n.tagName === 'FONT') sv = sentinel(n.getAttribute('color'));
+    else { const st = n.style; sv = sentinel(st.color) || sentinel(st.backgroundColor); }
+    if (!sv) { if (n.tagName === 'SPAN' && !n.classList.length) { n.removeAttribute('style'); } continue; }
+    // Le navigateur a posé la couleur sur une couleur déjà là : on garde les deux.
+    const own = n.classList.contains('tc') ? 'tc' : n.classList.contains('hl') ? 'hl' : null;
+    if (own) {
+      n.style.color = ''; n.style.backgroundColor = ''; n.style.background = '';
+      const paint = (el, k, c) => { el.style[k === 'tc' ? 'color' : 'background'] = k === 'tc' ? `var(--c${c})` : `var(--c${c}b)`; };
+      if (own === sv.kind) { if (!sv.n) { n.replaceWith(...n.childNodes); continue; } n.dataset.c = sv.n; paint(n, own, sv.n); continue; }
+      paint(n, own, n.dataset.c);
+      if (!sv.n) continue;
+      const sp = document.createElement('span'); sp.className = sv.kind; sp.dataset.c = sv.n; paint(sp, sv.kind, sv.n); sp.append(...n.childNodes); n.append(sp); continue;
+    }
+    // La nouvelle couleur remplace celles qu'elle recouvre.
+    for (const k of n.querySelectorAll('.' + sv.kind)) k.replaceWith(...k.childNodes);
+    if (!sv.n) { n.replaceWith(...n.childNodes); continue; }
+    const sp = document.createElement('span'); sp.className = sv.kind; sp.dataset.c = sv.n;
+    sp.style[sv.kind === 'tc' ? 'color' : 'background'] = sv.kind === 'tc' ? `var(--c${sv.n})` : `var(--c${sv.n}b)`;
+    sp.append(...n.childNodes); n.replaceWith(sp);
+  }
+}
+// Le bloc et le texte avant le curseur.
+function caretCtx(ed) {
+  const s = getSelection(); if (!s.rangeCount || !s.isCollapsed) return null;
+  const r = s.getRangeAt(0); if (!ed.contains(r.startContainer)) return null;
+  const el0 = r.startContainer.nodeType === 3 ? r.startContainer.parentElement : r.startContainer;
+  const b = el0.closest('p,div,li,h1,h2,h3,blockquote'); const block = b && ed.contains(b) && b !== ed ? b : ed;
+  const pre = document.createRange(); pre.setStart(block, 0); pre.setEnd(r.startContainer, r.startOffset);
+  let rect = r.getBoundingClientRect(); if (!rect.height) rect = (r.startContainer.nodeType === 3 ? r.startContainer.parentElement : r.startContainer).getBoundingClientRect();
+  return { block, text: pre.toString().replace(/ /g, ' '), rect, r };
+}
+function eraseBack(n) { const s = getSelection(); for (let i = 0; i < n; i++) s.modify('extend', 'backward', 'character'); if (!s.isCollapsed) document.execCommand('delete'); }
+// Raccourcis du markdown en début de ligne : « - », « 1. », « # », « [] », « > ».
+function edShortcuts(ed) {
+  // Juste après la frappe : le navigateur refuse une seconde commande pendant l'événement de saisie.
+  setTimeout(() => {
+    const c = caretCtx(ed); if (!c || (!/^(P|DIV)$/.test(c.block.tagName) && c.block !== ed)) return;
+    const m = c.text.match(/^(- |\* |1\. |# |## |### |> |\[\] |\[ \] )$/); if (!m) return;
+    // Retirer la marque tapée, directement dans le texte du bloc.
+    let left = m[1].length; const w = document.createTreeWalker(c.block, NodeFilter.SHOW_TEXT);
+    let tn; while (left > 0 && (tn = w.nextNode())) { const k = Math.min(left, tn.nodeValue.length); tn.nodeValue = tn.nodeValue.slice(k); left -= k; }
+    if (!c.block.textContent) c.block.innerHTML = '<br>';
+    const r = document.createRange(); r.setStart(c.block, 0); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    const k = m[1].trim();
+    if (k === '-' || k === '*') document.execCommand('insertUnorderedList');
+    else if (k === '1.') document.execCommand('insertOrderedList');
+    else if (k === '>') document.execCommand('formatBlock', false, 'blockquote');
+    else if (k.startsWith('[')) makeTodo();
+    else document.execCommand('formatBlock', false, 'h' + k.length);
+    ed._save?.();
+  }, 0);
+}
+function blockFmt(tag) {
+  const ed = curEd(); if (!ed) return; ed.focus();
+  const c = caretCtx(ed) || {}; const cur = c.block?.closest?.('h1,h2,h3,blockquote');
+  document.execCommand('formatBlock', false, cur && cur.tagName.toLowerCase() === tag ? 'p' : tag);
+  ed._save?.();
+}
+function listFmt(kind) { const ed = curEd(); if (!ed) return; ed.focus(); document.execCommand(kind === 'ol' ? 'insertOrderedList' : 'insertUnorderedList'); ed._save?.(); }
+function makeTodo() {
+  const ed = curEd(); if (!ed) return; ed.focus();
+  const sel = getSelection(); if (!sel.rangeCount) return;
+  const at = n => (n.nodeType === 3 ? n.parentElement : n).closest('li');
+  let li = at(sel.anchorNode);
+  if (li && li.classList.contains('task')) { li.classList.remove('task', 'done'); li.querySelector(':scope > .cb')?.remove(); ed._save?.(); return; }
+  if (!li || li.parentElement.tagName !== 'UL') { document.execCommand('insertUnorderedList'); li = at(getSelection().anchorNode); }
+  if (!li) return;
+  const lis = sel.isCollapsed ? [li] : [...li.parentElement.children].filter(x => sel.containsNode(x, true));
+  for (const x of lis) x.classList.add('task');
+  edNormalize(ed);
+  // Le curseur après la case, pour écrire le texte de la tâche.
+  const cb = li.querySelector(':scope > .cb');
+  if (cb && sel.isCollapsed) { const r = document.createRange(); r.setStartAfter(cb); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+  ed._save?.();
+}
+function fmt(cmd) { const ed = curEd(); if (!ed) return; ed.focus(); document.execCommand(cmd); ed._save?.(); }
 function insertLink() {
-  const ta = noteTA(); if (!ta) return;
-  const v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, sel = v.slice(a, b) || 'link';
-  setTA(ta, v.slice(0, a) + `[${sel}](https://)` + v.slice(b), a + sel.length + 3, a + sel.length + 11);
+  const ed = curEd(); if (!ed) return;
+  const sel = getSelection(), r = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+  const url0 = prompt('Link address', 'https://'); if (!url0 || url0 === 'https://') return;
+  const url = normUrl(url0.trim()); if (!/^https?:\/\//i.test(url)) return;
+  ed.focus(); if (r) { sel.removeAllRanges(); sel.addRange(r); }
+  if (sel.isCollapsed) document.execCommand('insertHTML', false, `<a href="${esc(url)}">${esc(url)}</a>&nbsp;`);
+  else document.execCommand('createLink', false, url);
+  ed._save?.();
 }
-// Entrée prolonge une liste ; sur un élément vide, elle la termine (comme dans Notion).
-function continueList(ta) {
-  const v = ta.value, a = ta.selectionStart; if (a !== ta.selectionEnd) return false;
-  const ls = v.lastIndexOf('\n', a - 1) + 1, line = v.slice(ls, a);
-  const m = line.match(/^(\s*)([-*] \[[ xX]\] |[-*] |(\d+)[.)] )(.*)$/); if (!m) return false;
-  if (!m[4].trim()) { setTA(ta, v.slice(0, ls) + v.slice(a), ls, ls); return true; }
-  const next = m[3] ? (+m[3] + 1) + '. ' : m[2].replace(/\[[xX]\]/, '[ ]');
-  const ins = '\n' + m[1] + next;
-  setTA(ta, v.slice(0, a) + ins + v.slice(a), a + ins.length, a + ins.length);
-  return true;
+// Couleur du texte choisi ; sans sélection, toute la note.
+function colorText(kind, n) {
+  const ed = curEd(); if (!ed) return;
+  ed.focus();
+  const sel = getSelection();
+  if (!sel.rangeCount || sel.isCollapsed || !ed.contains(sel.anchorNode)) { const r = document.createRange(); r.selectNodeContents(ed); sel.removeAllRanges(); sel.addRange(r); }
+  document.execCommand('styleWithCSS', false, kind === 'hl');
+  document.execCommand(kind === 'hl' ? 'backColor' : 'foreColor', false, kind === 'hl' ? `rgb(2, 0, ${n})` : `#01000${n}`);
+  document.execCommand('styleWithCSS', false, false);
+  edNormalize(ed); ed._save?.();
+}
+function colorMenu(anchor) {
+  const sw = (kind, n) => {
+    const b = document.createElement('button'); b.className = 'cm-sw ' + kind; b.type = 'button';
+    if (n) b.style.cssText = kind === 'tc' ? `color:var(--c${n})` : `background:var(--c${n}b)`; b.textContent = kind === 'tc' ? 'A' : n ? '' : '×';
+    if (!n && kind === 'tc') b.textContent = 'A';
+    b.setAttribute('aria-label', (kind === 'tc' ? 'Text colour ' : 'Highlight ') + (n || 'none'));
+    b.addEventListener('pointerdown', e => e.preventDefault()); b.addEventListener('mousedown', e => e.preventDefault());
+    b.onclick = () => { colorText(kind, n); closeTPop(); }; return b;
+  };
+  const row = (label, kind) => { const w = document.createElement('div'); w.className = 'cm-row'; const l = document.createElement('span'); l.className = 'lbl-sm'; l.textContent = label; const g = document.createElement('div'); g.className = 'cm-grid'; g.append(sw(kind, 0), ...[1, 2, 3, 4, 5, 6].map(n => sw(kind, n))); w.append(l, g); return w; };
+  const hint = document.createElement('p'); hint.className = 'hint'; hint.style.margin = '4px 6px 2px';
+  const s = getSelection(); hint.textContent = s.rangeCount && !s.isCollapsed ? 'Applies to the selected text.' : 'Nothing selected: applies to the whole note.';
+  const p = popAt(anchor, [row('Text', 'tc'), row('Highlight', 'hl'), hint]);
+  p.classList.add('cm-pop'); p.addEventListener('pointerdown', e => { if (!e.target.closest('input')) e.preventDefault(); });
+}
+// Un bloc entier (photo, page incluse, grille, trait) après le paragraphe en cours.
+function edInsertBlock(ed, rawLine, html) {
+  const c = caretCtx(ed); let top = c?.block || null;
+  while (top && top.parentElement !== ed) top = top.parentElement;
+  const div = document.createElement('div');
+  if (rawLine === '---') div.innerHTML = '<hr data-raw="---" contenteditable="false">';
+  else div.innerHTML = `<div class="ed-block" contenteditable="false" data-raw="${esc(rawLine)}">${html}</div>`;
+  const blk = div.firstChild;
+  if (top && top.textContent.trim() === '' && !top.querySelector('img,.ed-block')) top.replaceWith(blk);
+  else if (top) top.after(blk); else ed.append(blk);
+  let next = blk.nextSibling;
+  if (!next || next.nodeType !== 1 || next.dataset?.raw != null) { next = document.createElement('p'); next.innerHTML = '<br>'; blk.after(next); }
+  const r = document.createRange(); r.setStart(next, 0); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  ed._save?.();
 }
 function noteKeys(e) {
   const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
@@ -2219,10 +2428,12 @@ function noteKeys(e) {
     if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pickSlash(SL.idx); return; }
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeSlash(); return; }
   }
-  if (mod && !e.shiftKey && k === 'b') { e.preventDefault(); wrapSel('**'); }
-  else if (mod && !e.shiftKey && k === 'i') { e.preventDefault(); wrapSel('_'); }
+  if (mod && !e.shiftKey && k === 'b') { e.preventDefault(); fmt('bold'); }
+  else if (mod && !e.shiftKey && k === 'i') { e.preventDefault(); fmt('italic'); }
+  else if (mod && e.shiftKey && k === 'x') { e.preventDefault(); fmt('strikeThrough'); }
   else if (mod && !e.shiftKey && k === 'k') { e.preventDefault(); insertLink(); }
-  else if (e.key === 'Enter' && !e.shiftKey && !mod && !e.isComposing) { if (continueList(e.target)) e.preventDefault(); }
+  else if (mod && k === 'u') { e.preventDefault(); }
+  else if (e.key === 'Tab') { const c = caretCtx(e.currentTarget); if (c?.block?.closest?.('li')) { e.preventDefault(); document.execCommand(e.shiftKey ? 'outdent' : 'indent'); e.currentTarget._save?.(); } }
 }
 function formatButtons() {
   const mk = (html, label, fn, cls = '') => {
@@ -2234,16 +2445,18 @@ function formatButtons() {
   };
   const sep = () => { const d = document.createElement('div'); d.className = 'sep'; return d; };
   return [
-    mk('<b>B</b>', 'Bold', () => wrapSel('**')),
-    mk('<i>I</i>', 'Italic', () => wrapSel('_')),
+    mk('<b>B</b>', 'Bold (Ctrl/⌘ B)', () => fmt('bold')),
+    mk('<i>I</i>', 'Italic (Ctrl/⌘ I)', () => fmt('italic')),
+    mk('<s>S</s>', 'Strikethrough', () => fmt('strikeThrough')),
+    mk('<span class="fb-color">A</span>', 'Text colour and highlight', e => colorMenu(e.currentTarget)),
     sep(),
-    mk('H1', 'Big heading', () => setLines('# ')),
-    mk('H2', 'Small heading', () => setLines('## ')),
+    mk('H1', 'Big heading', () => blockFmt('h1')),
+    mk('H2', 'Small heading', () => blockFmt('h2')),
     sep(),
-    mk('•', 'Bulleted list', () => setLines('- ')),
-    mk('1.', 'Numbered list', () => setLines('1. ')),
-    mk('☑', 'To-do list', () => setLines('- [ ] ')),
-    mk('❝', 'Quote', () => setLines('> ')),
+    mk('•', 'Bulleted list', () => listFmt('ul')),
+    mk('1.', 'Numbered list', () => listFmt('ol')),
+    mk('☑', 'To-do list', makeTodo),
+    mk('❝', 'Quote', () => blockFmt('blockquote')),
     mk('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>', 'Link', insertLink),
     sep(),
     mk('Done', 'Finish writing', () => { document.activeElement?.blur?.(); stopEdit(); }, 'done'),
@@ -2346,7 +2559,7 @@ function descendants(id) {
 }
 function pageSnippet(it) {
   return (it.text || '').split('\n').filter(l => l.trim() && !/^\s*(\[\[(page|table):|!\[|---)/.test(l))
-    .map(l => l.replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (a, n, lb) => lb ? lb.slice(1) : n).replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
+    .map(l => l.replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (a, n, lb) => lb ? lb.slice(1) : n).replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
 }
 function addPage() {
   const p = nextPos(260, 150);
@@ -2415,7 +2628,7 @@ function renderPage() {
   }
   drawBacklinks(id);
   const body = $('#pv-body');
-  if (S.editing === id) { if (!body.querySelector('textarea')) buildPageEditor(id, it); return; }
+  if (S.editing === id) { if (!body.querySelector('.ed')) buildPageEditor(id, it); return; }
   const ae = document.activeElement;
   if (body.contains(ae) && ae.closest('.tbl-host') && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   const html = (it.text || '').trim() ? md(it.text, { embeds: true }) : '';
@@ -2487,49 +2700,18 @@ function drawBacklinks(id) {
 }
 function autosize(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
 function buildPageEditor(id, it) {
-  const ta = document.createElement('textarea'); ta.className = 'pv-ta'; ta.id = 'edit-' + id; ta.value = it.text || ''; ta.setAttribute('aria-label', 'Page text');
-  ta.addEventListener('input', () => { it.text = ta.value; autosize(ta); slashCheck(ta); clearTimeout(ta.t); ta.t = setTimeout(() => persist(id, { text: ta.value }), 700); });
-  ta.addEventListener('keydown', noteKeys);
-  ta.addEventListener('blur', () => setTimeout(() => { closeSlash(); if (S.editing === id && document.activeElement !== ta && !S.pickingFile) { stopEdit(); renderPage(); } }, 150));
-  ta.addEventListener('paste', async e => {
-    const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith('image/'));
-    if (!files.length) return;
-    e.preventDefault();
-    for (const f of files) { const url = await uploadForPage(f); if (url) insertAtCaret(ta, `\n![](${url})\n`); }
-  });
-  $('#pv-body').replaceChildren(ta); autosize(ta);
+  const ed = makeEditor(id, it, 'md pv-md ed', 'Page text');
+  ed.addEventListener('blur', () => setTimeout(() => { closeSlash(); if (S.editing === id && !ed.contains(document.activeElement) && !S.pickingFile && !tPop) { stopEdit(); renderPage(); } }, 150));
+  $('#pv-body').replaceChildren(ed);
 }
 function startPageEdit(pt) {
   if (S.readonly || !S.pageId) return;
   const id = S.pageId, it = S.items.get(id); if (!it) return;
   S.editStart = { id, text: it.text || '' };
-  const md0 = $('#pv-body .pv-md'), at = pt ? srcOffsetAt(md0, pt.x, pt.y, it.text || '') : null;
-  // Garder sous le doigt la ligne touchée : le texte brut est plus long que le rendu.
-  const sc = $('#pv-scroll'), blk = pt && document.elementFromPoint(pt.x, pt.y)?.closest('[data-l]'), y0 = blk ? blk.getBoundingClientRect().top : null;
   S.editing = id; S.sel = new Set(); renderPage(); render();
-  const ta = document.getElementById('edit-' + id);
-  if (!ta) return;
-  ta.focus({ preventScroll: true });
-  const n = at ?? ta.value.length; ta.setSelectionRange(n, n);
-  if (y0 != null) {
-    const line = ta.value.slice(0, n).split('\n').length - 1, lh = parseFloat(getComputedStyle(ta).lineHeight) || 26;
-    const mirror = caretTop(ta, n);
-    sc.scrollTop += (ta.getBoundingClientRect().top + (mirror ?? line * lh)) - y0;
-  }
-}
-// Hauteur du curseur dans un textarea (copie invisible au même gabarit).
-function caretTop(ta, n) {
-  try {
-    const cs = getComputedStyle(ta), m = document.createElement('div');
-    for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'padding', 'border', 'boxSizing', 'whiteSpace', 'wordWrap', 'overflowWrap']) m.style[k] = cs[k];
-    m.style.cssText += `;position:absolute;visibility:hidden;white-space:pre-wrap;word-wrap:break-word;width:${ta.clientWidth}px;top:0;left:-9999px`;
-    m.textContent = ta.value.slice(0, n); const s = document.createElement('span'); s.textContent = '\u200b'; m.append(s);
-    document.body.append(m); const t = s.offsetTop; m.remove(); return t;
-  } catch { return null; }
-}
-function insertAtCaret(ta, txt) {
-  const a = ta.selectionStart, b = ta.selectionEnd, v = ta.value;
-  setTA(ta, v.slice(0, a) + txt + v.slice(b), a + txt.length, a + txt.length); autosize(ta);
+  const ed = document.getElementById('edit-' + id);
+  if (!ed) return;
+  ed.focus({ preventScroll: true }); caretAt(ed, pt);
 }
 async function uploadForPage(f) {
   if (f.size > MAX_UPLOAD * 4) { toast('That photo is too big.'); return null; }
@@ -2558,20 +2740,21 @@ $('#page-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; S.pickingFile = false;
   const id = S.pageId, it = S.items.get(id); if (!f || !it) return;
   const url = await uploadForPage(f); if (!url) return;
-  const ta = document.getElementById('edit-' + id);
-  if (ta) { ta.focus({ preventScroll: true }); insertAtCaret(ta, `![](${url})\n`); }
+  const ed = document.getElementById('edit-' + id);
+  if (ed?.isContentEditable) { ed.focus({ preventScroll: true }); edInsertBlock(ed, `![](${url})`, `<img class="md-img" src="${esc(url)}" alt="">`); }
   else { persist(id, { text: (it.text || '').replace(/\s*$/, '') + `\n\n![](${url})\n` }); renderPage(); }
 };
 
 /* ---------- menu « / » ---------- */
 const SLASH = [
-  { k: 'h1', t: 'Heading 1', d: 'Big section title', run: () => setLines('# ') },
-  { k: 'h2', t: 'Heading 2', d: 'Smaller title', run: () => setLines('## ') },
-  { k: 'todo', t: 'To-do list', d: 'Tick tasks off', run: () => setLines('- [ ] ') },
-  { k: 'bullet', t: 'Bulleted list', d: 'Simple list', run: () => setLines('- ') },
-  { k: 'number', t: 'Numbered list', d: '1, 2, 3', run: () => setLines('1. ') },
-  { k: 'quote', t: 'Quote', d: 'Set a sentence apart', run: () => setLines('> ') },
-  { k: 'date', t: 'Due date', d: 'Shows Today; tap it to change', run: () => { const ta = noteTA(); if (ta) { const v = ta.value, c = ta.selectionEnd; const pre = c > 0 && !/\s/.test(v[c - 1]) ? ' ' : ''; setTA(ta, v.slice(0, c) + pre + '@' + isoOf(new Date()) + v.slice(c), c + pre.length + 11, c + pre.length + 11); } } },
+  { k: 'h1', t: 'Heading 1', d: 'Big section title', run: () => blockFmt('h1') },
+  { k: 'h2', t: 'Heading 2', d: 'Smaller title', run: () => blockFmt('h2') },
+  { k: 'todo', t: 'To-do list', d: 'Tick tasks off', run: makeTodo },
+  { k: 'bullet', t: 'Bulleted list', d: 'Simple list', run: () => listFmt('ul') },
+  { k: 'number', t: 'Numbered list', d: '1, 2, 3', run: () => listFmt('ol') },
+  { k: 'quote', t: 'Quote', d: 'Set a sentence apart', run: () => blockFmt('blockquote') },
+  { k: 'color', t: 'Colour', d: 'Text colour or highlight', run: () => { const ed = curEd(); if (ed) colorMenu(ed); } },
+  { k: 'date', t: 'Due date', d: 'Shows Today; tap it to change', run: () => { const ed = curEd(); if (!ed) return; const d = new Date(); document.execCommand('insertHTML', false, `<span class="due ${dueCls(d)}" data-due="${isoOf(d)}" contenteditable="false">${esc(dueLabel(d))}</span>&nbsp;`); ed._save?.(); } },
   { k: 'divider', t: 'Divider', d: 'A line between sections', run: insertDivider },
   { k: 'image', t: 'Photo', d: 'From this device', run: () => { S.pickingFile = true; $('#page-file').click(); setTimeout(() => { S.pickingFile = false; }, 60000); }, pageOnly: true },
   { k: 'table', t: 'Table', d: 'Rows and columns, or a board', run: insertTable, pageOnly: true },
@@ -2580,10 +2763,8 @@ const SLASH = [
 let SL = null;
 const KICON = { page: '📄', mindmap: '🧠', table: '▦', note: '🗒', link: '🔗', group: '▢', image: '🖼', video: '🎬' };
 // « [[ » : choisir la carte à relier, ou créer une page de ce nom.
-function wikiCheck(ta) {
-  const v = ta.value, c = ta.selectionStart;
-  if (c !== ta.selectionEnd) return false;
-  const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/\[\[([^\[\]|\n]{0,60})$/);
+function wikiCheck(ed, c) {
+  const m = c.text.match(/\[\[([^\[\]|\n]{0,60})$/);
   if (!m) return false;
   const q = m[1].toLowerCase().trim(), self = S.editing, seen = new Set(), items = [];
   const all = [...S.items].filter(([id, it]) => id !== self && it.type !== 'image' && it.type !== 'video')
@@ -2592,45 +2773,43 @@ function wikiCheck(ta) {
     .sort((a, b) => (a.t.toLowerCase().startsWith(q) ? 0 : 1) - (b.t.toLowerCase().startsWith(q) ? 0 : 1) || (RANK[a.it.type] ?? 9) - (RANK[b.it.type] ?? 9) || (b.it.created || 0) - (a.it.created || 0));
   for (const x of all) {
     const k = x.t.toLowerCase(); if (seen.has(k)) continue; seen.add(k);
-    items.push({ k: x.id, t: (x.it.type === 'page' ? (x.it.icon || '📄') : KICON[x.it.type] || '•') + ' ' + x.t, d: KIND[x.it.type] || '', run: () => insertWiki(ta, x.t) });
+    items.push({ k: x.id, t: (x.it.type === 'page' ? (x.it.icon || '📄') : KICON[x.it.type] || '•') + ' ' + x.t, d: KIND[x.it.type] || '', run: () => insertWiki(ed, x.t) });
     if (items.length >= 8) break;
   }
   const typed = m[1].trim();
-  if (typed && !seen.has(typed.toLowerCase())) items.push({ k: 'new', t: '+ New page “' + typed + '”', d: 'Created when you open the link', run: () => insertWiki(ta, typed) });
+  if (typed && !seen.has(typed.toLowerCase())) items.push({ k: 'new', t: '+ New page “' + typed + '”', d: 'Created when you open the link', run: () => insertWiki(ed, typed) });
   if (!items.length) { closeSlash(); return true; }
-  SL = { start: ls + m.index, end: c, items, idx: SL && SL.wiki ? Math.min(SL.idx, items.length - 1) : 0, ta, wiki: true };
+  SL = { erase: m[0].length, items, idx: SL && SL.wiki ? Math.min(SL.idx, items.length - 1) : 0, ed, rect: c.rect, wiki: true };
   drawSlash(); return true;
 }
-function insertWiki(ta, title) {
-  const v = ta.value, a = ta.selectionStart, ins = `[[${title}]]`;
-  const after = v.slice(a).startsWith(']]') ? v.slice(a + 2) : v.slice(a);
-  setTA(ta, v.slice(0, a) + ins + after, a + ins.length, a + ins.length);
+function insertWiki(ed, title) {
+  document.execCommand('insertHTML', false, `<a href="#" class="wl" contenteditable="false" data-wl="${esc(title)}">${esc(title)}</a>&nbsp;`);
+  ed._save?.();
 }
 // « #… » : reprendre une étiquette déjà utilisée.
-function tagCheck(ta) {
-  const v = ta.value, c = ta.selectionStart; if (c !== ta.selectionEnd) return false;
-  const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/(^|[\s(])#([\p{L}\p{N}_-]{1,40})$/u);
+function tagCheck(ed, c) {
+  const m = c.text.match(/(^|[\s(])#([\p{L}\p{N}_-]{1,40})$/u);
   if (!m) return false;
   const q = m[2].toLowerCase();
-  const items = boardTags().filter(([t]) => t.startsWith(q) && t !== q).slice(0, 6).map(([t, n]) => ({ k: t, t: '#' + t, d: n === 1 ? '1 card' : n + ' cards', run: () => { const vv = ta.value, a = ta.selectionStart; setTA(ta, vv.slice(0, a) + '#' + t + ' ' + vv.slice(a), a + t.length + 2, a + t.length + 2); } }));
+  const items = boardTags().filter(([t]) => t.startsWith(q) && t !== q).slice(0, 6).map(([t, n]) => ({ k: t, t: '#' + t, d: n === 1 ? '1 card' : n + ' cards', run: () => { document.execCommand('insertText', false, '#' + t + ' '); ed._save?.(); } }));
   if (!items.length) { if (SL?.tag) closeSlash(); return true; }
-  SL = { start: ls + m.index + m[1].length, end: c, items, idx: SL && SL.tag ? Math.min(SL.idx, items.length - 1) : 0, ta, tag: true };
+  SL = { erase: m[2].length + 1, items, idx: SL && SL.tag ? Math.min(SL.idx, items.length - 1) : 0, ed, rect: c.rect, tag: true };
   drawSlash(); return true;
 }
-function slashCheck(ta) {
-  if (wikiCheck(ta)) return;
-  if (tagCheck(ta)) return;
-  const v = ta.value, c = ta.selectionStart;
-  const ls = v.lastIndexOf('\n', c - 1) + 1, m = v.slice(ls, c).match(/^(\s*)\/(\w*)$/);
-  if (!m || ta.selectionStart !== ta.selectionEnd) return closeSlash();
+function slashCheck(ed) {
+  const c = caretCtx(ed); if (!c) return closeSlash();
+  if (wikiCheck(ed, c)) return;
+  if (tagCheck(ed, c)) return;
+  const m = c.text.match(/^(\s*)\/(\w*)$/);
+  if (!m) return closeSlash();
   const q = m[2].toLowerCase(), isPage = S.items.get(S.editing)?.type === 'page';
   const items = SLASH.filter(x => (!x.pageOnly || isPage) && (!q || x.k.startsWith(q) || x.t.toLowerCase().includes(q)));
   if (!items.length) return closeSlash();
-  SL = { start: ls + m[1].length, end: c, items, idx: SL ? Math.min(SL.idx, items.length - 1) : 0, ta };
+  SL = { erase: m[2].length + 1, items, idx: SL ? Math.min(SL.idx, items.length - 1) : 0, ed, rect: c.rect };
   drawSlash();
 }
 function drawSlash() {
-  const p = $('#slash'), ta = SL.ta;
+  const p = $('#slash');
   p.replaceChildren(...SL.items.map((x, i) => {
     const b = document.createElement('button'); b.className = 'pop-item' + (i === SL.idx ? ' hl' : ''); b.setAttribute('role', 'option');
     const t = document.createElement('span'); t.textContent = x.t; const d = document.createElement('small'); d.textContent = x.d;
@@ -2638,41 +2817,28 @@ function drawSlash() {
     b.addEventListener('mousedown', e => e.preventDefault()); b.addEventListener('pointerdown', e => e.preventDefault());
     b.onclick = () => pickSlash(i); return b;
   }));
-  // Sous la ligne en cours, autant que la mesure le permet.
-  const r = ta.getBoundingClientRect(), scale = r.height / (ta.offsetHeight || 1);
-  const line = ta.value.slice(0, SL.end).split('\n').length;
-  const lh = parseFloat(getComputedStyle(ta).lineHeight) || 22;
-  let top = r.top + (8 + line * lh - ta.scrollTop) * scale + 4;
+  // Sous la ligne en cours.
+  const r = SL.rect; let top = r.bottom + 6;
   p.hidden = false;
   const h = p.offsetHeight;
-  if (top + h > innerHeight - 12) top = Math.max(12, top - h - lh * scale - 8);
-  p.style.top = top + 'px'; p.style.left = clamp(r.left + 8, 12, innerWidth - 242) + 'px';
+  if (top + h > innerHeight - 12) top = Math.max(12, r.top - h - 6);
+  p.style.top = top + 'px'; p.style.left = clamp(r.left, 12, innerWidth - 242) + 'px';
 }
 function pickSlash(i) {
   const x = SL?.items[i]; if (!x) return;
-  const ta = SL.ta, v = ta.value, a = SL.start;
-  ta.value = v.slice(0, a) + v.slice(SL.end); ta.setSelectionRange(a, a);
-  closeSlash(); x.run();
-  if (ta.isConnected) { ta.dispatchEvent(new Event('input')); }
+  const ed = SL.ed, n = SL.erase;
+  closeSlash(); ed.focus(); eraseBack(n); x.run();
+  if (ed.isConnected) ed._save?.();
 }
 function closeSlash() { SL = null; const p = document.getElementById('slash'); if (p) p.hidden = true; }
-function insertDivider() {
-  const ta = noteTA(); if (!ta) return;
-  const v = ta.value, c = ta.selectionStart, ls = v.lastIndexOf('\n', c - 1) + 1;
-  let le = v.indexOf('\n', c); if (le < 0) le = v.length;
-  const line = v.slice(ls, le), ins = line.trim() ? line + '\n---\n' : '---\n';
-  setTA(ta, v.slice(0, ls) + ins + v.slice(le + (le < v.length && !line.trim() ? 1 : 0)), ls + ins.length, ls + ins.length);
-}
+function insertDivider() { const ed = curEd(); if (ed) edInsertBlock(ed, '---'); }
 function insertSubpage() {
-  const ta = noteTA(), pid = S.editing; if (!ta || !pid) return;
+  const ed = curEd(), pid = S.editing; if (!ed || !pid) return;
   const nid = uid();
   createItem({ type: 'page', parent: pid, title: '', icon: '📄', text: '' }, { id: nid, keepSel: true });
-  const v = ta.value, c = ta.selectionStart, ls = v.lastIndexOf('\n', c - 1) + 1;
-  let le = v.indexOf('\n', c); if (le < 0) le = v.length;
-  const line = v.slice(ls, le), ins = `[[page:${nid}]]`;
-  const nv = line.trim() ? v.slice(0, le) + '\n' + ins + v.slice(le) : v.slice(0, ls) + ins + v.slice(le);
-  const it = S.items.get(pid); it.text = nv; ta.value = nv;
-  persist(pid, { text: nv }); S.editing = null;
+  edInsertBlock(ed, `[[page:${nid}]]`, `<button class="subpage" data-page="${nid}">📄 Untitled</button>`);
+  const it = S.items.get(pid); it.text = htmlToMd(ed); clearTimeout(ed.t);
+  persist(pid, { text: it.text }); S.editing = null;
   openPage(nid, true);
 }
 
@@ -2854,7 +3020,7 @@ function findNode(n, id, parent = null) {
   return null;
 }
 const isInside = (n, id) => n.id === id || (n.c || []).some(k => isInside(k, id));
-const plainMd = t => t.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (a, n, lb) => lb || n).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
+const plainMd = t => t.replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (a, n, lb) => lb || n).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
 const MD_PRE = /^\s*(?:#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> ?)?/;
 // Une page ou une note devient un arbre : titres, puis listes selon leur retrait, les pages incluses dépliées dessous.
 function outlineTree(title, text, guard = 0) {
@@ -3495,10 +3661,23 @@ function newTableData(name = '') {
     cols: [{ id: c1, name: 'Name', type: 'text' }, { id: c2, name: 'Status', type: 'select', opts: [{ n: 'To do', c: '5' }, { n: 'Doing', c: '2' }, { n: 'Done', c: '4' }] }, { id: c3, name: 'Date', type: 'date' }],
     rows: [{ id: uid(), v: {} }, { id: uid(), v: {} }] };
 }
-const tSig = t => t ? JSON.stringify([t.name, t.cols, t.rows, t.view, t.sort, t.group]) : 'x';
+const tSig = t => t ? JSON.stringify([t.name, t.icon, t.cols, t.rows, t.view, t.sort, t.group]) : 'x';
+// Icônes et couleurs des grilles : un choix d'émojis et les six couleurs de la toile.
+const EMOJI = ['⭐','🔥','✅','❗','❓','💡','🎯','📌','📅','⏳','🚀','💰','📈','📉','🛒','💊','🏥','🏪','🎓','📚','✏️','📝','📄','📎','📞','✉️','💬','👤','👥','🤝','🏠','✈️','🚗','🍽️','🏃','❤️','🙂','😟','🟢','🟡','🔴','🔵','⚪','⚙️','🔒','🎉','🌱','🧠'];
+function emojiPick(anchor, onPick, hasOne) {
+  const g = document.createElement('div'); g.className = 'em-grid';
+  for (const e of EMOJI) { const b = document.createElement('button'); b.type = 'button'; b.textContent = e; b.setAttribute('aria-label', 'Icon ' + e); b.onclick = () => { closeTPop(); onPick(e); }; g.append(b); }
+  const kids = [g]; if (hasOne) kids.push(pItem('Remove icon', () => onPick('')));
+  popAt(anchor, kids).classList.add('em-pop');
+}
+function swatches(cur, onPick) {
+  const w = document.createElement('div'); w.className = 'cm-grid tbl-sw';
+  for (const n of [0, 1, 2, 3, 4, 5, 6]) { const b = document.createElement('button'); b.type = 'button'; b.className = 'cm-sw hl' + (String(cur || 0) === String(n) ? ' on' : ''); if (n) b.style.background = `var(--c${n}b)`; else b.textContent = '×'; b.setAttribute('aria-label', n ? 'Colour ' + n : 'No colour'); b.onclick = () => { closeTPop(); onPick(n ? String(n) : ''); }; w.append(b); }
+  return w;
+}
 function tChange(id, fn) {
   const t = S.items.get(id); if (!t || S.readonly) return;
-  const d = JSON.parse(JSON.stringify({ name: t.name || '', cols: t.cols || [], rows: t.rows || [], view: t.view || 'table', sort: t.sort || null, group: t.group || null }));
+  const d = JSON.parse(JSON.stringify({ name: t.name || '', icon: t.icon || '', cols: t.cols || [], rows: t.rows || [], view: t.view || 'table', sort: t.sort || null, group: t.group || null }));
   if (fn(d) === false) return;
   persist(id, d); render(); refreshTables(true);
 }
@@ -3547,7 +3726,9 @@ function drawTable(host) {
   nm.onkeydown = e => { if (e.key === 'Enter') nm.blur(); };
   const seg = document.createElement('div'); seg.className = 'seg tbl-views';
   for (const [k, l] of [['table', 'Table'], ['board', 'Board']]) { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', String((t.view || 'table') === k)); b.onclick = () => tChange(id, d => { d.view = k; }); seg.append(b); }
-  top.append(nm, seg);
+  const ic = document.createElement('button'); ic.className = 'tbl-icon' + (t.icon ? '' : ' empty'); ic.textContent = t.icon || '▦'; ic.title = 'Table icon'; ic.setAttribute('aria-label', 'Choose the table icon');
+  ic.onclick = () => { if (!ro) emojiPick(ic, e => tChange(id, d => { d.icon = e; }), !!t.icon); };
+  top.append(ic, nm, seg);
   const kids = [top];
   if ((t.view || 'table') === 'board') kids.push(drawBoard(id, t)); else kids.push(...drawGrid(id, t));
   host.replaceChildren(...kids);
@@ -3559,8 +3740,9 @@ function drawGrid(id, t) {
   const hr = document.createElement('tr');
   for (const c of cols) {
     const th = document.createElement('th'); th.dataset.c = c.id;
+    if (c.c) th.style.background = `var(--c${c.c}b)`;
     const b = document.createElement('button'); b.className = 'tbl-h';
-    b.textContent = c.name || 'Untitled';
+    b.textContent = (c.icon ? c.icon + ' ' : '') + (c.name || 'Untitled');
     if (t.sort?.c === c.id) b.textContent += t.sort.d > 0 ? ' ↑' : ' ↓';
     b.onclick = () => !ro && colMenu(b, id, c.id);
     th.append(b); hr.append(th);
@@ -3570,12 +3752,14 @@ function drawGrid(id, t) {
   const tbody = document.createElement('tbody');
   for (const r of sortedRows(t)) {
     const tr = document.createElement('tr'); tr.dataset.r = r.id;
-    for (const c of cols) {
+    if (r.c) tr.style.background = `var(--c${r.c}b)`;
+    cols.forEach((c, ci) => {
       const td = document.createElement('td'); td.dataset.c = c.id; td.className = 't-' + c.type;
-      td.innerHTML = cellHTML(c, r.v?.[c.id]);
-      if (!ro) td.onclick = e => { if (!e.target.closest('input')) editCell(td, id, r.id, c.id); };
+      if (c.c && !r.c) td.style.background = `color-mix(in srgb, var(--c${c.c}b) 70%, transparent)`;
+      td.innerHTML = (ci === 0 && r.icon ? `<span class="r-ic">${esc(r.icon)}</span>` : '') + cellHTML(c, r.v?.[c.id]);
+      if (!ro) td.onclick = e => { if (e.target.closest('.r-ic')) { emojiPick(e.target, ic => setRow(id, r.id, { icon: ic }), true); return; } if (!e.target.closest('input')) editCell(td, id, r.id, c.id); };
       tr.append(td);
-    }
+    });
     if (!ro) { const td = document.createElement('td'); td.className = 'tbl-rowx'; const b = document.createElement('button'); b.textContent = '⋯'; b.setAttribute('aria-label', 'Row options'); b.onclick = () => rowMenu(b, id, r.id); td.append(b); tr.append(td); }
     tbody.append(tr);
   }
@@ -3663,12 +3847,21 @@ function colMenu(anchor, id, cid) {
     pItem('Sort A → Z', () => tChange(id, d => { d.sort = { c: cid, d: 1 }; })),
     pItem('Sort Z → A', () => tChange(id, d => { d.sort = { c: cid, d: -1 }; }))];
   if (t.sort) kids.push(pItem('Remove sorting', () => tChange(id, d => { d.sort = null; })));
+  const cl = document.createElement('span'); cl.className = 'lbl-sm'; cl.textContent = 'Colour';
+  kids.push(document.createElement('hr'), cl, swatches(c.c, v => tChange(id, d => { const x = d.cols.find(y => y.id === cid); if (v) x.c = v; else delete x.c; })));
+  kids.push(pItem(c.icon ? 'Change icon ' + c.icon : 'Add an icon', () => emojiPick(anchor, e => tChange(id, d => { const x = d.cols.find(y => y.id === cid); if (e) x.icon = e; else delete x.icon; }), !!c.icon)));
   if (c.type === 'select') kids.push(pItem('Group the board by this', () => tChange(id, d => { d.group = cid; d.view = 'board'; })));
   if (t.cols.length > 1) kids.push(pItem('Delete column', () => tChange(id, d => { d.cols = d.cols.filter(x => x.id !== cid); d.rows.forEach(r => { if (r.v) delete r.v[cid]; }); if (d.sort?.c === cid) d.sort = null; if (d.group === cid) d.group = null; }), 'danger'));
   popAt(anchor, kids); setTimeout(() => { if (!matchMedia('(hover:none)').matches) name.select(); }, 0);
 }
+function setRow(id, rid, p) { tChange(id, d => { const r = d.rows.find(x => x.id === rid); if (!r) return false; for (const k in p) { if (p[k]) r[k] = p[k]; else delete r[k]; } }); }
 function rowMenu(anchor, id, rid) {
+  const r0 = S.items.get(id)?.rows.find(x => x.id === rid) || {};
+  const cl = document.createElement('span'); cl.className = 'lbl-sm'; cl.textContent = 'Row colour';
   popAt(anchor, [
+    cl, swatches(r0.c, v => setRow(id, rid, { c: v })),
+    pItem(r0.icon ? 'Change icon ' + r0.icon : 'Add an icon', () => emojiPick(anchor, e => setRow(id, rid, { icon: e }), !!r0.icon)),
+    document.createElement('hr'),
     pItem('Open as a card', () => rowEditor(id, rid)),
     pItem('Duplicate', () => tChange(id, d => { const i = d.rows.findIndex(r => r.id === rid); if (i < 0) return false; d.rows.splice(i + 1, 0, { id: uid(), v: { ...d.rows[i].v } }); })),
     pItem('Delete row', () => { const t = S.items.get(id), i = t.rows.findIndex(r => r.id === rid), row = t.rows[i]; tChange(id, d => { d.rows = d.rows.filter(r => r.id !== rid); }); toast('Row deleted', { label: 'Undo', run: () => tChange(id, d => { d.rows.splice(i, 0, row); }) }, 6000); }, 'danger'),
@@ -3735,7 +3928,8 @@ function drawBoard(id, t) {
     lane.append(h);
     for (const r of rows) {
       const c = document.createElement('div'); c.className = 'tb-card'; c.dataset.r = r.id; c.draggable = !ro; c.tabIndex = 0;
-      const tt = document.createElement('div'); tt.className = 'tb-t'; tt.textContent = (title && r.v?.[title.id]) || 'Untitled'; c.append(tt);
+      if (r.c) c.style.background = `var(--c${r.c}b)`;
+      const tt = document.createElement('div'); tt.className = 'tb-t'; tt.textContent = (r.icon ? r.icon + ' ' : '') + ((title && r.v?.[title.id]) || 'Untitled'); c.append(tt);
       const meta = cols.filter(x => x !== title && x !== g && r.v?.[x.id] != null && r.v?.[x.id] !== '' && r.v?.[x.id] !== false).map(x => cellHTML(x, r.v[x.id])).join(' ');
       if (meta) { const m = document.createElement('div'); m.className = 'tb-m'; m.innerHTML = meta; c.append(m); }
       c.onclick = () => rowEditor(id, r.id);
@@ -3768,17 +3962,14 @@ function addTable() {
   openTable(id);
 }
 function insertTable() {
-  const ta = noteTA(), pid = S.editing; if (!ta || !pid) return;
+  const ed = curEd(), pid = S.editing; if (!ed || !pid) return;
   const nid = uid();
   createItem({ ...newTableData(''), parent: pid }, { id: nid, keepSel: true });
-  const v = ta.value, c = ta.selectionStart, ls = v.lastIndexOf('\n', c - 1) + 1;
-  let le = v.indexOf('\n', c); if (le < 0) le = v.length;
-  const line = v.slice(ls, le), ins = `[[table:${nid}]]`;
-  const nv = line.trim() ? v.slice(0, le) + '\n' + ins + v.slice(le) : v.slice(0, ls) + ins + v.slice(le);
-  const it = S.items.get(pid); it.text = nv; ta.value = nv;
-  persist(pid, { text: nv });
+  edInsertBlock(ed, `[[table:${nid}]]`, '<span class="ed-chip">▦ Untitled table</span>');
+  const it = S.items.get(pid); it.text = htmlToMd(ed); clearTimeout(ed.t);
+  persist(pid, { text: it.text });
   // Sortir de l'édition pour voir la grille et la remplir tout de suite.
-  S.editing = null; ta.blur(); renderPage(); render();
+  S.editing = null; ed.blur(); renderPage(); render();
 }
 function openTable(id) {
   const it = S.items.get(id); if (!it) return;
