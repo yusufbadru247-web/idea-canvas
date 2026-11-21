@@ -264,6 +264,29 @@ button{font:inherit;color:inherit}
 @media (max-width:640px){ #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px));bottom:auto} #selbar.fmt{padding:3px} #selbar.fmt .tb{min-width:29px;padding:0 4px} #selbar.fmt .sep{margin:0 1px} }
 
 /* Recherche */
+#cap-pop{position:fixed;z-index:46;top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(520px,calc(100vw - 24px));padding:10px}
+#cap-text{display:block;width:100%;min-height:96px;max-height:40vh;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;line-height:1.5;resize:none;outline:none;padding:4px 6px}
+.cap-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:8px}
+.cap-row .grow{flex:1}
+.cap-row .seg{margin:0}
+.cap-row .seg button{padding:5px 10px;flex:none}
+#cap-lang{border:0;background:var(--hover);color:var(--ink);border-radius:6px;font:inherit;font-size:12px;padding:5px 4px;height:30px}
+#cap-mic.on{background:var(--c1b);color:var(--c1)}
+#cap-mic.on svg{color:var(--c1)}
+.cap-rec{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--c1);padding:2px 6px 8px}
+.cap-rec .dot{width:8px;height:8px;border-radius:50%;background:var(--c1);animation:capblink 1s infinite}
+@keyframes capblink{50%{opacity:.25}}
+.cap-photos{display:flex;gap:6px;flex-wrap:wrap;padding:0 6px 8px}
+.cap-photos img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+.audiocard{display:flex;flex-direction:column;gap:8px;padding:10px 12px;flex:1;min-height:0}
+.audiocard .ah{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.audiocard audio{width:100%;height:36px}
+.audiocard .md{padding:0;font-size:14px}
+.ai-pop .pop-item{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+.ai-pop .pop-item small{color:var(--muted);font-size:12px}
+.ai-ask{display:flex;gap:6px;padding:4px}
+.ai-ask input{flex:1;min-width:0}
+@media (max-width:640px){ #help-btn{display:none} }
 #trash-pop,#hist-pop{position:fixed;z-index:45;top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px}
 .tr-h{display:flex;align-items:center;justify-content:space-between}
 .tr-h h3{margin:0;font-size:16px}
@@ -590,6 +613,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <div id="sync"><span class="lbl">Loading</span></div>
 </div>
 <div id="corner" class="chrome">
+  <button class="tb icon today-btn" id="cap-btn" aria-label="Quick capture (C)" title="Quick capture (C)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="width:18px;height:18px"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span class="badge calm" hidden></span></button>
   <button class="tb icon today-btn" id="today-btn" aria-label="Today and tasks" title="Today and tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/></svg><span class="badge" hidden></span></button>
   <button class="tb icon" id="view-btn" aria-label="Show as a list"></button>
   <button class="tb icon" id="search-btn" aria-label="Search this board" title="Search (Ctrl/⌘ K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
@@ -622,6 +646,21 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <textarea id="add-text" placeholder="https://… or an idea"></textarea>
   <div class="row"><button class="btn" id="add-cancel">Cancel</button><button class="btn primary grow" id="add-ok">Add to canvas</button></div>
 </div>
+<div id="cap-pop" class="pop" hidden role="dialog" aria-label="Quick capture">
+  <textarea id="cap-text" placeholder="An idea, a link, a to-do… Enter saves, Shift+Enter adds a line" aria-label="What to capture"></textarea>
+  <div class="cap-rec" id="cap-rec" hidden><span class="dot"></span><span id="cap-rec-t">Listening…</span></div>
+  <div class="cap-photos" id="cap-photos" hidden></div>
+  <div class="cap-row">
+    <button class="tb icon" id="cap-mic" aria-label="Record a voice note" title="Record a voice note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <select id="cap-lang" aria-label="Voice language"><option value="fr-FR">FR</option><option value="en-GB">EN</option></select>
+    <button class="tb icon" id="cap-photo" aria-label="Add a photo" title="Add a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></button>
+    <button class="tb" id="cap-clean" hidden title="Fix punctuation and dictation mistakes">✦ Clean up</button>
+    <input type="file" id="cap-file" accept="image/*" multiple hidden>
+    <span class="grow"></span>
+    <div class="seg" id="cap-dest"><button data-d="inbox">Inbox</button><button data-d="here">This board</button></div>
+    <button class="btn primary" id="cap-ok">Save</button>
+  </div>
+</div>
 <div id="trash-pop" class="pop" hidden role="dialog" aria-label="Trash"></div>
 <div id="hist-pop" class="pop" hidden role="dialog" aria-label="Page history"></div>
 <div id="search-pop" class="pop" hidden role="dialog" aria-label="Search this board">
@@ -647,6 +686,8 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Capture</dt><dd>C, or the lightning button: type, dictate or add a photo; it lands in your Inbox to sort later with Move</dd>
+    <dt>AI</dt><dd>Select cards and press ✦ AI, or use ✦ in a page: summary, next steps, tasks, mind map, or ask a question</dd>
     <dt>Embeds &amp; PDFs</dt><dd>Links to Google Docs, Sheets, Slides, Figma, Spotify, Vimeo, Loom, Canva, Instagram, TikTok or Maps get “Show here”. On a page, a link alone on its line shows inside the page. PDFs open in a reader</dd>
     <dt>Trash</dt><dd>Board menu, then Trash: deleted cards stay 30 days and can be restored. Pages keep earlier versions under the clock button</dd>
     <dt>Tags</dt><dd>Write #idea in a note or a page, or use Tags on any card. Tap a tag to see everything with it</dd>
@@ -724,7 +765,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
         <label class="mp-lab" for="mp-kid-in">Ideas inside</label>
         <div class="mp-kids" id="mp-kids"></div>
         <textarea class="mp-in" id="mp-kid-in" rows="1" placeholder="Add ideas, one per line, then Enter"></textarea>
-        <div class="mp-row"><button class="btn" id="mp-fold"></button><button class="btn" id="mp-page">Make it a page</button><button class="btn danger" id="mp-rm">Remove this idea</button></div>
+        <div class="mp-row"><button class="btn" id="mp-ideas" hidden>✦ More ideas</button><button class="btn" id="mp-fold"></button><button class="btn" id="mp-page">Make it a page</button><button class="btn danger" id="mp-rm">Remove this idea</button></div>
       </div>
     </aside>
   </div>
@@ -733,6 +774,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <div class="pv-top">
     <button class="tb icon" id="pv-back" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M15 18l-6-6 6-6"/></svg></button>
     <nav class="pv-crumbs" id="pv-crumbs" aria-label="Where this page is"></nav>
+    <button class="tb" id="pv-ai" title="Ask AI about this page">✦<span class="lbl"> AI</span></button>
     <button class="tb" id="pv-map" title="Turn this page into a mind map"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Mind map</span></button>
     <button class="tb icon" id="pv-hist" title="Page history" aria-label="Page history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></button>
     <button class="tb danger" id="pv-del">Delete</button>
@@ -1030,6 +1072,7 @@ function itemTitle(it) {
   if (it.type === 'table') return it.name || 'Untitled table';
   if (it.type === 'note') { const l = ((it.text || '').split('\n').find(x => x.trim()) || '').replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, ''); return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
   if (it.type === 'link') return it.title || it.url || 'Link';
+  if (it.type === 'audio') return ((it.text || '').split('\n').find(x => x.trim()) || 'Voice note').slice(0, 80);
   if (it.type === 'group') return it.label || 'Group';
   return it.fileName || KIND[it.type] || 'Card';
 }
@@ -1503,6 +1546,13 @@ function buildContent(el, it) {
     const n = childPages(el.dataset.id).filter(c => S.items.get(c)?.type === 'page').length; const ct = document.createElement('span'); ct.textContent = n ? (n === 1 ? '1 page inside' : n + ' pages inside') : '';
     const ob = document.createElement('button'); ob.className = 'pc-open'; ob.textContent = 'Open'; ob.onclick = e => { e.stopPropagation(); openPage(el.dataset.id); };
     f.append(ct, ob); c.append(ic, t, sn, f); inner.append(c);
+  } else if (it.type === 'audio') {
+    const c = document.createElement('div'); c.className = 'audiocard';
+    const h = document.createElement('div'); h.className = 'ah'; h.textContent = '🎙 Voice note' + (it.created ? ' · ' + fmtDate(it.created) : '');
+    c.append(h);
+    if (mediaSrc(it)) { const a = document.createElement('audio'); a.controls = true; a.preload = 'metadata'; a.src = mediaSrc(it); c.append(a); }
+    const d = document.createElement('div'); d.className = 'md'; d.innerHTML = (it.text || '').trim() ? md(it.text) : '<p class="ph">No words recognised.</p>'; c.append(d);
+    inner.append(c);
   } else if (it.type === 'table') {
     const c = document.createElement('div'); c.className = 'tblcard';
     const t = document.createElement('div'); t.className = 'pc-title'; t.textContent = it.name || 'Untitled table';
@@ -1619,6 +1669,8 @@ function renderSelbar() {
     if (it?.type === 'page' || it?.type === 'note') kids.push(btn('Mind map', () => mapFromItem([...S.sel][0])));
   }
   if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
+  if (!S.readonly && AI_ON()) { const ab = btn('✦ AI', () => aiMenu(ab, { kind: 'cards', ids: [...S.sel] })); kids.push(ab); }
+  if (!S.readonly && S.boards.length > 1) { const mb = btn(S.boardId === 'inbox' ? 'Move to…' : 'Move', () => movePicker(mb)); kids.push(mb); }
   kids.push(btn('Duplicate', duplicateSel), btn('Delete', deleteSel, 'danger'));
   bar.replaceChildren(...kids); bar.hidden = false;
 }
@@ -1913,7 +1965,7 @@ function itemsInside(g) {
 vp.addEventListener('pointerdown', e => {
   closePops();
   const t = e.target;
-  if (isField(t) || t.tagName === 'VIDEO' || t.closest('a') || t.closest('.play') || t.closest('.pc-open') || t.closest('.emb-btn')) return;
+  if (isField(t) || t.tagName === 'VIDEO' || t.tagName === 'AUDIO' || t.closest('a') || t.closest('.play') || t.closest('.pc-open') || t.closest('.emb-btn')) return;
   const cb = t.closest('.md .cb');
   if (cb && !S.readonly && pts.size === 0) { e.preventDefault(); toggleTask(cb.closest('.item').dataset.id, +cb.dataset.line); return; }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -2055,6 +2107,7 @@ document.addEventListener('keydown', e => {
   else if (!mod && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); addPage(); }
   else if (e.key === 'Enter' && S.sel.size === 1) { e.preventDefault(); const id = [...S.sel][0], ty = S.items.get(id)?.type; if (ty === 'page') openPage(id); else if (ty === 'mindmap') openMap(id); else if (ty === 'table') openTable(id); else startEdit(id); }
   else if (!mod && (e.key === 't' || e.key === 'T')) { e.preventDefault(); addTable(); }
+  else if (!mod && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); openCapture(); }
   else if (!mod && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); addMap(); }
   else if (!mod && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); addNote(); }
   else if (!mod && (e.key === 'g' || e.key === 'G')) { e.preventDefault(); addGroup(); }
@@ -2085,7 +2138,7 @@ vp.addEventListener('drop', e => {
 });
 
 /* ---------- barres et fenêtres ---------- */
-function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop', 'search-pop', 'trash-pop', 'hist-pop']) if (id !== except) $('#' + id).hidden = true; }
+function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop', 'search-pop', 'trash-pop', 'hist-pop', 'cap-pop']) if (id !== except) $('#' + id).hidden = true; }
 function toggle(id) { const p = $('#' + id); const open = p.hidden; closePops(id); p.hidden = !open; return open; }
 $('#t-note').onclick = () => { setMode('canvas'); addNote(); };
 $('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
@@ -2106,7 +2159,7 @@ $('#board-btn').onclick = () => { if (toggle('board-pop')) renderBoardPop(); };
 function renderBoardPop(renaming) {
   const pop = $('#board-pop'); const kids = [];
   for (const b of S.boards) {
-    const it = document.createElement('button'); it.className = 'pop-item' + (b.id === S.boardId ? ' cur' : ''); it.textContent = b.name || 'Untitled';
+    const it = document.createElement('button'); it.className = 'pop-item' + (b.id === S.boardId ? ' cur' : ''); it.textContent = (b.id === 'inbox' ? '📥 ' : '') + (b.name || 'Untitled') + (b.id === 'inbox' && S.inboxN ? ` (${S.inboxN})` : '');
     it.onclick = () => { closePops(); openBoard(b.id); }; kids.push(it);
   }
   kids.push(document.createElement('hr'));
@@ -2471,7 +2524,7 @@ function toggleTask(id, n) {
 
 /* ---------- recherche ---------- */
 const itemText = it => [it.text, it.title, it.url, it.label, it.fileName, it.desc, it.site, it.tree && flatTree(it.tree).join(' '), it.cols && [it.name, ...(it.rows || []).flatMap(r => Object.values(r.v || {}).filter(v => typeof v !== 'boolean'))].join(' ')].filter(Boolean).join(' ');
-const KIND = { note: 'Note', link: 'Link', image: 'Image', video: 'Video', group: 'Group', page: 'Page', mindmap: 'Mind map', table: 'Table' };
+const KIND = { note: 'Note', link: 'Link', image: 'Image', video: 'Video', group: 'Group', page: 'Page', mindmap: 'Mind map', table: 'Table', audio: 'Voice note' };
 function openSearch() {
   if (!toggle('search-pop')) return;
   const q = $('#search-q'); q.value = ''; renderSearch(''); setTimeout(() => q.focus(), 0);
@@ -2612,7 +2665,7 @@ function renderPage() {
     crumbs.push(sl, b);
   }
   $('#pv-crumbs').replaceChildren(...crumbs);
-  $('#pv-del').hidden = S.readonly; $('#pv-map').hidden = S.readonly;
+  $('#pv-del').hidden = S.readonly; $('#pv-map').hidden = S.readonly; $('#pv-ai').hidden = S.readonly || !AI_ON();
   $('#pv-icon').textContent = it.icon || '📄';
   const ti = $('#pv-title'); if (document.activeElement !== ti) ti.value = it.title || ''; ti.readOnly = S.readonly;
   const tp = $('#pv-templates');
@@ -2725,6 +2778,7 @@ async function uploadForPage(f) {
 }
 $('#pv-back').onclick = () => closePage();
 $('#pv-hist').onclick = openHistory;
+$('#pv-ai').onclick = e => aiMenu(e.currentTarget, { kind: 'page', id: S.pageId });
 $('#pv-map').onclick = () => { const id = S.pageId; if (id) mapFromItem(id); };
 $('#pv-del').onclick = () => { const id = S.pageId; if (!id) return; S.pageId = null; document.body.classList.remove('paging'); $('#pageview').hidden = true; try { if (history.state?.icPage) history.back(); } catch {} S.sel = new Set([id]); deleteSel(); };
 $('#pv-icon').onclick = () => {
@@ -2880,7 +2934,7 @@ function scheduleList() { if (!lvRaf) lvRaf = requestAnimationFrame(() => { lvRa
 const hasTodo = it => (it.type === 'note' || it.type === 'page') && /^\s*[-*] \[[ xX]\] /m.test(it.text || '');
 const hasOpenTask = it => (it.type === 'note' || it.type === 'page') && /^\s*[-*] \[ \] \S/m.test(it.text || '');
 const FILTERS = [['all', 'All'], ['tasks', 'Tasks'], ['page', 'Pages'], ['mindmap', 'Mind maps'], ['table', 'Tables'], ['note', 'Notes'], ['todo', 'To-dos'], ['link', 'Links'], ['media', 'Photos & videos'], ['group', 'Groups']];
-const passes = (it, f) => f === 'all' || (f === 'tasks' ? hasOpenTask(it) : f === 'todo' ? hasTodo(it) : f === 'media' ? (it.type === 'image' || it.type === 'video') : it.type === f);
+const passes = (it, f) => f === 'all' || (f === 'tasks' ? hasOpenTask(it) : f === 'todo' ? hasTodo(it) : f === 'media' ? (it.type === 'image' || it.type === 'video' || it.type === 'audio') : it.type === f);
 function fmtDate(t) {
   if (!t) return '';
   const d = new Date(t), now = new Date();
@@ -3472,7 +3526,7 @@ function renderPanel() {
   }));
   $('#mp-kid-in').hidden = ro;
   const fb = $('#mp-fold'); fb.hidden = !n.c.length; fb.textContent = n.f ? 'Show its ideas' : 'Hide its ideas';
-  $('#mp-rm').hidden = ro || !f.parent; $('#mp-page').hidden = ro;
+  $('#mp-rm').hidden = ro || !f.parent; $('#mp-page').hidden = ro; $('#mp-ideas').hidden = ro || !AI_ON();
   if (!same) $('#mp-scroll').scrollTop = 0;
 }
 $('#mp-close').onclick = () => { MM.panel = false; renderMap(); };
@@ -3493,6 +3547,20 @@ $('#mp-file').addEventListener('change', e => { const fs = [...e.target.files]; 
 $('#mp-kid-in').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const v = e.target.value; if (v.trim()) { mmAddLines(MM.sel, v); e.target.value = ''; autosize(e.target); } } });
 $('#mp-kid-in').addEventListener('input', e => autosize(e.target));
 $('#mp-fold').onclick = () => mmToggle(MM.sel);
+$('#mp-ideas').onclick = async e => {
+  const it = mmItem(), f = it && findNode(it.tree, MM.sel); if (!f) return;
+  const chain = []; let cur = f; while (cur?.parent) { cur = findNode(it.tree, cur.parent.id); chain.unshift(cur.node.t); }
+  const b = e.currentTarget; b.disabled = true; b.textContent = '✦ Thinking…';
+  try {
+    const r = await ai('ideas', { root: it.tree.t, branch: f.node.t, path: [...chain, f.node.t].join(' > '), existing: f.node.c.map(k => k.t).join('; ') });
+    const ideas = (r.data?.ideas || []).map(x => String(x).trim()).filter(Boolean).slice(0, 8);
+    if (!ideas.length) { toast('No new idea this time.'); return; }
+    const before = JSON.parse(JSON.stringify(it.tree)), mapId = S.mapId, id = MM.sel;
+    mmChange(tree => { const g = findNode(tree, id); if (!g) return false; g.node.f = false; for (const t of ideas) g.node.c.push(mmNode(t.slice(0, 120))); });
+    toast(`Added ${ideas.length} ideas`, { label: 'Undo', run: () => { persist(mapId, { tree: before }); render(); if (S.mapId === mapId) renderMap(); } }, 6000);
+  } catch (err) { toast(err?.msg || 'AI did not answer.'); }
+  finally { b.disabled = false; b.textContent = '✦ More ideas'; }
+};
 $('#mp-rm').onclick = () => mmRemove(MM.sel);
 // Une idée qui grandit trop pour une carte devient une page, avec ses notes, ses liens, ses photos et ses idées.
 $('#mp-page').onclick = () => {
@@ -3996,6 +4064,267 @@ $('#pd-in').onclick = () => { pdfZoom = Math.min(3, pdfZoom * 1.25); layoutPdf()
 $('#pd-out').onclick = () => { pdfZoom = Math.max(0.5, pdfZoom / 1.25); layoutPdf(); };
 $('#tv-del').onclick = () => { const id = S.tableId; if (!id) return; closeTable(); S.sel = new Set([id]); deleteSel(); };
 
+/* ---------- capture rapide et boîte d'entrée ---------- */
+// Une idée tombe dans « Inbox » (un tableau à part), d'un geste, puis se trie vers le bon tableau.
+S.inboxN = 0; S.inboxDocs = [];
+function watchInbox() {
+  paintInbox();
+  if (!S.store || S.inboxStore === S.store) return;
+  try { S.inboxUnsub?.(); } catch {}
+  S.inboxStore = S.store;
+  S.inboxUnsub = S.store.watch('inbox', 'items', docs => { S.inboxDocs = docs; S.inboxN = docs.filter(d => !d.parent).length; paintInbox(); }, () => {});
+}
+function paintInbox() {
+  const b = $('#cap-btn .badge'); if (!b) return;
+  const n = S.boardId === 'inbox' ? 0 : S.inboxN; b.hidden = !n; b.textContent = n;
+}
+async function ensureInbox() {
+  if (S.boards.some(b => b.id === 'inbox')) return;
+  await S.store.setBoard('inbox', { name: 'Inbox', created: 1 }).catch(writeFailed);
+}
+function inboxSlot(h) {
+  const tops = S.inboxDocs.filter(d => !d.parent && typeof d.y === 'number');
+  const y = tops.length ? Math.max(...tops.map(d => d.y + (d.h || 100))) + 24 : 0;
+  return { x: 0, y };
+}
+async function captureData(boardId, data) {
+  if (boardId === S.boardId) { const p = nextPos(data.w, data.h); return createItem({ ...data, x: p.x, y: p.y }); }
+  if (boardId === 'inbox') await ensureInbox();
+  const id = uid(), slot = inboxSlot(data.h);
+  const doc = { created: Date.now(), z: 1, ...data, x: slot.x, y: slot.y };
+  S.inboxDocs = [...S.inboxDocs, { id, ...doc }];
+  await enqueue('i/' + id, () => S.store.set(boardId, 'items', id, doc));
+  return id;
+}
+async function captureText(boardId, text) {
+  text = String(text || '').trim(); if (!text) return;
+  if (isUrl(text) && !text.includes('\n')) return captureData(boardId, { type: 'link', url: normUrl(text), title: '', w: 300, h: 74 });
+  return captureData(boardId, { type: 'note', text, w: 240, h: Math.min(320, 60 + Math.ceil(text.length / 30) * 21) });
+}
+async function captureFiles(boardId, files) {
+  if (boardId === S.boardId) return addFiles(files);
+  if (!S.assets) { toast('Photos need sync. Sign in from the board menu.'); return; }
+  for (const f of files) {
+    const isImg = f.type.startsWith('image/');
+    try {
+      const { w, h } = isImg ? await mediaSize(f) : { w: 300, h: 74 };
+      const W = isImg ? Math.min(340, w) : 300, H = isImg ? Math.round(W * h / w) : 74;
+      const data = isImg ? { type: 'image', w: W, h: H, fileName: f.name || undefined } : { type: 'link', w: 300, h: 74, fileName: f.name || 'File', title: f.name || 'File' };
+      if (S.assets.kind === 'supa') { const blob = isImg && !/gif|svg/.test(f.type) ? await shrink(f) : f; const r = await S.assets.upload(blob, f.name || ''); data.src = r.url; data.storagePath = r.id; if (data.type === 'link') data.url = r.url; }
+      else { const r = await S.assets.upload(f); data.assetId = r.id; }
+      for (const k of Object.keys(data)) if (data[k] === undefined) delete data[k];
+      await captureData(boardId, data);
+    } catch (e) { toast(`${f.name || 'That file'} ${UPLOAD_MSG[e?.code] || 'could not be added'}.`); }
+  }
+}
+const CAP = { files: [], rec: null, sr: null, chunks: [], audio: null, started: 0, base: '' };
+function capDest() { return lsGet('idea-canvas:capdest') === 'here' && S.boardId !== 'inbox' ? 'here' : 'inbox'; }
+function openCapture() {
+  if (S.readonly) { toast('This board is view-only.'); return; }
+  closePops('cap-pop');
+  const p = $('#cap-pop'); p.hidden = false;
+  CAP.files = []; CAP.audio = null; $('#cap-photos').hidden = true; $('#cap-photos').replaceChildren();
+  const d = capDest(); for (const b of $('#cap-dest').children) b.setAttribute('aria-pressed', String(b.dataset.d === d));
+  $('#cap-dest').querySelector('[data-d="here"]').hidden = S.boardId === 'inbox';
+  $('#cap-lang').value = lsGet('idea-canvas:caplang') || ((navigator.language || '').startsWith('en') ? 'en-GB' : 'fr-FR');
+  $('#cap-mic').hidden = !(window.SpeechRecognition || window.webkitSpeechRecognition || window.MediaRecorder);
+  capCleanBtn();
+  setTimeout(() => $('#cap-text').focus(), 30);
+}
+function capCleanBtn() { $('#cap-clean').hidden = !AI_ON() || !$('#cap-text').value.trim(); }
+function closeCapture() { capStop(); $('#cap-pop').hidden = true; $('#cap-text').value = ''; CAP.files = []; CAP.audio = null; }
+for (const b of $('#cap-dest').children) b.onclick = () => { lsSet('idea-canvas:capdest', b.dataset.d); for (const x of $('#cap-dest').children) x.setAttribute('aria-pressed', String(x === b)); };
+$('#cap-btn').onclick = () => { if ($('#cap-pop').hidden) openCapture(); else closeCapture(); };
+$('#cap-text').addEventListener('input', capCleanBtn);
+$('#cap-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); capSave(); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeCapture(); }
+});
+$('#cap-photo').onclick = () => $('#cap-file').click();
+$('#cap-file').onchange = e => {
+  const fs = [...e.target.files]; e.target.value = ''; if (!fs.length) return;
+  CAP.files.push(...fs); const box = $('#cap-photos'); box.hidden = false;
+  for (const f of fs) { const im = document.createElement('img'); im.src = URL.createObjectURL(f); im.alt = ''; box.append(im); }
+};
+$('#cap-lang').onchange = e => lsSet('idea-canvas:caplang', e.target.value);
+$('#cap-clean').onclick = async () => {
+  const ta = $('#cap-text'), b = $('#cap-clean'); if (!ta.value.trim()) return;
+  b.disabled = true; b.textContent = '✦ Cleaning…';
+  try { const r = await ai('clean', { text: ta.value }); if (r.text) ta.value = r.text; } catch (e) { toast(e?.msg || 'AI did not answer.'); }
+  finally { b.disabled = false; b.textContent = '✦ Clean up'; }
+};
+// Note vocale : les mots s'écrivent pendant qu'on parle, et l'enregistrement est gardé avec eux.
+$('#cap-mic').onclick = () => { if (CAP.started) capStop(); else capStart(); };
+function capStart() {
+  const ta = $('#cap-text'); CAP.base = ta.value ? ta.value.replace(/\s*$/, ' ') : ''; CAP.chunks = []; CAP.audio = null;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  CAP.started = Date.now(); $('#cap-mic').classList.add('on'); $('#cap-rec').hidden = false;
+  const tick = () => { if (!CAP.started) return; const s = Math.round((Date.now() - CAP.started) / 1000); $('#cap-rec-t').textContent = `Listening… ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; CAP.timer = setTimeout(tick, 500); }; tick();
+  if (SR) {
+    const sr = new SR(); CAP.sr = sr; sr.lang = $('#cap-lang').value; sr.continuous = true; sr.interimResults = true;
+    let finals = '';
+    sr.onresult = ev => { let interim = ''; for (let i = ev.resultIndex; i < ev.results.length; i++) { const r = ev.results[i]; if (r.isFinal) finals += r[0].transcript.trim() + ' '; else interim += r[0].transcript; } ta.value = CAP.base + finals + interim; capCleanBtn(); };
+    sr.onerror = ev => { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') toast('Allow the microphone to dictate.'); };
+    sr.onend = () => { if (CAP.started && CAP.sr === sr) { try { sr.start(); } catch {} } };
+    try { sr.start(); } catch {}
+  }
+  if (window.MediaRecorder && navigator.mediaDevices?.getUserMedia && S.assets) {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      if (!CAP.started) { stream.getTracks().forEach(t => t.stop()); return; }
+      const rec = new MediaRecorder(stream); CAP.rec = rec;
+      rec.ondataavailable = e => { if (e.data.size) CAP.chunks.push(e.data); };
+      rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); if (CAP.chunks.length) CAP.audio = new Blob(CAP.chunks, { type: rec.mimeType || 'audio/webm' }); };
+      rec.start(1000);
+    }).catch(() => { if (!SR) { toast('Allow the microphone to record.'); capStop(); } });
+  } else if (!SR) { toast('This browser cannot record voice.'); capStop(); }
+}
+function capStop() {
+  if (!CAP.started) return;
+  CAP.started = 0; clearTimeout(CAP.timer);
+  $('#cap-mic').classList.remove('on'); $('#cap-rec').hidden = true;
+  const sr = CAP.sr; CAP.sr = null; try { sr?.stop(); } catch {}
+  try { if (CAP.rec?.state !== 'inactive') CAP.rec?.stop(); } catch {} CAP.rec = null;
+}
+async function capSave() {
+  capStop();
+  await new Promise(r => setTimeout(r, 350));   // le dernier morceau de l'enregistrement arrive
+  const text = $('#cap-text').value.trim(), files = CAP.files.slice(), audio = CAP.audio;
+  if (!text && !files.length && !audio) { closeCapture(); return; }
+  const dest = capDest() === 'here' ? S.boardId : 'inbox';
+  closeCapture();
+  try {
+    if (audio && S.assets) {
+      const ext = /mp4|aac/.test(audio.type) ? 'm4a' : /ogg/.test(audio.type) ? 'ogg' : 'webm';
+      const data = { type: 'audio', text, w: 300, h: Math.min(360, 130 + Math.ceil(text.length / 34) * 20) };
+      if (S.assets.kind === 'supa') { const r = await S.assets.upload(audio, 'voice-note.' + ext); data.src = r.url; data.storagePath = r.id; }
+      else { const r = await S.assets.upload(new File([audio], 'voice-note.' + ext, { type: audio.type })); data.assetId = r.id; }
+      await captureData(dest, data);
+    } else if (text) await captureText(dest, text);
+    if (files.length) await captureFiles(dest, files);
+    if (dest === 'inbox' && S.boardId !== 'inbox') toast('Saved to your Inbox.', { label: 'Open', run: () => openBoard('inbox') });
+  } catch (e) { toast('Could not save that. Check your connection.'); }
+}
+
+/* ---------- déplacer des cartes vers un autre tableau ---------- */
+function movePicker(anchor) {
+  const kids = S.boards.filter(b => b.id !== S.boardId).map(b => pItem((b.id === 'inbox' ? '📥 ' : '') + (b.name || 'Untitled'), () => moveSelTo(b.id, ids)));
+  const ids = [...S.sel];
+  if (!kids.length) return;
+  const l = document.createElement('span'); l.className = 'lbl-sm'; l.textContent = 'Move to';
+  popAt(anchor, [l, ...kids]);
+}
+async function moveSelTo(target, chosen = [...S.sel]) {
+  if (!chosen.length || S.readonly) return;
+  const ids = new Set();
+  for (const id of chosen) { ids.add(id); for (const d of descendants(id)) ids.add(d); const it = S.items.get(id); if (it?.type === 'group') for (const x of itemsInside(it)) { ids.add(x); for (const d of descendants(x)) ids.add(d); } }
+  const tops = [...ids].map(id => S.items.get(id)).filter(it => it && !it.parent);
+  let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
+  for (const it of tops) { a = Math.min(a, it.x); b = Math.min(b, it.y); c = Math.max(c, it.x + it.w); d = Math.max(d, it.y + it.h); }
+  // Au centre de la dernière vue de ce tableau, en gardant la disposition.
+  let cx = 0, cy = 0; try { const v = JSON.parse(lsGet('idea-canvas:view:' + target)); if (v && v.z) { cx = (innerWidth / 2 - v.x) / v.z; cy = (innerHeight / 2 - v.y) / v.z; } } catch {}
+  const dx = cx - (a + c) / 2, dy = cy - (b + d) / 2, board = S.boardId;
+  for (const id of ids) {
+    const it = { ...S.items.get(id) }; if (!it.type) continue;
+    if (!it.parent && typeof it.x === 'number') { it.x = Math.round(it.x + dx); it.y = Math.round(it.y + dy); }
+    await enqueue('m/' + id, () => S.store.set(target, 'items', id, it));
+    S.items.delete(id); enqueue('i/' + id, () => S.store.del(board, 'items', id));
+  }
+  for (const [lid, l] of [...S.links]) {
+    if (ids.has(l.from) && ids.has(l.to)) enqueue('lm/' + lid, () => S.store.set(target, 'links', lid, l));
+    if (ids.has(l.from) || ids.has(l.to)) removeLink(lid);
+  }
+  S.sel.clear(); render();
+  const name = S.boards.find(x => x.id === target)?.name || 'that board';
+  toast(`Moved ${tops.length === 1 ? '1 card' : tops.length + ' cards'} to ${name}.`, { label: 'Open', run: () => openBoard(target) });
+}
+
+/* ---------- IA ---------- */
+// Une fonction Supabase garde la clé Anthropic ; la page lui envoie seulement le texte des cartes choisies.
+const AI_ON = () => S.store?.kind === 'supa' && !!S.sb;
+async function ai(task, payload) {
+  if (!AI_ON()) throw { msg: 'AI works when you are signed in to sync.' };
+  const { data, error } = await S.sb.functions.invoke('ai', { body: { task, today: todayIso(), ...payload } });
+  if (error) {
+    let msg = 'AI did not answer. Try again.';
+    try { const j = await error.context?.json?.(); if (j?.error) msg = j.error; } catch {}
+    if (error.context?.status === 404 || /not found/i.test(error.message || '')) msg = 'AI is not set up yet. Finish the Supabase step first.';
+    throw { msg };
+  }
+  return data || {};
+}
+const todayIso = () => isoOf(new Date());
+const unfmt = t => String(t || '').replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '');
+function itemPlain(id, it, depth = 0) {
+  if (!it) return '';
+  if (it.type === 'page') return `# ${it.title || 'Untitled'}\n${unfmt(it.text)}` + (depth < 2 ? childPages(id).map(c => '\n\n' + itemPlain(c, S.items.get(c), depth + 1)).join('') : '');
+  if (it.type === 'note' || it.type === 'audio') return unfmt(it.text);
+  if (it.type === 'link') return [it.title, it.desc, it.url].filter(Boolean).join('\n');
+  if (it.type === 'mindmap' && it.tree) { const out = []; (function w(n, d) { out.push('  '.repeat(d) + '- ' + n.t + (n.n ? ' (' + n.n + ')' : '')); (n.c || []).forEach(k => w(k, d + 1)); })(it.tree, 0); return out.join('\n'); }
+  if (it.type === 'table') return `${it.name || 'Table'}\n` + (it.rows || []).map(r => (it.cols || []).map(c => r.v?.[c.id]).filter(v => v != null && v !== '').join(' | ')).filter(Boolean).join('\n');
+  if (it.type === 'group') return it.label || '';
+  return it.fileName || '';
+}
+function ctxText(ctx) {
+  if (ctx.kind === 'page') return itemPlain(ctx.id, S.items.get(ctx.id));
+  return ctx.ids.map(id => itemPlain(id, S.items.get(id))).filter(t => t.trim()).join('\n\n---\n\n');
+}
+const AI_TASKS = [
+  ['summary', 'Summarise', 'The key points in a few lines'],
+  ['steps', 'Next steps', 'A to-do list of what to do next'],
+  ['tasks', 'Find tasks', 'Every to-do mentioned, with dates'],
+  ['mindmap', 'Mind map', 'A map that understands the content'],
+];
+function aiMenu(anchor, ctx) {
+  const kids = AI_TASKS.map(([k, t, d]) => { const b = document.createElement('button'); b.className = 'pop-item'; b.innerHTML = `<span>${esc(t)}</span><small>${esc(d)}</small>`; b.onclick = () => { closeTPop(); runAI(k, ctx); }; return b; });
+  const row = document.createElement('form'); row.className = 'ai-ask';
+  const inp = document.createElement('input'); inp.className = 'tbl-in pop-in'; inp.placeholder = 'Ask a question about it…'; inp.setAttribute('aria-label', 'Question');
+  const go = document.createElement('button'); go.className = 'btn primary'; go.textContent = 'Ask'; go.type = 'submit';
+  row.append(inp, go); row.onsubmit = e => { e.preventDefault(); const q = inp.value.trim(); if (!q) return; closeTPop(); runAI('ask', ctx, { question: q }); };
+  popAt(anchor, [...kids, document.createElement('hr'), row]).classList.add('ai-pop');
+}
+async function runAI(task, ctx, extra = {}) {
+  const text = ctxText(ctx);
+  if (!text.trim()) { toast(ctx.kind === 'page' ? 'This page is empty.' : 'These cards have no text to work with.'); return; }
+  const wait = toast('✦ Thinking…', null, 90000);
+  try {
+    const r = await ai(task, { text, ...extra });
+    if (task === 'mindmap') {
+      const toTree = n => ({ id: uid(), t: String(n?.t || 'Idea').slice(0, 120), c: (n?.c || []).map(toTree) });
+      const tree = toTree(r.data || {});
+      const near = aiNear(ctx);
+      const nid = addMap(tree, near);
+      if (near) for (const id of aiSources(ctx).slice(0, 4)) createLink(id, nid);
+      return;
+    }
+    let out = (r.text || '').trim();
+    if (task === 'tasks' && (!out || /^NONE$/i.test(out))) { toast('No task found in it.'); return; }
+    const head = { summary: 'Summary', steps: 'Next steps', tasks: 'Tasks', ask: extra.question }[task];
+    if (ctx.kind === 'page') {
+      const it = S.items.get(ctx.id); if (!it) return;
+      const before = it.text || '';
+      const add = (task === 'ask' ? `> ${extra.question}\n\n` : `## ${head}\n`) + out;
+      persist(ctx.id, { text: before.replace(/\s*$/, '') + (before.trim() ? '\n\n' : '') + add }); renderPage(); render();
+      toast(task === 'ask' ? 'Answer added to the page.' : head + ' added to the page.', { label: 'Undo', run: () => { persist(ctx.id, { text: before }); renderPage(); render(); } }, 6000);
+    } else {
+      const near = aiNear(ctx) || nextPos(260, 200);
+      const body = task === 'ask' ? `**${extra.question}**\n\n${out}` : `**${head}**\n${out}`;
+      const nid = createItem({ type: 'note', text: body, x: near.x, y: near.y, w: 280, h: Math.min(420, 70 + body.split('\n').length * 24) });
+      for (const id of aiSources(ctx).slice(0, 4)) createLink(id, nid);
+      S.sel = new Set([nid]); render();
+    }
+  } catch (e) { toast(e?.msg || 'AI did not answer. Try again.'); }
+  finally { wait.remove(); }
+}
+function aiSources(ctx) {
+  if (ctx.kind === 'page') { let id = ctx.id, it = S.items.get(id); while (it?.parent) { id = it.parent; it = S.items.get(id); } return it && typeof it.x === 'number' ? [id] : []; }
+  return ctx.ids.filter(id => { const it = S.items.get(id); return it && !it.parent && typeof it.x === 'number'; });
+}
+function aiNear(ctx) {
+  const tops = aiSources(ctx).map(id => S.items.get(id)); if (!tops.length) return null;
+  const c = Math.max(...tops.map(t => t.x + t.w)), b = Math.min(...tops.map(t => t.y));
+  return { x: c + 60, y: b };
+}
+
 /* ---------- application installée et partage ---------- */
 // Installée sur l'écran d'accueil, la toile reçoit liens, textes et photos depuis le bouton Partager (Android, ordinateur).
 // Sur iPhone, un Raccourci ouvre « ?add=… » : même chemin pour les liens et le texte.
@@ -4031,14 +4360,14 @@ async function takeShare() {
       }
     } catch {}
   }
+  if (q.has('capture')) { try { history.replaceState(history.state, '', location.pathname); } catch {} setTimeout(openCapture, 200); }
   if (q.has('add') || q.has('text') || q.has('url') || q.has('shared')) { try { history.replaceState(history.state, '', location.pathname); } catch {} }
   if (!got.text.length && !got.files.length) return;
   if (S.readonly) { toast('This board is view-only, so the shared item was not added.'); return; }
-  setMode('canvas');
-  const at = viewCenter();
-  for (const t of got.text) addText(t, at);
-  if (got.files.length) addFiles(got.files, at);
-  toast('Added to ' + (S.boards.find(b => b.id === S.boardId)?.name || 'your board') + '.');
+  // Ce qu'on partage depuis une autre appli va dans la boîte d'entrée, à trier plus tard.
+  for (const t of got.text) await captureText('inbox', t);
+  if (got.files.length) await captureFiles('inbox', got.files);
+  toast('Saved to your Inbox.', { label: 'Open', run: () => openBoard('inbox') });
 }
 
 /* ---------- tableaux ---------- */
@@ -4065,6 +4394,7 @@ function openBoard(id) {
   }, () => {}));
   S.trash = [];
   S.unsub.push(S.store.watch(id, 'trash', onTrash, () => {}));
+  watchInbox();
 }
 function onBoards(list, meta) {
   S.boards = list.sort((a, b) => (a.created || 0) - (b.created || 0));
