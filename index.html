@@ -287,6 +287,9 @@ button{font:inherit;color:inherit}
 .ai-ask{display:flex;gap:6px;padding:4px}
 .ai-ask input{flex:1;min-width:0}
 @media (max-width:640px){ #help-btn{display:none} }
+@media (max-width:860px){ #tools .tb .lbl{display:none} #tools .tb{padding:0 9px} }
+@media (max-width:640px){ #tools #zoom-label{display:none} #tools .tb{padding:0 8px} }
+#h-undo:disabled,#h-redo:disabled{opacity:.35;pointer-events:none}
 #trash-pop,#hist-pop{position:fixed;z-index:45;top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px}
 .tr-h{display:flex;align-items:center;justify-content:space-between}
 .tr-h h3{margin:0;font-size:16px}
@@ -631,6 +634,9 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <button class="tb" id="t-table" title="New table (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 4v16"/></svg><span class="lbl">Table</span></button>
   <button class="tb" id="t-map" title="New mind map (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Map</span></button>
   <button class="tb" id="t-group" title="Group (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="3" y="4" width="18" height="16" rx="3"/></svg><span class="lbl">Group</span></button>
+  <div class="sep"></div>
+  <button class="tb icon" id="h-undo" aria-label="Undo" title="Undo (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <button class="tb icon" id="h-redo" aria-label="Redo" title="Redo (Ctrl+Shift+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
   <div class="sep zoomctl"></div>
   <button class="tb icon zoomctl" id="z-out" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg></button>
   <button class="tb zoomctl" id="zoom-label" title="Fit everything (Shift+1)">100%</button>
@@ -686,6 +692,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Undo</dt><dd>Ctrl/⌘+Z, or the arrows in the bottom bar; Ctrl/⌘+Shift+Z or Ctrl+Y to redo. While typing in a note, it undoes the text first</dd>
     <dt>Capture</dt><dd>C, or the lightning button: type, dictate or add a photo; it lands in your Inbox to sort later with Move</dd>
     <dt>AI</dt><dd>Select cards and press ✦ AI, or use ✦ in a page: summary, next steps, tasks, mind map, or ask a question</dd>
     <dt>Embeds &amp; PDFs</dt><dd>Links to Google Docs, Sheets, Slides, Figma, Spotify, Vimeo, Loom, Canva, Instagram, TikTok or Maps get “Show here”. On a page, a link alone on its line shows inside the page. PDFs open in a reader</dd>
@@ -1682,6 +1689,7 @@ function setColor(c) {
 /* ---------- écriture ---------- */
 function persist(id, patch) {
   const it = S.items.get(id); if (!it) return;
+  hTouch('i', id);
   Object.assign(it, patch);
   if (S.readonly) return;
   enqueue('i/' + id, () => S.store.patch(S.boardId, 'items', id, patch));
@@ -1691,6 +1699,7 @@ function createItem(data, opts = {}) {
   const id = opts.id || uid();
   const it = { created: Date.now(), ...data, z: data.type === 'group' ? 0 : topZ() + 1 };
   for (const k of Object.keys(it)) if (it[k] === undefined) delete it[k];
+  hTouch('i', id);
   S.items.set(id, it);
   if (!opts.keepSel) { S.sel = new Set([id]); S.selLink = null; }
   if (!S.readonly) enqueue('i/' + id, () => S.store.set(S.boardId, 'items', id, it));
@@ -1701,11 +1710,13 @@ function createLink(from, to) {
   if (from === to) return;
   for (const l of S.links.values()) if ((l.from === from && l.to === to) || (l.from === to && l.to === from)) return;
   const id = uid(), l = { from, to, created: Date.now() };
+  hTouch('l', id);
   S.links.set(id, l);
   if (!S.readonly) enqueue('l/' + id, () => S.store.set(S.boardId, 'links', id, l));
   render();
 }
 function removeLink(id) {
+  hTouch('l', id);
   S.links.delete(id);
   if (!S.readonly) enqueue('l/' + id, () => S.store.del(S.boardId, 'links', id));
 }
@@ -1714,12 +1725,13 @@ function deleteSel() {
   for (const id of [...S.sel]) for (const d of descendants(id)) S.sel.add(d);
   const gone = [...S.sel].map(id => [id, { ...S.items.get(id) }]).filter(([, it]) => it.type);
   const goneLinks = [...S.links].filter(([, l]) => S.sel.has(l.from) || S.sel.has(l.to)).map(([id, l]) => [id, { ...l }]);
-  for (const [id] of gone) { S.items.delete(id); if (!S.readonly) enqueue('i/' + id, () => S.store.del(S.boardId, 'items', id)); }
+  for (const [id] of gone) { hTouch('i', id); S.items.delete(id); if (!S.readonly) enqueue('i/' + id, () => S.store.del(S.boardId, 'items', id)); }
   for (const [id] of goneLinks) removeLink(id);
   S.sel.clear(); S.editing = null; render();
   // Tout ce qui est supprimé passe par la corbeille, gardée 30 jours ; les fichiers envoyés ne partent qu'en la vidant.
   const tid = uid(), board = S.boardId;
-  if (!S.readonly && gone.length) enqueue('t/' + tid, () => S.store.set(board, 'trash', tid, { at: Date.now(), items: Object.fromEntries(gone), links: Object.fromEntries(goneLinks) }));
+  const tdoc = { at: Date.now(), items: Object.fromEntries(gone), links: Object.fromEntries(goneLinks) };
+  if (!S.readonly && gone.length) { enqueue('t/' + tid, () => S.store.set(board, 'trash', tid, tdoc)); if (H.cur) H.cur.trash.push([tid, tdoc, true]); }
   toast(gone.length === 1 ? 'Moved to Trash' : `Moved ${gone.length} items to Trash`, {
     label: 'Undo',
     run: () => { for (const [id, it] of gone) createItem(it, { id, keepSel: true }); for (const [id, l] of goneLinks) { S.links.set(id, l); enqueue('l/' + id, () => S.store.set(S.boardId, 'links', id, l)); } if (!S.readonly) enqueue('t/' + tid, () => S.store.del(board, 'trash', tid)); render(); },
@@ -1984,7 +1996,7 @@ vp.addEventListener('pointerdown', e => {
   }
   if (edge) { S.sel.clear(); S.selLink = edge.dataset.link; render(); G = { type: 'none' }; return; }
   const id = card.dataset.id, it = S.items.get(id);
-  if (handle?.dataset.h === 'resize') { G = { type: 'resize', id, sx, sy, w0: it.w, h0: it.h, moved: false }; S.busy.add(id); return; }
+  if (handle?.dataset.h === 'resize') { hTouch('i', id); G = { type: 'resize', id, sx, sy, w0: it.w, h0: it.h, moved: false }; S.busy.add(id); return; }
   if (handle?.dataset.h === 'connect') { G = { type: 'connect', id, moved: false }; return; }
   if (S.editing === id) return;
   if (e.shiftKey) { if (S.sel.has(id)) S.sel.delete(id); else S.sel.add(id); }
@@ -1992,7 +2004,7 @@ vp.addEventListener('pointerdown', e => {
   S.selLink = null;
   const move = new Set();
   for (const sid of S.sel) { move.add(sid); const si = S.items.get(sid); if (si?.type === 'group') itemsInside(si).forEach(x => move.add(x)); }
-  const start = {}; for (const mid of move) { const m = S.items.get(mid); if (m) start[mid] = { x: m.x, y: m.y }; }
+  const start = {}; for (const mid of move) { const m = S.items.get(mid); if (m) { start[mid] = { x: m.x, y: m.y }; hTouch('i', mid); } }
   move.forEach(m => S.busy.add(m));
   G = { type: 'drag', id, sx, sy, start, moved: false, tapTarget: id };
   render();
@@ -4064,6 +4076,80 @@ $('#pd-in').onclick = () => { pdfZoom = Math.min(3, pdfZoom * 1.25); layoutPdf()
 $('#pd-out').onclick = () => { pdfZoom = Math.max(0.5, pdfZoom / 1.25); layoutPdf(); };
 $('#tv-del').onclick = () => { const id = S.tableId; if (!id) return; closeTable(); S.sel = new Set([id]); deleteSel(); };
 
+/* ---------- annuler / rétablir ---------- */
+// Chaque pas garde l'état d'avant des cartes et des liens touchés ; les écritures rapprochées (un glisser,
+// une rafale de frappe) forment un seul pas. Rétablir rejoue l'état d'après, noté au moment d'annuler.
+const H = { undo: [], redo: [], cur: null, timer: 0, applying: false };
+const hClone = v => v ? JSON.parse(JSON.stringify(v)) : null;
+const hMap = k => k[0] === 'i' ? S.items : S.links;
+function hTouch(kind, id) {
+  if (H.applying || S.readonly || !S.boardId) return;
+  if (!H.cur) H.cur = { board: S.boardId, before: new Map(), trash: [] };
+  clearTimeout(H.timer); H.timer = setTimeout(hClose, 700);
+  const k = kind + ':' + id;
+  if (!H.cur.before.has(k)) H.cur.before.set(k, hClone((kind === 'i' ? S.items : S.links).get(id)));
+}
+function hClose(force) {
+  clearTimeout(H.timer);
+  if (!force && (G || pts.size)) { H.timer = setTimeout(hClose, 300); return; }   // le geste n'est pas fini
+  const c = H.cur; H.cur = null; if (!c) return;
+  // Un clic sans déplacement note une carte sans la changer : on l'oublie.
+  for (const [k, v] of [...c.before]) if (JSON.stringify(v) === JSON.stringify(hClone(hMap(k).get(k.slice(2))))) c.before.delete(k);
+  if (!c.before.size && !c.trash.length) return;
+  H.undo.push(c); if (H.undo.length > 200) H.undo.shift();
+  H.redo = []; hPaint();
+}
+function hReset() { clearTimeout(H.timer); H.cur = null; H.undo = []; H.redo = []; hPaint(); }
+function hForget(ids) {
+  for (const st of [...H.undo, ...H.redo, ...(H.cur ? [H.cur] : [])]) for (const id of ids) st.before.delete('i:' + id);
+}
+function hPaint() {
+  const u = $('#h-undo'), r = $('#h-redo'); if (!u) return;
+  u.disabled = S.readonly || !H.undo.length; r.disabled = S.readonly || !H.redo.length;
+}
+function hApply(redo) {
+  if (S.readonly) return;
+  if (H.cur) hClose(true);
+  const from = redo ? H.redo : H.undo, to = redo ? H.undo : H.redo;
+  const st = from.pop();
+  if (!st) { toast(redo ? 'Nothing to redo' : 'Nothing to undo', null, 1500); return; }
+  if (st.board !== S.boardId) { hReset(); return; }
+  if (S.editing) stopEdit();
+  const back = { board: st.board, before: new Map(), trash: [] };
+  for (const [k, v] of st.before) {
+    const id = k.slice(2), m = hMap(k), coll = k[0] === 'i' ? 'items' : 'links';
+    back.before.set(k, hClone(m.get(id)));
+    if (v) { const doc = hClone(v); m.set(id, doc); enqueue(k[0] + '/' + id, () => S.store.set(st.board, coll, id, doc)); }
+    else { m.delete(id); S.sel.delete(id); if (S.selLink === id) S.selLink = null; enqueue(k[0] + '/' + id, () => S.store.del(st.board, coll, id)); }
+  }
+  // La corbeille suit : annuler une suppression retire son entrée, la rétablir la remet.
+  for (const [tid, doc, exists] of st.trash) {
+    if (exists) enqueue('t/' + tid, () => S.store.del(st.board, 'trash', tid));
+    else enqueue('t/' + tid, () => S.store.set(st.board, 'trash', tid, doc));
+    back.trash.push([tid, doc, !exists]);
+  }
+  to.push(back); hPaint();
+  if (S.pageId && !S.items.has(S.pageId)) closePage();
+  if (S.mapId && !S.items.has(S.mapId)) closeMap();
+  if (S.tableId && !S.items.has(S.tableId)) closeTable();
+  render(); refreshTables(true);
+  if (S.pageId) renderPage();
+  if (S.mapId) renderMap();
+  document.querySelectorAll('#toasts .toast').forEach(t => t.remove());   // les « Undo » d'avant ne valent plus
+  toast(redo ? 'Redone' : 'Undone', { label: redo ? 'Undo' : 'Redo', run: () => hApply(!redo) }, 2500);
+}
+$('#h-undo').onclick = () => hApply(false);
+$('#h-redo').onclick = () => hApply(true);
+// En capture : passe avant les touches de la carte mentale et du tableau. Dans un champ, l'annulation du texte reste celle du navigateur.
+document.addEventListener('keydown', e => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k !== 'z' && k !== 'y') return;
+  if (isField(document.activeElement) || (S.mapId && MM.editing) || !$('#pdfview').hidden) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  hApply(k === 'y' || e.shiftKey);
+}, true);
+
 /* ---------- capture rapide et boîte d'entrée ---------- */
 // Une idée tombe dans « Inbox » (un tableau à part), d'un geste, puis se trie vers le bon tableau.
 S.inboxN = 0; S.inboxDocs = [];
@@ -4223,6 +4309,7 @@ async function moveSelTo(target, chosen = [...S.sel]) {
   // Au centre de la dernière vue de ce tableau, en gardant la disposition.
   let cx = 0, cy = 0; try { const v = JSON.parse(lsGet('idea-canvas:view:' + target)); if (v && v.z) { cx = (innerWidth / 2 - v.x) / v.z; cy = (innerHeight / 2 - v.y) / v.z; } } catch {}
   const dx = cx - (a + c) / 2, dy = cy - (b + d) / 2, board = S.boardId;
+  hForget(ids); H.applying = true;
   for (const id of ids) {
     const it = { ...S.items.get(id) }; if (!it.type) continue;
     if (!it.parent && typeof it.x === 'number') { it.x = Math.round(it.x + dx); it.y = Math.round(it.y + dy); }
@@ -4233,6 +4320,7 @@ async function moveSelTo(target, chosen = [...S.sel]) {
     if (ids.has(l.from) && ids.has(l.to)) enqueue('lm/' + lid, () => S.store.set(target, 'links', lid, l));
     if (ids.has(l.from) || ids.has(l.to)) removeLink(lid);
   }
+  H.applying = false;
   S.sel.clear(); render();
   const name = S.boards.find(x => x.id === target)?.name || 'that board';
   toast(`Moved ${tops.length === 1 ? '1 card' : tops.length + ' cards'} to ${name}.`, { label: 'Open', run: () => openBoard(target) });
@@ -4375,6 +4463,7 @@ function openBoard(id) {
   if (S.boardId === id && S.unsub.length) return;
   S.unsub.forEach(u => { try { u(); } catch {} }); S.unsub = [];
   S.boardId = id; lsSet('idea-canvas:board', id);
+  hReset();
   S.items = new Map(); S.links = new Map(); S.sel.clear(); S.selLink = null; S.editing = null; S.loaded = false;
   render();
   const b = S.boards.find(x => x.id === id); $('#board-name').textContent = b?.name || 'My canvas';
