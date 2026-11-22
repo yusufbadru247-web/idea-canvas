@@ -79,7 +79,7 @@ button{font:inherit;color:inherit}
 .item.colored{background:var(--cb)}
 .item .inner{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:flex;flex-direction:column}
 
-.md{padding:12px 14px;overflow:auto;flex:1;line-height:1.55;font-size:14.5px;overflow-wrap:anywhere}
+.md{padding:12px 14px;overflow:auto;flex:1;line-height:1.55;font-size:calc(14.5px * var(--fsz,1));overflow-wrap:anywhere}
 .md>*{margin:0 0 6px} .md>*:last-child{margin-bottom:0}
 .md h1{font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-.01em}
 .md h2{font-size:18px;line-height:1.3;font-weight:650}
@@ -92,6 +92,7 @@ button{font:inherit;color:inherit}
 .md blockquote{border-left:3px solid currentColor;padding-left:10px;color:var(--muted)}
 .md .ph{color:var(--muted)}
 .edit-area{flex:1;border:0;resize:none;padding:12px 14px;font:inherit;color:var(--ink);background:transparent;outline:none;touch-action:auto;user-select:text;-webkit-user-select:text}
+.md.edit-area{font-size:calc(14.5px * var(--fsz,1))}
 .ed{outline:none;cursor:text;user-select:text;-webkit-user-select:text;caret-color:var(--accent)}
 .ed:empty::before,.ed>p:only-child:has(br:only-child)::before{content:"Write something, or type / for options";color:var(--muted);pointer-events:none}
 .ed .ed-block{margin:6px 0;user-select:none;-webkit-user-select:none}
@@ -289,6 +290,14 @@ button{font:inherit;color:inherit}
 @media (max-width:640px){ #help-btn{display:none} }
 @media (max-width:860px){ #tools .tb .lbl{display:none} #tools .tb{padding:0 9px} }
 @media (max-width:640px){ #tools #zoom-label{display:none} #tools .tb{padding:0 8px} }
+.md u{text-decoration:underline;text-underline-offset:2px}
+.fb-font{font-size:13px;font-weight:600}
+.fb-plain{font-size:14px;font-weight:600}
+.fb-plain sub{font-size:9px;font-weight:700}
+.font-pop{width:250px}
+.font-item{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.font-item .fi-name{font-size:15px;color:var(--ink);white-space:nowrap}
+.font-item small{color:var(--muted);font-size:11px;white-space:nowrap}
 #h-undo:disabled,#h-redo:disabled{opacity:.35;pointer-events:none}
 #trash-pop,#hist-pop{position:fixed;z-index:45;top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px}
 .tr-h{display:flex;align-items:center;justify-content:space-between}
@@ -367,12 +376,12 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .pv-icons{display:flex;flex-wrap:wrap;gap:2px;margin:4px 0 8px;padding:6px;border-radius:10px;box-shadow:var(--pop-shadow);background:var(--chrome);max-width:340px}
 .pv-icons button{font-size:22px;border:0;background:none;width:38px;height:38px;border-radius:6px;cursor:pointer}
 .pv-icons button:hover{background:var(--hover)}
-.pv-title{display:block;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.2;padding:6px 0 10px;outline:none}
-@media (max-width:640px){ .pv-title{font-size:28px} }
+.pv-title{display:block;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:calc(34px * var(--fsz,1));font-weight:700;letter-spacing:-.02em;line-height:1.2;padding:6px 0 10px;outline:none}
+@media (max-width:640px){ .pv-title{font-size:calc(28px * var(--fsz,1))} }
 .pv-title::placeholder{color:var(--muted);opacity:.5}
 .pv-templates{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 18px;color:var(--muted);font-size:13px}
 .pv-templates .chip{font-size:13px}
-.pv-md{font-size:16px;line-height:1.65;cursor:text;min-height:140px;padding:0;overflow:visible}
+.pv-md{font-size:calc(16px * var(--fsz,1));line-height:1.65;cursor:text;min-height:140px;padding:0;overflow:visible}
 .pv-md .ph{font-size:15px}
 .pv-md h1{font-size:28px} .pv-md h2{font-size:22px} .pv-md h3{font-size:18px}
 .pv-md>*{margin:0 0 10px}
@@ -692,6 +701,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Lists</dt><dd>Enter continues a list; Enter on an empty item ends it</dd>
     <dt>To-dos</dt><dd>Tap a checkbox to tick it, no need to edit</dd>
     <dt>Pages</dt><dd>P, or the Page button. Inside a page, type / for headings, to-dos, a divider, a photo or a page inside it</dd>
+    <dt>Text style</dt><dd>While writing: B, I, U (Ctrl/⌘+U), S, colours, Aa for fonts, and T× to turn everything back into plain text. Select cards and press Font to change a whole note</dd>
     <dt>Undo</dt><dd>Ctrl/⌘+Z, or the arrows in the bottom bar; Ctrl/⌘+Shift+Z or Ctrl+Y to redo. While typing in a note, it undoes the text first</dd>
     <dt>Capture</dt><dd>C, or the lightning button: type, dictate or add a photo; it lands in your Inbox to sort later with Move</dd>
     <dt>AI</dt><dd>Select cards and press ✦ AI, or use ✦ in a page: summary, next steps, tasks, mind map, or ask a question</dd>
@@ -1077,7 +1087,7 @@ function itemTitle(it) {
   if (it.type === 'page') return it.title || 'Untitled';
   if (it.type === 'mindmap') return it.tree?.t || 'Mind map';
   if (it.type === 'table') return it.name || 'Untitled table';
-  if (it.type === 'note') { const l = ((it.text || '').split('\n').find(x => x.trim()) || '').replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, ''); return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
+  if (it.type === 'note') { const l = ((it.text || '').split('\n').find(x => x.trim()) || '').replace(/\{\{(?:[ch][1-6]|u|f\d{1,2})\|/g, '').replace(/\}\}/g, ''); return l.replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] |\d+[.)] |> ?)/, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, '$1').replace(/[*_`]/g, '').trim().slice(0, 80) || 'Note'; }
   if (it.type === 'link') return it.title || it.url || 'Link';
   if (it.type === 'audio') return ((it.text || '').split('\n').find(x => x.trim()) || 'Voice note').slice(0, 80);
   if (it.type === 'group') return it.label || 'Group';
@@ -1224,7 +1234,13 @@ function inline(s) {
   s = s.replace(DUE_TOK, (all, pre, tok) => { const d = dueDate(tok); return d ? `${pre}<span class="due ${dueCls(d)}" data-due="${isoOf(d)}" contenteditable="false">${esc(dueLabel(d))}</span>` : all; });
   if (tg.length) s = s.replace(/\u0002(\d+)\u0002/g, (all, i) => tagHTML(tg[+i]));
   // {{c3|texte}} = texte en couleur, {{h3|texte}} = surligné ; du plus intérieur au plus extérieur.
-  for (let k = 0; k < 6 && s.includes('{{'); k++) s = s.replace(/\{\{([ch])([1-6])\|((?:(?!\{\{|\}\}).)*)\}\}/g, (all, kind, n, x) => kind === 'c' ? `<span class="tc" data-c="${n}" style="color:var(--c${n})">${x}</span>` : `<span class="hl" data-c="${n}" style="background:var(--c${n}b)">${x}</span>`);
+  // {{u|…}} = souligné, {{f3|…}} = police n° 3 du catalogue.
+  for (let k = 0; k < 8 && s.includes('{{'); k++) s = s.replace(/\{\{(c[1-6]|h[1-6]|u|f\d{1,2})\|((?:(?!\{\{|\}\}).)*)\}\}/g, (all, t, x) => {
+    if (t === 'u') return `<u>${x}</u>`;
+    const n = +t.slice(1);
+    if (t[0] === 'f') { if (!FONTS[n]) return x; ensureFonts(); return `<span class="ff" data-f="${n}" style="font-family:${FONTS[n].css}${FONTS[n].size ? `;font-size:${FONTS[n].size}em` : ''}">${x}</span>`; }
+    return t[0] === 'c' ? `<span class="tc" data-c="${n}" style="color:var(--c${n})">${x}</span>` : `<span class="hl" data-c="${n}" style="background:var(--c${n}b)">${x}</span>`;
+  });
   if (wl.length) s = s.replace(/\u0001(\d+)\u0001/g, (all, i) => { const [n, label] = wl[+i]; const ok = !!findByTitle(n); return `<a href="#" class="wl${ok ? '' : ' missing'}" contenteditable="false" data-wl="${esc(n)}" title="${ok ? 'Open' : 'Create the page'} “${esc(n)}”">${esc(label)}</a>`; });
   return s;
 }
@@ -1453,11 +1469,12 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it, id) { return [it.type, it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
+function sig(it, id) { return [it.type, it.font || '', it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
   el.className = 'item ' + it.type + (it.color ? ' colored' : '');
+  applyFont(el, ['note', 'page', 'audio'].includes(it.type) ? it.font : 0);
   if (it.color) { el.style.setProperty('--cb', `var(--c${it.color}b)`); el.style.setProperty('--cc', `var(--c${it.color})`); }
   else { el.style.removeProperty('--cb'); el.style.removeProperty('--cc'); }
   const editing = S.editing === el.dataset.id;
@@ -1676,6 +1693,7 @@ function renderSelbar() {
     if (it?.type === 'page' || it?.type === 'note') kids.push(btn('Mind map', () => mapFromItem([...S.sel][0])));
   }
   if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
+  if (!S.readonly && [...S.sel].some(id => ['note', 'page', 'audio'].includes(S.items.get(id)?.type))) { const fb = btn('Font', () => fontSel(fb)); kids.push(fb); }
   if (!S.readonly && AI_ON()) { const ab = btn('✦ AI', () => aiMenu(ab, { kind: 'cards', ids: [...S.sel] })); kids.push(ab); }
   if (!S.readonly && S.boards.length > 1) { const mb = btn(S.boardId === 'inbox' ? 'Move to…' : 'Move', () => movePicker(mb)); kids.push(mb); }
   kids.push(btn('Duplicate', duplicateSel), btn('Delete', deleteSel, 'danger'));
@@ -2311,6 +2329,8 @@ function htmlToMd(root) {
     if (cl.contains('tag')) return '#' + c.textContent.replace(/^#/, '');
     if (cl.contains('due') && c.dataset.due) return '@' + c.dataset.due;
     if ((cl.contains('tc') || cl.contains('hl')) && c.dataset.c) { const x = inl(c); return x.trim() ? `{{${cl.contains('tc') ? 'c' : 'h'}${c.dataset.c}|${x}}}` : x; }
+    if (cl.contains('ff') && c.dataset.f) { const x = inl(c); return x.trim() ? `{{f${c.dataset.f}|${x}}}` : x; }
+    if (t === 'U') { const x = inl(c); return x.trim() ? `{{u|${x}}}` : x; }
     if (t === 'B' || t === 'STRONG') return mark('**', inl(c));
     if (t === 'I' || t === 'EM') return mark('_', inl(c));
     if (t === 'S' || t === 'STRIKE' || t === 'DEL') return mark('~~', inl(c));
@@ -2352,6 +2372,15 @@ function htmlToMd(root) {
 const SENT = /^(?:#0([12])000([0-6])|rgba?\((1|2),\s*0,\s*([0-6])(?:,\s*1)?\))$/i;
 function sentinel(v) { const m = String(v || '').replace(/\s/g, ' ').trim().match(SENT); if (!m) return null; return { kind: (m[1] || m[3]) === '1' ? 'tc' : 'hl', n: +(m[2] ?? m[4]) }; }
 function edNormalize(ed) {
+  for (const n of ed.querySelectorAll('font[face], span[style*="font-family"]')) {
+    const f = (n.getAttribute('face') || n.style.fontFamily || '').replace(/["']/g, '').trim().match(/^icf(\d+)$/); if (!f) continue;
+    const k = +f[1];
+    if (n.tagName === 'FONT') n.removeAttribute('face'); else n.style.fontFamily = '';
+    for (const x of n.querySelectorAll('.ff')) x.replaceWith(...x.childNodes);   // la nouvelle police remplace celles qu'elle recouvre
+    if (n.classList.contains('ff')) { if (!k) n.replaceWith(...n.childNodes); else { n.dataset.f = k; n.style.fontFamily = FONTS[k].css; n.style.fontSize = FONTS[k].size ? FONTS[k].size + 'em' : ''; } continue; }
+    if (k) { const sp = document.createElement('span'); sp.className = 'ff'; sp.dataset.f = k; sp.style.fontFamily = FONTS[k].css; if (FONTS[k].size) sp.style.fontSize = FONTS[k].size + 'em'; sp.append(...n.childNodes); n.append(sp); }
+    if ((n.tagName === 'FONT' && !n.attributes.length) || (n.tagName === 'SPAN' && !n.classList.length && !(n.getAttribute('style') || '').trim())) n.replaceWith(...n.childNodes);
+  }
   for (const li of ed.querySelectorAll('li.task')) {
     if (!li.querySelector(':scope > .cb')) { const cb = document.createElement('span'); cb.className = 'cb'; cb.contentEditable = 'false'; cb.setAttribute('role', 'checkbox'); cb.textContent = '✓'; li.prepend(cb); }
     if (!li.textContent.replace('✓', '').trim() && li.classList.contains('done')) { li.classList.remove('done'); li.querySelector('.cb')?.setAttribute('aria-checked', 'false'); }
@@ -2412,7 +2441,8 @@ function edShortcuts(ed) {
 }
 function blockFmt(tag) {
   const ed = curEd(); if (!ed) return; ed.focus();
-  const c = caretCtx(ed) || {}; const cur = c.block?.closest?.('h1,h2,h3,blockquote');
+  const a = getSelection().anchorNode, el = a && (a.nodeType === 3 ? a.parentElement : a);
+  const cur = el && ed.contains(el) ? el.closest('h1,h2,h3,blockquote') : null;
   document.execCommand('formatBlock', false, cur && cur.tagName.toLowerCase() === tag ? 'p' : tag);
   ed._save?.();
 }
@@ -2443,6 +2473,103 @@ function insertLink() {
   if (sel.isCollapsed) document.execCommand('insertHTML', false, `<a href="${esc(url)}">${esc(url)}</a>&nbsp;`);
   else document.execCommand('createLink', false, url);
   ed._save?.();
+}
+// Catalogue de polices : la police d'un passage choisi, ou de toute la note sans sélection.
+const FONTS = [
+  { name: 'Default', css: '' },
+  { name: 'Clean', fam: 'Inter', css: "'Inter',system-ui,sans-serif" },
+  { name: 'Book', fam: 'Lora', css: "'Lora',Georgia,serif" },
+  { name: 'Elegant', fam: 'Playfair Display', css: "'Playfair Display',Georgia,serif" },
+  { name: 'Modern', fam: 'Space Grotesk', css: "'Space Grotesk',system-ui,sans-serif" },
+  { name: 'Rounded', fam: 'Nunito', css: "'Nunito',system-ui,sans-serif" },
+  { name: 'Code', fam: 'JetBrains Mono', css: "'JetBrains Mono',ui-monospace,monospace", size: .92 },
+  { name: 'Typewriter', fam: 'Special Elite', css: "'Special Elite','Courier New',monospace" },
+  { name: 'Handwriting', fam: 'Caveat', css: "'Caveat','Segoe Print',cursive", size: 1.3 },
+  { name: 'Script', fam: 'Pacifico', css: "'Pacifico',cursive", size: 1.05 },
+  { name: 'Poster', fam: 'Bebas Neue', css: "'Bebas Neue',Impact,sans-serif", size: 1.25 },
+];
+let fontsAsked = false;
+function ensureFonts() {
+  if (fontsAsked) return; fontsAsked = true;
+  const l = document.createElement('link'); l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;700&family=Nunito:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Special+Elite&family=Caveat:wght@400;700&family=Pacifico&family=Bebas+Neue&display=swap';
+  document.head.append(l);
+}
+// Police d'une note ou d'une page entière, posée sur son conteneur.
+function applyFont(el, n) {
+  const f = FONTS[n]; if (!el) return;
+  if (f && n) { ensureFonts(); el.style.fontFamily = f.css; if (f.size) el.style.setProperty('--fsz', f.size); else el.style.removeProperty('--fsz'); }
+  else { el.style.fontFamily = ''; el.style.removeProperty('--fsz'); }
+}
+function setFont(n) {
+  const ed = curEd(); if (!ed) return;
+  ed.focus();
+  const sel = getSelection();
+  if (sel.rangeCount && !sel.isCollapsed && ed.contains(sel.anchorNode)) {
+    if (!n) { const a = sel.anchorNode, el = (a.nodeType === 3 ? a.parentElement : a).closest('.ff'); if (el && ed.contains(el)) el.replaceWith(...el.childNodes); }
+    document.execCommand('styleWithCSS', false, false);
+    document.execCommand('fontName', false, 'icf' + n);
+    edNormalize(ed); ed._save?.(); return;
+  }
+  // Rien de choisi : toute la note, et les polices posées sur des passages s'effacent.
+  const id = ed.id.replace(/^edit-/, '');
+  for (const x of ed.querySelectorAll('.ff')) x.replaceWith(...x.childNodes);
+  ed._save?.();
+  persist(id, { font: n || null });
+  applyFont(ed.classList.contains('pv-md') ? $('#pv-body') : ed.closest('.item'), n);
+  if (ed.classList.contains('pv-md')) applyFont($('#pv-title'), n);
+}
+function fontList(cur, pick) {
+  ensureFonts();
+  return FONTS.map((f, n) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pop-item font-item' + (String(cur || 0) === String(n) ? ' cur' : '');
+    const a = document.createElement('span'); a.className = 'fi-name'; a.textContent = f.name; if (f.css) a.style.fontFamily = f.css; if (f.size) a.style.fontSize = `${Math.round(15 * f.size)}px`;
+    const k = document.createElement('small'); k.textContent = f.fam || 'Same as the app';
+    b.append(a, k);
+    b.addEventListener('pointerdown', e => e.preventDefault()); b.addEventListener('mousedown', e => e.preventDefault());
+    b.onclick = () => { closeTPop(); pick(n); };
+    return b;
+  });
+}
+function fontMenu(anchor) {
+  const ed = curEd(); const id = ed?.id.replace(/^edit-/, '');
+  const s = getSelection(), some = s.rangeCount && !s.isCollapsed && ed?.contains(s.anchorNode);
+  const hint = document.createElement('p'); hint.className = 'hint'; hint.style.margin = '4px 6px 2px';
+  hint.textContent = some ? 'Applies to the selected text.' : 'Nothing selected: applies to the whole note.';
+  const p = popAt(anchor, [...fontList(some ? 0 : S.items.get(id)?.font, setFont), hint]);
+  p.classList.add('font-pop'); p.addEventListener('pointerdown', e => e.preventDefault());
+}
+// Police de cartes choisies sur la toile (notes, pages, notes vocales).
+function fontSel(anchor) {
+  const ids = [...S.sel].filter(id => ['note', 'page', 'audio'].includes(S.items.get(id)?.type));
+  const cur = ids.length === 1 ? S.items.get(ids[0]).font : 0;
+  popAt(anchor, fontList(cur, n => { for (const id of ids) persist(id, { font: n || null }); render(); })).classList.add('font-pop');
+}
+// Texte simple : titres, citations et listes redeviennent des paragraphes, et les styles s'en vont.
+// Sur les blocs touchés par la sélection (ou celui du curseur) ; hors de la note, sur toute la note.
+function plainFmt() {
+  const ed = curEd(); if (!ed) return;
+  const sel = getSelection();
+  const r = sel.rangeCount && ed.contains(sel.anchorNode) ? sel.getRangeAt(0).cloneRange() : null;
+  ed.focus();
+  const hit = n => !r || r.intersectsNode(n);
+  const bare = root => { for (const x of [...root.querySelectorAll('b,strong,i,em,s,strike,del,u,font,code,span.tc,span.hl,span.ff,span[style]')]) x.replaceWith(...x.childNodes); };
+  const para = from => { const q = document.createElement('p'); q.append(...[...from.childNodes].filter(k => !(k.nodeType === 1 && (k.classList.contains('cb') || /^(UL|OL)$/.test(k.tagName))))); bare(q); if (!q.textContent.trim()) q.innerHTML = '<br>'; return q; };
+  let last = null;
+  for (const n of [...ed.childNodes]) {
+    if (n.nodeType !== 1 || n.dataset.raw != null || !hit(n)) continue;
+    if (n.tagName === 'UL' || n.tagName === 'OL') {
+      const out = []; let keep = null;
+      for (const li of [...n.children]) {
+        if (li.tagName === 'LI' && hit(li)) { keep = null; out.push(last = para(li)); }
+        else { if (!keep) { keep = n.cloneNode(false); out.push(keep); } keep.append(li); }
+      }
+      n.replaceWith(...out);
+    } else if (/^(H[1-6]|BLOCKQUOTE|P|DIV)$/.test(n.tagName)) { const q = para(n); n.replaceWith(q); last = q; }
+  }
+  if (!r) { const id = ed.id.replace(/^edit-/, ''); if (S.items.get(id)?.font) { persist(id, { font: null }); applyFont(ed.classList.contains('pv-md') ? $('#pv-body') : ed.closest('.item'), 0); } }
+  if (last) { const c = document.createRange(); c.selectNodeContents(last); c.collapse(false); sel.removeAllRanges(); sel.addRange(c); }
+  edNormalize(ed); ed._save?.();
 }
 // Couleur du texte choisi ; sans sélection, toute la note.
 function colorText(kind, n) {
@@ -2497,7 +2624,7 @@ function noteKeys(e) {
   else if (mod && !e.shiftKey && k === 'i') { e.preventDefault(); fmt('italic'); }
   else if (mod && e.shiftKey && k === 'x') { e.preventDefault(); fmt('strikeThrough'); }
   else if (mod && !e.shiftKey && k === 'k') { e.preventDefault(); insertLink(); }
-  else if (mod && k === 'u') { e.preventDefault(); }
+  else if (mod && !e.shiftKey && k === 'u') { e.preventDefault(); fmt('underline'); }
   else if (e.key === 'Tab') { const c = caretCtx(e.currentTarget); if (c?.block?.closest?.('li')) { e.preventDefault(); document.execCommand(e.shiftKey ? 'outdent' : 'indent'); e.currentTarget._save?.(); } }
 }
 function formatButtons() {
@@ -2512,8 +2639,11 @@ function formatButtons() {
   return [
     mk('<b>B</b>', 'Bold (Ctrl/⌘ B)', () => fmt('bold')),
     mk('<i>I</i>', 'Italic (Ctrl/⌘ I)', () => fmt('italic')),
+    mk('<u>U</u>', 'Underline (Ctrl/⌘ U)', () => fmt('underline')),
     mk('<s>S</s>', 'Strikethrough', () => fmt('strikeThrough')),
     mk('<span class="fb-color">A</span>', 'Text colour and highlight', e => colorMenu(e.currentTarget)),
+    mk('<span class="fb-font">Aa</span>', 'Font', e => fontMenu(e.currentTarget)),
+    mk('<span class="fb-plain">T<sub>×</sub></span>', 'Plain text: removes headings, lists, colours and styles', plainFmt),
     sep(),
     mk('H1', 'Big heading', () => blockFmt('h1')),
     mk('H2', 'Small heading', () => blockFmt('h2')),
@@ -2624,7 +2754,7 @@ function descendants(id) {
 }
 function pageSnippet(it) {
   return (it.text || '').split('\n').filter(l => l.trim() && !/^\s*(\[\[(page|table):|!\[|---)/.test(l))
-    .map(l => l.replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (a, n, lb) => lb ? lb.slice(1) : n).replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
+    .map(l => l.replace(/\{\{(?:[ch][1-6]|u|f\d{1,2})\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g, (a, n, lb) => lb ? lb.slice(1) : n).replace(/^\s*(#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> )/, '').replace(/[*_`]/g, '').trim()).filter(l => l && !/^[^\s]+:$/.test(l)).join(' · ').slice(0, 180);
 }
 function addPage() {
   const p = nextPos(260, 150);
@@ -2693,6 +2823,7 @@ function renderPage() {
   }
   drawBacklinks(id);
   const body = $('#pv-body');
+  applyFont(body, it.font); applyFont(ti, it.font);
   if (S.editing === id) { if (!body.querySelector('.ed')) buildPageEditor(id, it); return; }
   const ae = document.activeElement;
   if (body.contains(ae) && ae.closest('.tbl-host') && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
@@ -3086,7 +3217,7 @@ function findNode(n, id, parent = null) {
   return null;
 }
 const isInside = (n, id) => n.id === id || (n.c || []).some(k => isInside(k, id));
-const plainMd = t => t.replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (a, n, lb) => lb || n).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
+const plainMd = t => t.replace(/\{\{(?:[ch][1-6]|u|f\d{1,2})\|/g, '').replace(/\}\}/g, '').replace(/~~/g, '').replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (a, n, lb) => lb || n).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/(\*\*|__|~~|`)/g, '').replace(/(^|\W)[*_](\S[^*_]*)[*_](?=\W|$)/g, '$1$2').trim();
 const MD_PRE = /^\s*(?:#{1,3} |[-*] \[[ xX]\] ?|[-*] ?|\d+[.)] |> ?)?/;
 // Une page ou une note devient un arbre : titres, puis listes selon leur retrait, les pages incluses dépliées dessous.
 function outlineTree(title, text, guard = 0) {
@@ -4341,7 +4472,7 @@ async function ai(task, payload) {
   return data || {};
 }
 const todayIso = () => isoOf(new Date());
-const unfmt = t => String(t || '').replace(/\{\{[ch][1-6]\|/g, '').replace(/\}\}/g, '');
+const unfmt = t => String(t || '').replace(/\{\{(?:[ch][1-6]|u|f\d{1,2})\|/g, '').replace(/\}\}/g, '');
 function itemPlain(id, it, depth = 0) {
   if (!it) return '';
   if (it.type === 'page') return `# ${it.title || 'Untitled'}\n${unfmt(it.text)}` + (depth < 2 ? childPages(id).map(c => '\n\n' + itemPlain(c, S.items.get(c), depth + 1)).join('') : '');
