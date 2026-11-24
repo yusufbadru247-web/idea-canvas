@@ -26,7 +26,7 @@
   --chrome-shadow:0 0 0 1px rgba(15,15,15,.05),0 3px 10px rgba(15,15,15,.08);
   --pop-shadow:0 0 0 1px rgba(15,15,15,.05),0 3px 6px rgba(15,15,15,.1),0 9px 24px rgba(15,15,15,.2);
   --group:rgba(55,53,47,.035); --danger:#E03E3E; --toast:#37352F; --on-toast:#FFFFFF;
-  --c1b:#FDEBEC;--c1:#D44C47; --c2b:#FBECDD;--c2:#D9730D; --c3b:#FBF3DB;--c3:#CB912F;
+  --c1b:#FDEBEC;--c1:#D44C47; --c2b:#FBECDD;--c2:#D9730D; --c3b:#FBF3DB;--c3:#CB912F; --sticky:#FFEB99;
   --c4b:#EDF3EC;--c4:#448361; --c5b:#E7F3F8;--c5:#337EA9; --c6b:#F6F3F9;--c6:#9065B0;
   --font-body:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
   --font-display:var(--font-body);
@@ -40,7 +40,7 @@
   --chrome-shadow:0 0 0 1px rgba(255,255,255,.07),0 3px 10px rgba(0,0,0,.35);
   --pop-shadow:0 0 0 1px rgba(255,255,255,.08),0 3px 6px rgba(0,0,0,.3),0 9px 24px rgba(0,0,0,.45);
   --group:rgba(255,255,255,.03); --danger:#E06C6C; --toast:#E9E9E7; --on-toast:#191919;
-  --c1b:#3E2523;--c1:#E06C6C; --c2b:#3F2C1E;--c2:#E28A3B; --c3b:#3B3320;--c3:#D6AE4E;
+  --c1b:#3E2523;--c1:#E06C6C; --c2b:#3F2C1E;--c2:#E28A3B; --c3b:#3B3320;--c3:#D6AE4E; --sticky:#5A4D1F;
   --c4b:#23332A;--c4:#5FAF7F; --c5b:#1D2E3D;--c5:#5B9FD6; --c6b:#2F2638;--c6:#A882C9;
   color-scheme:dark }}
 :root[data-theme="dark"]{
@@ -51,7 +51,7 @@
   --chrome-shadow:0 0 0 1px rgba(255,255,255,.07),0 3px 10px rgba(0,0,0,.35);
   --pop-shadow:0 0 0 1px rgba(255,255,255,.08),0 3px 6px rgba(0,0,0,.3),0 9px 24px rgba(0,0,0,.45);
   --group:rgba(255,255,255,.03); --danger:#E06C6C; --toast:#E9E9E7; --on-toast:#191919;
-  --c1b:#3E2523;--c1:#E06C6C; --c2b:#3F2C1E;--c2:#E28A3B; --c3b:#3B3320;--c3:#D6AE4E;
+  --c1b:#3E2523;--c1:#E06C6C; --c2b:#3F2C1E;--c2:#E28A3B; --c3b:#3B3320;--c3:#D6AE4E; --sticky:#5A4D1F;
   --c4b:#23332A;--c4:#5FAF7F; --c5b:#1D2E3D;--c5:#5B9FD6; --c6b:#2F2638;--c6:#A882C9;
   color-scheme:dark }
 
@@ -80,6 +80,20 @@ button{font:inherit;color:inherit}
 .item.dragging{cursor:grabbing}
 .item.colored{background:var(--cb)}
 .item .inner{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:flex;flex-direction:column}
+/* Pense-bête : une note carrée, jaune par défaut, posée avec une ombre plus marquée. */
+.item.look-sticky{border-radius:3px;background:var(--sticky);box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 18px -6px rgba(0,0,0,.22)}
+.item.look-sticky.colored{background:color-mix(in srgb,var(--cc) 30%,var(--card))}
+.item.look-sticky .md{font-size:calc(16px * var(--fsz,1));line-height:1.45;padding:16px}
+/* Formes : le dessin remplit la boîte, le texte se centre dans la partie utile. */
+.item.shape{background:transparent;box-shadow:none;border-radius:0}
+.item.shape .shp{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12))}
+.item.shape .shp path,.item.shape .shp ellipse{fill:var(--card);stroke:var(--edge);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.item.shape.colored .shp path,.item.shape.colored .shp ellipse{fill:var(--cb);stroke:var(--cc)}
+.item.shape .inner{overflow:hidden;justify-content:center;text-align:center}
+.item.shape .md{flex:0 1 auto;padding:6px}
+.item.shape .md .ph{display:none}
+.item.look-circle .inner{inset:15%;border-radius:50%}
+.item.look-triangle .inner{top:40%;left:24%;right:24%;bottom:7%}
 
 .md{padding:12px 14px;overflow:auto;flex:1;line-height:1.55;font-size:calc(14.5px * var(--fsz,1));overflow-wrap:anywhere}
 .md>*{margin:0 0 6px} .md>*:last-child{margin-bottom:0}
@@ -630,7 +644,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   #tools{padding:4px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
   #tools .sep{margin:0 2px}
   /* Les outils rares passent dans le menu « + » ; le thème passe dans le menu du tableau. */
-  #t-page,#t-table,#t-map,#t-group,#theme-btn{display:none}
+  #t-page,#t-table,#t-map,#t-group,#t-sticky,#t-shape,#theme-btn{display:none}
   #tools #t-more{display:flex}
   /* Le nom du tableau rétrécit au lieu de passer sous les icônes de droite (4 × 44 px + marges). */
   #top{max-width:calc(100vw - 24px - 182px - 6px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}
@@ -702,6 +716,8 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <button class="tb" id="t-page" title="New page (P)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg><span class="lbl">Page</span></button>
   <button class="tb" id="t-table" title="New table (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 4v16"/></svg><span class="lbl">Table</span></button>
   <button class="tb" id="t-map" title="New mind map (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Map</span></button>
+  <button class="tb" id="t-sticky" title="Sticky note (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg><span class="lbl">Sticky</span></button>
+  <button class="tb" id="t-shape" title="Shape" aria-haspopup="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="8" cy="15" r="5"/><path d="M15 3l6 10h-12z"/></svg><span class="lbl">Shape</span></button>
   <button class="tb" id="t-group" title="Group (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="3" y="4" width="18" height="16" rx="3"/></svg><span class="lbl">Group</span></button>
   <button class="tb icon phone-only" id="t-more" aria-label="More to add" aria-haspopup="true" title="More to add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="sep"></div>
@@ -757,6 +773,8 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Add</dt><dd>Paste anything, or drop files</dd>
     <dt>Select several</dt><dd>Drag on an empty spot to draw a box (Shift adds to the selection), or Shift + click. On a phone, press and hold an empty spot, then drag</dd>
     <dt>Group</dt><dd>Select cards, then Group in the bar or G</dd>
+    <dt>Sticky notes</dt><dd>S, or the Sticky button. Write on it right away; pick a colour in the bar</dd>
+    <dt>Shapes</dt><dd>The Shape button: circle or triangle. Double-click one to write inside it</dd>
     <dt>Delete</dt><dd>Delete or Backspace</dd>
     <dt>Duplicate</dt><dd>Ctrl/⌘ + D</dd>
     <dt>Fit all</dt><dd>Shift + 1, or tap the zoom %</dd>
@@ -1550,11 +1568,15 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it, id) { return [it.type, it.font || '', it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
+function sig(it, id) { return [it.type, it.look || '', it.font || '', it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
-  el.className = 'item ' + it.type + (it.color ? ' colored' : '');
+  const look = it.type === 'note' && ['sticky', 'circle', 'triangle'].includes(it.look) ? it.look : '';
+  el.className = 'item ' + it.type + (it.color ? ' colored' : '') + (look ? ' look-' + look : '') + (look === 'circle' || look === 'triangle' ? ' shape' : '');
+  if (look === 'circle' || look === 'triangle') el.insertAdjacentHTML('afterbegin', look === 'circle'
+    ? '<svg class="shp" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="50" cy="50" rx="49" ry="49"/></svg>'
+    : '<svg class="shp" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 1 99 99H1z" stroke-linejoin="round"/></svg>');
   applyFont(el, ['note', 'page', 'audio'].includes(it.type) ? it.font : 0);
   if (it.color) { el.style.setProperty('--cb', `var(--c${it.color}b)`); el.style.setProperty('--cc', `var(--c${it.color})`); }
   else { el.style.removeProperty('--cb'); el.style.removeProperty('--cc'); }
@@ -1929,6 +1951,20 @@ function addNote(text = '', pos, edit = true) {
   if (edit) startEdit(id);
   return id;
 }
+// Pense-bêtes et formes sont des notes avec un « look » : édition, couleurs, liens, annulation et synchronisation restent ceux des notes.
+function addSticky() {
+  const p = nextPos(200, 200);
+  startEdit(createItem({ type: 'note', look: 'sticky', text: '', x: p.x, y: p.y, w: 200, h: 200 }));
+}
+function addShape(look) {
+  const w = look === 'circle' ? 160 : 180, h = 160, p = nextPos(w, h);
+  createItem({ type: 'note', look, text: '', x: p.x, y: p.y, w, h });
+}
+function shapeMenu(anchor) {
+  const item = (label, look, svg) => { const b = document.createElement('button'); b.className = 'pop-item'; b.style.justifyContent = 'flex-start'; b.innerHTML = `${svg}<span>${esc(label)}</span>`; b.onclick = () => { closeTPop(); setMode('canvas'); addShape(look); }; return b; };
+  const ic = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="width:18px;height:18px;color:var(--muted);flex:none">${d}</svg>`;
+  popAt(anchor, [item('Circle', 'circle', ic('<circle cx="12" cy="12" r="8"/>')), item('Triangle', 'triangle', ic('<path d="M12 4l8 15H4z"/>'))]);
+}
 function addText(text, pos) {
   text = text.trim(); if (!text) return;
   if (isUrl(text) && !text.includes('\n')) {
@@ -2264,6 +2300,7 @@ document.addEventListener('keydown', e => {
   else if (!mod && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); openCapture(); }
   else if (!mod && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); addMap(); }
   else if (!mod && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); addNote(); }
+  else if (!mod && (e.key === 's' || e.key === 'S')) { e.preventDefault(); addSticky(); }
   else if (!mod && (e.key === 'g' || e.key === 'G')) { e.preventDefault(); addGroup(); }
   else if (e.key === '!' || (e.shiftKey && e.code === 'Digit1')) { e.preventDefault(); fitAll(); }
   else if (e.key === '+' || e.key === '=') zoomAt(innerWidth / 2, innerHeight / 2, S.view.z * 1.2);
@@ -2296,6 +2333,8 @@ function closePops(except) { for (const id of ['board-pop', 'add-pop', 'help-pop
 function toggle(id) { const p = $('#' + id); const open = p.hidden; closePops(id); p.hidden = !open; return open; }
 $('#t-note').onclick = () => { setMode('canvas'); addNote(); };
 $('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
+$('#t-sticky').onclick = () => { setMode('canvas'); addSticky(); };
+$('#t-shape').onclick = e => { e.stopPropagation(); shapeMenu($('#t-shape')); };
 $('#t-page').onclick = () => { setMode('canvas'); addPage(); };
 $('#t-map').onclick = () => { setMode('canvas'); addMap(); };
 $('#t-table').onclick = () => { setMode('canvas'); addTable(); };
@@ -2314,11 +2353,15 @@ $('#fit-btn').onclick = () => fitAll();
 $('#t-more').onclick = () => {
   if (!toggle('more-pop')) return;
   const pop = $('#more-pop');
-  pop.replaceChildren(...[['t-page', 'Page'], ['t-table', 'Table'], ['t-map', 'Mind map'], ['t-group', 'Group']].map(([id, t]) => {
+  const SH = { circle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>', triangle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 4l8 15H4z"/></svg>' };
+  pop.replaceChildren(...[['t-sticky', 'Sticky note'], ['circle', 'Circle'], ['triangle', 'Triangle'], ['t-page', 'Page'], ['t-table', 'Table'], ['t-map', 'Mind map'], ['t-group', 'Group']].map(([id, t]) => {
     const b = document.createElement('button'); b.className = 'pop-item'; b.setAttribute('role', 'menuitem');
-    const ic = $('#' + id).querySelector('svg').cloneNode(true); ic.setAttribute('aria-hidden', 'true'); ic.style.cssText = 'width:18px;height:18px;color:var(--muted);flex:none';
+    const shape = SH[id];
+    const tpl = document.createElement('div'); tpl.innerHTML = shape || '';
+    const ic = shape ? tpl.firstChild : $('#' + id).querySelector('svg').cloneNode(true); ic.setAttribute('aria-hidden', 'true'); ic.style.cssText = 'width:18px;height:18px;color:var(--muted);flex:none';
     const l = document.createElement('span'); l.textContent = t; l.style.marginRight = 'auto';
-    b.append(ic, l); b.style.justifyContent = 'flex-start'; b.onclick = () => { closePops(); $('#' + id).click(); };
+    b.append(ic, l); b.style.justifyContent = 'flex-start';
+    b.onclick = () => { closePops(); if (shape) { setMode('canvas'); addShape(id); } else $('#' + id).click(); };
     return b;
   }));
 };
