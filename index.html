@@ -749,7 +749,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Text style</dt><dd>While writing: B, I, U (Ctrl/⌘+U), S, colours, Aa for fonts, and T× to turn everything back into plain text. Select cards and press Font to change a whole note</dd>
     <dt>Undo</dt><dd>Ctrl/⌘+Z, or the arrows in the bottom bar; Ctrl/⌘+Shift+Z or Ctrl+Y to redo. While typing in a note, it undoes the text first</dd>
     <dt>Capture</dt><dd>C, or the lightning button: type, dictate or add a photo; it lands in your Inbox to sort later with Move</dd>
-    <dt>AI</dt><dd>Select cards and press ✦ AI, or use ✦ in a page: summary, next steps, tasks, mind map, or ask a question</dd>
+    <dt>AI</dt><dd>Select cards and press ✦ AI, or use ✦ in a page: summary, next steps, tasks, mind map, table, or ask a question</dd>
     <dt>Embeds &amp; PDFs</dt><dd>Links to Google Docs, Sheets, Slides, Figma, Spotify, Vimeo, Loom, Canva, Instagram, TikTok or Maps get “Show here”. On a page, a link alone on its line shows inside the page. PDFs open in a reader</dd>
     <dt>Trash</dt><dd>Board menu, then Trash: deleted cards stay 30 days and can be restored. Pages keep earlier versions under the clock button</dd>
     <dt>Tags</dt><dd>Write #idea in a note or a page, or use Tags on any card. Tap a tag to see everything with it</dd>
@@ -4577,7 +4577,45 @@ const AI_TASKS = [
   ['steps', 'Next steps', 'A to-do list of what to do next'],
   ['tasks', 'Find tasks', 'Every to-do mentioned, with dates'],
   ['mindmap', 'Mind map', 'A map that understands the content'],
+  ['table', 'Table', 'A real table with columns and rows'],
 ];
+// La fonction « ai » ne connaît pas de tâche « table » : on passe par « ask » avec une consigne de format,
+// puis la page fait de la réponse une vraie grille. Une question qui parle de tableau prend le même chemin.
+const TABLE_ASK = /\b(table|tables|tableau|tableaux|grille|spreadsheet|tabular)\b/i;
+const TABLE_Q = 'Turn this content into a table. Reply with only the table and nothing else: the first line holds the column names, then one line per row, cells separated by " | ". Use 2 to 6 short columns. Keep the language of the content. Use only what the content says and leave a cell empty when it is unknown.';
+function parseTable(out) {
+  const lines = String(out || '').replace(/```\w*/g, '').split('\n').map(l => l.trim()).filter(l => l.includes('|'));
+  const cells = lines.map(l => l.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim().replace(/^\*\*(.*)\*\*$/, '$1')))
+    .filter(r => !r.every(c => /^:?-{2,}:?$/.test(c) || c === ''));
+  if (cells.length < 2) return null;
+  const n = Math.min(8, cells[0].length); if (n < 2) return null;
+  const cols = cells[0].slice(0, n).map((name, i) => ({ id: uid(), name: (name || 'Column ' + (i + 1)).slice(0, 60), type: 'text' }));
+  const rows = cells.slice(1, 201).map(r => { const v = {}; cols.forEach((c, i) => { const x = (r[i] || '').slice(0, 500); if (x && x !== '-') v[c.id] = x; }); return { id: uid(), v }; }).filter(r => Object.keys(r.v).length);
+  return rows.length ? { cols, rows } : null;
+}
+async function aiTable(ctx, text, question) {
+  const r = await ai('ask', { text, question: TABLE_Q + (question ? ` What the user asked: ${question}` : '') });
+  const t = parseTable(r.text);
+  if (!t) return r.text || '';
+  const src = ctx.kind === 'page' ? S.items.get(ctx.id) : S.items.get(ctx.ids[0]);
+  const first = (src?.title || unfmt(src?.text || '').split('\n').find(l => l.trim()) || '').replace(/^[#>*\-\s]+/, '').trim().slice(0, 60);
+  const data = { type: 'table', name: first, view: 'table', cols: t.cols, rows: t.rows };
+  if (ctx.kind === 'page') {
+    const it = S.items.get(ctx.id); if (!it) return null;
+    const nid = uid(), before = it.text || '';
+    createItem({ ...data, parent: ctx.id }, { id: nid, keepSel: true });
+    persist(ctx.id, { text: before.replace(/\s*$/, '') + (before.trim() ? '\n\n' : '') + `[[table:${nid}]]` }); renderPage(); render();
+    toast('Table added to the page.', null, 5000);
+    return null;
+  }
+  const near = aiNear(ctx) || nextPos(400, 220);
+  const w = Math.max(340, Math.min(720, 130 * t.cols.length)), h = Math.max(160, Math.min(320, 96 + 24 * Math.min(t.rows.length, 9)));
+  const nid = createItem({ ...data, x: near.x, y: near.y, w, h });
+  for (const id of aiSources(ctx).slice(0, 4)) createLink(id, nid);
+  S.sel = new Set([nid]); render();
+  toast(`Table added: ${t.rows.length} ${t.rows.length > 1 ? 'rows' : 'row'}.`, { label: 'Open', run: () => openTable(nid) }, 6000);
+  return null;
+}
 function aiMenu(anchor, ctx) {
   const kids = AI_TASKS.map(([k, t, d]) => { const b = document.createElement('button'); b.className = 'pop-item'; b.innerHTML = `<span>${esc(t)}</span><small>${esc(d)}</small>`; b.onclick = () => { closeTPop(); runAI(k, ctx); }; return b; });
   const row = document.createElement('form'); row.className = 'ai-ask';
@@ -4591,6 +4629,16 @@ async function runAI(task, ctx, extra = {}) {
   if (!text.trim()) { toast(ctx.kind === 'page' ? 'This page is empty.' : 'These cards have no text to work with.'); return; }
   const wait = toast('✦ Thinking…', null, 90000);
   try {
+    if (task === 'table' || (task === 'ask' && TABLE_ASK.test(extra.question || ''))) {
+      const left = await aiTable(ctx, text, task === 'ask' ? extra.question : '');
+      if (left === null) return;
+      // Réponse sans forme de tableau : on la garde en note plutôt que de la perdre.
+      toast('The answer did not come back as a table, so it was kept as a note.', null, 6000);
+      task = 'ask'; extra = { question: extra.question || 'Table' };
+      const near = aiNear(ctx) || nextPos(260, 200), body = `**${extra.question}**\n\n${left.trim()}`;
+      if (ctx.kind !== 'page' && left.trim()) { const nid = createItem({ type: 'note', text: body, x: near.x, y: near.y, w: 280, h: Math.min(420, 70 + body.split('\n').length * 24) }); S.sel = new Set([nid]); render(); }
+      return;
+    }
     const r = await ai(task, { text, ...extra });
     if (task === 'mindmap') {
       const toTree = n => ({ id: uid(), t: String(n?.t || 'Idea').slice(0, 120), c: (n?.c || []).map(toTree) });
