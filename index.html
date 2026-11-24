@@ -94,6 +94,26 @@ button{font:inherit;color:inherit}
 .item.shape .md .ph{display:none}
 .item.look-circle .inner{inset:15%;border-radius:50%}
 .item.look-triangle .inner{top:40%;left:24%;right:24%;bottom:7%}
+/* Liste de tâches : une ligne par tâche, cocher, modifier (double clic), supprimer, ajouter en bas. */
+.md.todo{display:flex;flex-direction:column;gap:0;padding:12px 12px 8px}
+.md.todo>*{margin:0}
+.todo .td-h{font-weight:650;font-size:1.05em;margin:0 2px 6px;overflow-wrap:anywhere}
+.todo .td-row{display:flex;align-items:flex-start;gap:8px;padding:4px 2px;border-radius:6px}
+.todo .td-row .cb{flex:none;margin-top:.2em;width:1.05em;height:1.05em;font-size:.75em}
+.todo .td-row.done .td-tx{color:var(--muted);text-decoration:line-through}
+.todo .td-tx{flex:1;min-width:0;overflow-wrap:anywhere}
+.todo .td-tx>*{margin:0}
+.todo .td-x{flex:none;border:0;background:none;color:var(--muted);width:22px;height:22px;border-radius:5px;cursor:pointer;font-size:15px;line-height:1;opacity:0}
+.todo .td-row:hover .td-x,.item.sel .todo .td-x{opacity:1}
+.todo .td-x:hover{background:var(--hover);color:var(--danger)}
+.todo .td-in,.todo .td-add{flex:1;min-width:0;font:inherit;color:var(--ink);background:transparent;border:0;outline:none;padding:0;touch-action:auto;user-select:text;-webkit-user-select:text}
+.todo .td-in{box-shadow:0 1px 0 var(--accent)}
+.todo .td-new{display:flex;align-items:center;gap:8px;padding:6px 2px 2px;color:var(--muted)}
+.todo .td-new span{flex:none;width:15px;text-align:center;font-size:16px;line-height:1}
+.todo .td-add::placeholder{color:var(--muted)}
+@media (hover:none){ .todo .td-x{opacity:.6} }
+@media (max-width:640px){ .todo .td-add,.todo .td-in{font-size:max(16px,1em)} .todo .td-x{width:32px;height:32px} }
+.size-pop .pop-item[aria-pressed="true"]{font-weight:600}
 
 .md{padding:12px 14px;overflow:auto;flex:1;line-height:1.55;font-size:calc(14.5px * var(--fsz,1));overflow-wrap:anywhere}
 .md>*{margin:0 0 6px} .md>*:last-child{margin-bottom:0}
@@ -268,7 +288,7 @@ button{font:inherit;color:inherit}
 /* Cases à cocher cliquables dans une note */
 .md .cb{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--muted);
   vertical-align:-2px;margin-right:8px;cursor:pointer;font-size:10px;font-weight:700;line-height:1;color:transparent;text-decoration:none}
-.md li.task.done .cb{background:var(--accent);box-shadow:none;color:#fff}
+.md li.task.done .cb,.todo .td-row.done .cb{background:var(--accent);box-shadow:none;color:#fff}
 .md li.task.done .tx{color:var(--muted);text-decoration:line-through}
 .md li.task.done{text-decoration:none}
 .md ol{padding-left:22px}
@@ -644,7 +664,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   #tools{padding:4px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
   #tools .sep{margin:0 2px}
   /* Les outils rares passent dans le menu « + » ; le thème passe dans le menu du tableau. */
-  #t-page,#t-table,#t-map,#t-group,#t-sticky,#t-shape,#theme-btn{display:none}
+  #t-page,#t-table,#t-map,#t-group,#t-sticky,#t-shape,#t-todo,#theme-btn{display:none}
   #tools #t-more{display:flex}
   /* Le nom du tableau rétrécit au lieu de passer sous les icônes de droite (4 × 44 px + marges). */
   #top{max-width:calc(100vw - 24px - 182px - 6px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}
@@ -716,6 +736,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <button class="tb" id="t-page" title="New page (P)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg><span class="lbl">Page</span></button>
   <button class="tb" id="t-table" title="New table (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 4v16"/></svg><span class="lbl">Table</span></button>
   <button class="tb" id="t-map" title="New mind map (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9.5" width="7" height="5" rx="1.5"/><rect x="15" y="3" width="7" height="5" rx="1.5"/><rect x="15" y="16" width="7" height="5" rx="1.5"/><path d="M9 12h2.5c1 0 1.5-.5 1.5-1.5V7c0-1 .5-1.5 1.5-1.5H15M11.5 12c1 0 1.5.5 1.5 1.5V17c0 1 .5 1.5 1.5 1.5H15"/></svg><span class="lbl">Map</span></button>
+  <button class="tb" id="t-todo" title="To-do list (L)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="5" height="5" rx="1"/><path d="m4.5 15.5 1.5 1.5 2.5-3"/><path d="M12 7h8.5M12 16h8.5"/></svg><span class="lbl">To-do</span></button>
   <button class="tb" id="t-sticky" title="Sticky note (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg><span class="lbl">Sticky</span></button>
   <button class="tb" id="t-shape" title="Shape" aria-haspopup="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="8" cy="15" r="5"/><path d="M15 3l6 10h-12z"/></svg><span class="lbl">Shape</span></button>
   <button class="tb" id="t-group" title="Group (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="3" y="4" width="18" height="16" rx="3"/></svg><span class="lbl">Group</span></button>
@@ -773,6 +794,8 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
     <dt>Add</dt><dd>Paste anything, or drop files</dd>
     <dt>Select several</dt><dd>Drag on an empty spot to draw a box (Shift adds to the selection), or Shift + click. On a phone, press and hold an empty spot, then drag</dd>
     <dt>Group</dt><dd>Select cards, then Group in the bar or G</dd>
+    <dt>To-do lists</dt><dd>L, or the To-do button. Type in « Add an item » and press Enter; tick a box, double-click a line to change it, × to delete it</dd>
+    <dt>Text size</dt><dd>Select cards, then Size in the bar: Small, Medium, Large or Extra large</dd>
     <dt>Sticky notes</dt><dd>S, or the Sticky button. Write on it right away; pick a colour in the bar</dd>
     <dt>Shapes</dt><dd>The Shape button: circle or triangle. Double-click one to write inside it</dd>
     <dt>Delete</dt><dd>Delete or Backspace</dd>
@@ -1568,16 +1591,16 @@ const linkHref = it => it.assetId && it.type === 'link' ? '/_blob/' + it.assetId
 
 /* ---------- rendu des cartes ---------- */
 const els = new Map();
-function sig(it, id) { return [it.type, it.look || '', it.font || '', it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
+function sig(it, id) { return [it.type, it.look || '', it.size || '', it.font || '', it.text, it.url, it.title, it.label, it.color, it.assetId, it.src && it.src.length, it.fileName, it.desc, it.image, it.site, it.icon, it.type === 'page' ? childPages.count?.(it) : '', it.type === 'mindmap' ? JSON.stringify(it.tree) : '', it.type === 'table' ? tSig(it) : '', (it.tags || []).join(','), EMB.has(id) ? 'emb' : ''].join('|'); }
 function buildContent(el, it) {
   const inner = document.createElement('div'); inner.className = 'inner';
   el.replaceChildren();
-  const look = it.type === 'note' && ['sticky', 'circle', 'triangle'].includes(it.look) ? it.look : '';
+  const look = it.type === 'note' && ['sticky', 'circle', 'triangle', 'todo'].includes(it.look) ? it.look : '';
   el.className = 'item ' + it.type + (it.color ? ' colored' : '') + (look ? ' look-' + look : '') + (look === 'circle' || look === 'triangle' ? ' shape' : '');
   if (look === 'circle' || look === 'triangle') el.insertAdjacentHTML('afterbegin', look === 'circle'
     ? '<svg class="shp" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="50" cy="50" rx="49" ry="49"/></svg>'
     : '<svg class="shp" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 1 99 99H1z" stroke-linejoin="round"/></svg>');
-  applyFont(el, ['note', 'page', 'audio'].includes(it.type) ? it.font : 0);
+  applyFont(el, ['note', 'page', 'audio'].includes(it.type) ? it.font : 0, it.type === 'note' ? it.size : null);
   if (it.color) { el.style.setProperty('--cb', `var(--c${it.color}b)`); el.style.setProperty('--cc', `var(--c${it.color})`); }
   else { el.style.removeProperty('--cb'); el.style.removeProperty('--cc'); }
   const editing = S.editing === el.dataset.id;
@@ -1586,7 +1609,8 @@ function buildContent(el, it) {
       const ed = makeEditor(el.dataset.id, it, 'md ed edit-area', 'Note text');
       ed.addEventListener('blur', () => setTimeout(closeSlash, 120));
       inner.append(ed);
-    } else { const d = document.createElement('div'); d.className = 'md'; d.innerHTML = md(it.text); inner.append(d); }
+    } else if (it.look === 'todo') inner.append(todoView(el.dataset.id, it));
+    else { const d = document.createElement('div'); d.className = 'md'; d.innerHTML = md(it.text); inner.append(d); }
   } else if (it.type === 'image') {
     const img = document.createElement('img'); img.src = mediaSrc(it); img.alt = it.fileName || 'Image'; img.draggable = false; img.loading = 'lazy'; inner.append(img);
   } else if (it.type === 'video') {
@@ -1799,6 +1823,7 @@ function renderSelbar() {
   }
   if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
   if (!S.readonly && [...S.sel].some(id => ['note', 'page', 'audio'].includes(S.items.get(id)?.type))) { const fb = btn('Font', () => fontSel(fb)); kids.push(fb); }
+  if (!S.readonly && [...S.sel].some(id => S.items.get(id)?.type === 'note')) { const zb = btn('Size', () => sizeSel(zb)); kids.push(zb); }
   if (!S.readonly && [...S.sel].filter(id => { const it = S.items.get(id); return it && it.type !== 'group' && !it.parent; }).length > 1) kids.push(btn('Group', addGroup));
   if (!S.readonly && AI_ON()) { const ab = btn('✦ AI', () => aiMenu(ab, { kind: 'cards', ids: [...S.sel] })); kids.push(ab); }
   if (!S.readonly && S.boards.length > 1) { const mb = btn(S.boardId === 'inbox' ? 'Move to…' : 'Move', () => movePicker(mb)); kids.push(mb); }
@@ -1965,6 +1990,71 @@ function shapeMenu(anchor) {
   const ic = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="width:18px;height:18px;color:var(--muted);flex:none">${d}</svg>`;
   popAt(anchor, [item('Circle', 'circle', ic('<circle cx="12" cy="12" r="8"/>')), item('Triangle', 'triangle', ic('<path d="M12 4l8 15H4z"/>'))]);
 }
+// Liste de tâches : une note « - [ ] » avec un « look ». Aujourd'hui, la recherche, les dates (@vendredi) et l'IA la lisent comme une note.
+const TODO_RE = /^(\s*[-*] \[)([ xX])(\] ?)(.*)$/;
+function addTodo() {
+  const p = nextPos(260, 220);
+  const id = createItem({ type: 'note', look: 'todo', text: 'To-do', x: p.x, y: p.y, w: 260, h: 220 });
+  setTimeout(() => els.get(id)?.querySelector('.td-add')?.focus(), 30);
+}
+function todoView(id, it) {
+  const box = document.createElement('div'); box.className = 'md todo';
+  const lines = (it.text || '').split('\n');
+  lines.forEach((l, i) => {
+    const m = l.match(TODO_RE);
+    if (!m) { if (l.trim()) { const h = document.createElement('div'); h.className = 'td-h'; h.innerHTML = inline(l.replace(/^\s*#{1,3}\s+/, '')); box.append(h); } return; }
+    const done = m[2] !== ' ';
+    const row = document.createElement('div'); row.className = 'td-row' + (done ? ' done' : ''); row.dataset.line = i;
+    row.innerHTML = `<span class="cb" data-line="${i}" role="checkbox" aria-checked="${done}" aria-label="${done ? 'Done' : 'To do'}">✓</span><div class="td-tx">${inline(m[4]) || '&nbsp;'}</div>`;
+    if (!S.readonly) { const x = document.createElement('button'); x.className = 'td-x'; x.dataset.act = 'del'; x.setAttribute('aria-label', 'Delete this item'); x.textContent = '×'; row.append(x); }
+    box.append(row);
+  });
+  if (!S.readonly) {
+    const nw = document.createElement('div'); nw.className = 'td-new';
+    const add = document.createElement('input'); add.className = 'td-add'; add.type = 'text'; add.placeholder = 'Add an item'; add.setAttribute('aria-label', 'Add an item');
+    add.onkeydown = e => {
+      if (e.key !== 'Enter' || e.isComposing) return; e.preventDefault(); e.stopPropagation();   // sinon Entrée remonte au raccourci « modifier la note »
+      const v = add.value.trim(); if (!v) return;
+      const cur = S.items.get(id); if (!cur) return;
+      persist(id, { text: (cur.text || '').replace(/\s*$/, '') + '\n- [ ] ' + v }); render();
+      // La carte est redessinée : on rend la main au champ pour enchaîner les tâches.
+      setTimeout(() => { fitTodo(id); els.get(id)?.querySelector('.td-add')?.focus(); }, 0);
+    };
+    const plus = document.createElement('span'); plus.textContent = '+'; plus.setAttribute('aria-hidden', 'true');
+    nw.append(plus, add); box.append(nw);
+  }
+  return box;
+}
+// La carte grandit quand ses lignes ne tiennent plus, pour que « Add an item » reste visible.
+function fitTodo(id) {
+  const it = S.items.get(id), box = els.get(id)?.querySelector('.todo'); if (!it || !box) return;
+  const extra = box.scrollHeight - box.clientHeight;
+  if (extra > 1) { persist(id, { h: Math.min(900, Math.round(it.h + extra + 4)) }); const el = els.get(id); if (el) place(el, S.items.get(id)); }
+}
+function todoDelete(id, n) {
+  const it = S.items.get(id); if (!it) return;
+  const lines = (it.text || '').split('\n'); if (!TODO_RE.test(lines[n] || '')) return;
+  lines.splice(n, 1); persist(id, { text: lines.join('\n') }); render();
+}
+// Modifier une ligne sur place : Entrée ou sortie du champ enregistre, Échap annule, une ligne vidée disparaît.
+function todoEdit(id, n) {
+  const el = els.get(id), row = el?.querySelector(`.td-row[data-line="${n}"]`), it = S.items.get(id);
+  if (!row || !it || S.readonly) return;
+  const m = ((it.text || '').split('\n')[n] || '').match(TODO_RE); if (!m) return;
+  const tx = row.querySelector('.td-tx'), inp = document.createElement('input'); inp.className = 'td-in'; inp.type = 'text'; inp.value = m[4]; inp.setAttribute('aria-label', 'Item text');
+  let done = false;
+  const save = keep => {
+    if (done) return; done = true;
+    const cur = S.items.get(id); if (!cur) return;
+    const lines = (cur.text || '').split('\n'), mm = (lines[n] || '').match(TODO_RE);
+    if (keep && mm) { const v = inp.value.trim(); if (v) lines[n] = mm[1] + mm[2] + '] ' + v; else lines.splice(n, 1); persist(id, { text: lines.join('\n') }); }
+    render();
+  };
+  inp.onkeydown = e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); e.stopPropagation(); save(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); save(false); } };
+  inp.onblur = () => save(true);
+  S.busy.add(id); inp.addEventListener('blur', () => S.busy.delete(id), { once: true });
+  tx.replaceWith(inp); inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+}
 function addText(text, pos) {
   text = text.trim(); if (!text) return;
   if (isUrl(text) && !text.includes('\n')) {
@@ -2116,6 +2206,8 @@ vp.addEventListener('pointerdown', e => {
   closePops();
   const t = e.target;
   if (isField(t) || t.tagName === 'VIDEO' || t.tagName === 'AUDIO' || t.closest('a') || t.closest('.play') || t.closest('.pc-open') || t.closest('.emb-btn')) return;
+  const act = t.closest('.todo [data-act]');
+  if (act && !S.readonly && pts.size === 0) { e.preventDefault(); const row = act.closest('.td-row'); todoDelete(act.closest('.item').dataset.id, +row.dataset.line); return; }
   const cb = t.closest('.md .cb');
   if (cb && !S.readonly && pts.size === 0) { e.preventDefault(); toggleTask(cb.closest('.item').dataset.id, +cb.dataset.line); return; }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -2225,7 +2317,9 @@ function endPointer(e) {
     const now = Date.now();
     if (lastTap && lastTap.target === g.tapTarget && now - lastTap.t < 350 && Math.hypot(lastTap.x - e.clientX, lastTap.y - e.clientY) < 24) {
       lastTap = null;
-      if (g.tapTarget === 'empty') addNote('', toWorld(e.clientX, e.clientY));
+      const tdRow = document.elementFromPoint(e.clientX, e.clientY)?.closest?.('.todo .td-row');
+      if (tdRow && tdRow.closest('.item')?.dataset.id === g.tapTarget) todoEdit(g.tapTarget, +tdRow.dataset.line);
+      else if (g.tapTarget === 'empty') addNote('', toWorld(e.clientX, e.clientY));
       else { const it = S.items.get(g.tapTarget); if (it?.type === 'page') openPage(g.tapTarget); else if (it?.type === 'mindmap') openMap(g.tapTarget); else if (it?.type === 'table') openTable(g.tapTarget); else if (isPdf(it)) openPdfItem(g.tapTarget); else if (it && ['note', 'link', 'group'].includes(it.type)) startEdit(g.tapTarget, { x: e.clientX, y: e.clientY }); }
     } else lastTap = { target: g.tapTarget, t: now, x: e.clientX, y: e.clientY };
   }
@@ -2301,6 +2395,7 @@ document.addEventListener('keydown', e => {
   else if (!mod && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); addMap(); }
   else if (!mod && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); addNote(); }
   else if (!mod && (e.key === 's' || e.key === 'S')) { e.preventDefault(); addSticky(); }
+  else if (!mod && (e.key === 'l' || e.key === 'L')) { e.preventDefault(); addTodo(); }
   else if (!mod && (e.key === 'g' || e.key === 'G')) { e.preventDefault(); addGroup(); }
   else if (e.key === '!' || (e.shiftKey && e.code === 'Digit1')) { e.preventDefault(); fitAll(); }
   else if (e.key === '+' || e.key === '=') zoomAt(innerWidth / 2, innerHeight / 2, S.view.z * 1.2);
@@ -2334,6 +2429,7 @@ function toggle(id) { const p = $('#' + id); const open = p.hidden; closePops(id
 $('#t-note').onclick = () => { setMode('canvas'); addNote(); };
 $('#t-group').onclick = () => { setMode('canvas'); addGroup(); };
 $('#t-sticky').onclick = () => { setMode('canvas'); addSticky(); };
+$('#t-todo').onclick = () => { setMode('canvas'); addTodo(); };
 $('#t-shape').onclick = e => { e.stopPropagation(); shapeMenu($('#t-shape')); };
 $('#t-page').onclick = () => { setMode('canvas'); addPage(); };
 $('#t-map').onclick = () => { setMode('canvas'); addMap(); };
@@ -2354,7 +2450,7 @@ $('#t-more').onclick = () => {
   if (!toggle('more-pop')) return;
   const pop = $('#more-pop');
   const SH = { circle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>', triangle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 4l8 15H4z"/></svg>' };
-  pop.replaceChildren(...[['t-sticky', 'Sticky note'], ['circle', 'Circle'], ['triangle', 'Triangle'], ['t-page', 'Page'], ['t-table', 'Table'], ['t-map', 'Mind map'], ['t-group', 'Group']].map(([id, t]) => {
+  pop.replaceChildren(...[['t-todo', 'To-do list'], ['t-sticky', 'Sticky note'], ['circle', 'Circle'], ['triangle', 'Triangle'], ['t-page', 'Page'], ['t-table', 'Table'], ['t-map', 'Mind map'], ['t-group', 'Group']].map(([id, t]) => {
     const b = document.createElement('button'); b.className = 'pop-item'; b.setAttribute('role', 'menuitem');
     const shape = SH[id];
     const tpl = document.createElement('div'); tpl.innerHTML = shape || '';
@@ -2677,10 +2773,24 @@ function ensureFonts() {
   document.head.append(l);
 }
 // Police d'une note ou d'une page entière, posée sur son conteneur.
-function applyFont(el, n) {
+// La taille choisie (champ « size ») multiplie celle que la police apporte déjà.
+const SIZES = [['s', 'Small', 0.85], ['m', 'Medium', 1], ['l', 'Large', 1.3], ['xl', 'Extra large', 1.75]];
+function applyFont(el, n, size) {
   const f = FONTS[n]; if (!el) return;
-  if (f && n) { ensureFonts(); el.style.fontFamily = f.css; if (f.size) el.style.setProperty('--fsz', f.size); else el.style.removeProperty('--fsz'); }
-  else { el.style.fontFamily = ''; el.style.removeProperty('--fsz'); }
+  const k = (SIZES.find(x => x[0] === size) || [])[2] || 1;
+  if (f && n) { ensureFonts(); el.style.fontFamily = f.css; } else el.style.fontFamily = '';
+  const z = (f && n && f.size ? f.size : 1) * k;
+  if (z !== 1) el.style.setProperty('--fsz', z); else el.style.removeProperty('--fsz');
+}
+function sizeSel(anchor) {
+  const ids = [...S.sel].filter(id => S.items.get(id)?.type === 'note');
+  const cur = ids.length === 1 ? (S.items.get(ids[0]).size || 'm') : '';
+  popAt(anchor, SIZES.map(([k, label, z]) => {
+    const b = document.createElement('button'); b.className = 'pop-item'; b.setAttribute('aria-pressed', String(cur === k));
+    b.innerHTML = `<span style="font-size:${Math.round(14 * z)}px">${esc(label)}</span>`;
+    b.onclick = () => { closeTPop(); for (const id of ids) persist(id, { size: k === 'm' ? null : k }); render(); setTimeout(() => ids.forEach(id => S.items.get(id)?.look === 'todo' && fitTodo(id)), 0); };
+    return b;
+  })).classList.add('size-pop');
 }
 function setFont(n) {
   const ed = curEd(); if (!ed) return;
