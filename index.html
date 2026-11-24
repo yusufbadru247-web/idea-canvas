@@ -63,6 +63,8 @@ button{font:inherit;color:inherit}
 #vp{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:default;background-color:var(--canvas);
   background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:24px 24px}
 #vp.panning{cursor:grabbing}
+/* Cadre de sélection : glisser sur le vide à la souris, appui long puis glisser au doigt. */
+#selrect{position:fixed;z-index:19;border:1px solid var(--accent);background:var(--accent-soft);border-radius:2px;pointer-events:none}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #groups,#cards{position:absolute;left:0;top:0}
 #edges{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
@@ -658,6 +660,7 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   </div>
 </div>
 
+<div id="selrect" hidden></div>
 <div id="listview" hidden aria-label="All cards"><div class="lv-wrap"><div class="lv-bar" id="lv-bar"></div><div class="lv-tags" id="lv-tags" hidden></div><div class="lv-list" id="lv-list"></div></div></div>
 <div id="empty" hidden><b>An empty canvas</b>Double-click (or double-tap) anywhere for a note. Paste a link, an image or some text, or drop files here.</div>
 
@@ -733,11 +736,12 @@ body.paging #selbar.fmt{top:calc(64px + env(safe-area-inset-top,0px))}
   <dl>
     <dt>New note</dt><dd>Double-click or double-tap the canvas</dd>
     <dt>Edit</dt><dd>Double-click a card</dd>
-    <dt>Move around</dt><dd>Drag the canvas, scroll, or one finger</dd>
+    <dt>Move around</dt><dd>Scroll, Space + drag, middle button, or one finger</dd>
     <dt>Zoom</dt><dd>Pinch, or Ctrl/⌘ + scroll</dd>
     <dt>Connect</dt><dd>Select a card, drag its round handle onto another card (or onto empty space for a new note)</dd>
     <dt>Add</dt><dd>Paste anything, or drop files</dd>
-    <dt>Select more</dt><dd>Shift + click</dd>
+    <dt>Select several</dt><dd>Drag on an empty spot to draw a box (Shift adds to the selection), or Shift + click. On a phone, press and hold an empty spot, then drag</dd>
+    <dt>Group</dt><dd>Select cards, then Group in the bar or G</dd>
     <dt>Delete</dt><dd>Delete or Backspace</dd>
     <dt>Duplicate</dt><dd>Ctrl/⌘ + D</dd>
     <dt>Fit all</dt><dd>Shift + 1, or tap the zoom %</dd>
@@ -1756,6 +1760,7 @@ function renderSelbar() {
   }
   if (S.sel.size === 1 && !S.readonly) { const sid = [...S.sel][0]; const tb = btn('Tags', () => tagEditor(tb, sid)); kids.push(tb); }
   if (!S.readonly && [...S.sel].some(id => ['note', 'page', 'audio'].includes(S.items.get(id)?.type))) { const fb = btn('Font', () => fontSel(fb)); kids.push(fb); }
+  if (!S.readonly && [...S.sel].filter(id => { const it = S.items.get(id); return it && it.type !== 'group' && !it.parent; }).length > 1) kids.push(btn('Group', addGroup));
   if (!S.readonly && AI_ON()) { const ab = btn('✦ AI', () => aiMenu(ab, { kind: 'cards', ids: [...S.sel] })); kids.push(ab); }
   if (!S.readonly && S.boards.length > 1) { const mb = btn(S.boardId === 'inbox' ? 'Move to…' : 'Move', () => movePicker(mb)); kids.push(mb); }
   kids.push(btn('Duplicate', duplicateSel), btn('Delete', deleteSel, 'danger'));
@@ -2075,9 +2080,21 @@ vp.addEventListener('pointerdown', e => {
     G = { type: 'pan', sx, sy, v0: { ...S.view }, moved: false, tapTarget: card.dataset.id, pick: card.dataset.id, w };
     return;
   }
+  if (!card && !edge && e.button === 0 && !spaceDown && e.pointerType !== 'touch') {
+    const base = e.shiftKey ? new Set(S.sel) : new Set();
+    if (!e.shiftKey && (S.sel.size || S.selLink)) { S.sel.clear(); S.selLink = null; render(); }
+    G = { type: 'box', sx, sy, base, moved: false, tapTarget: 'empty', w };
+    return;
+  }
   if (e.button === 1 || (e.button === 0 && spaceDown) || (!card && !edge)) {
     if (!card && !edge && !e.shiftKey) { if (S.sel.size || S.selLink) { S.sel.clear(); S.selLink = null; render(); } }
-    G = { type: 'pan', sx, sy, v0: { ...S.view }, moved: false, tapTarget: 'empty', w };
+    const g = G = { type: 'pan', sx, sy, v0: { ...S.view }, moved: false, tapTarget: 'empty', w };
+    // Au doigt, un appui long immobile sur le vide ouvre le cadre de sélection.
+    if (e.pointerType === 'touch' && !card && !edge) g.lp = setTimeout(() => {
+      if (G !== g || g.moved || pts.size !== 1) return;
+      G = { type: 'box', sx, sy, base: new Set(), moved: true, tapTarget: null, w };
+      navigator.vibrate?.(10); boxTo(sx, sy);
+    }, 450);
     return;
   }
   if (edge) { S.sel.clear(); S.selLink = edge.dataset.link; render(); G = { type: 'none' }; return; }
@@ -2104,6 +2121,7 @@ vp.addEventListener('pointermove', e => {
   if (G.type === 'pinch') { doPinch(); return; }
   const dx = e.clientX - (G.sx ?? e.clientX), dy = e.clientY - (G.sy ?? e.clientY);
   if (!G.moved && Math.hypot(dx, dy) > 4) G.moved = true;
+  if (G.type === 'box') { if (G.moved) boxTo(e.clientX, e.clientY); return; }
   if (G.type === 'pan') {
     if (!G.moved) return;
     vp.classList.add('panning');
@@ -2136,7 +2154,7 @@ function endPointer(e) {
   pts.delete(e.pointerId);
   if (!G) return;
   if (G.type === 'pinch') { if (pts.size < 2) { G = null; } return; }
-  const g = G; G = null; vp.classList.remove('panning');
+  const g = G; G = null; vp.classList.remove('panning'); clearTimeout(g.lp); $('#selrect').hidden = true;
   if (g.pick && !g.moved && e.type === 'pointerup' && S.items.has(g.pick)) { S.sel = new Set([g.pick]); S.selLink = null; render(); }
   if (g.type === 'drag') {
     g.start && Object.keys(g.start).forEach(mid => { S.busy.delete(mid); els.get(mid)?.classList.remove('dragging'); });
@@ -2161,7 +2179,25 @@ function endPointer(e) {
 }
 vp.addEventListener('pointerup', endPointer);
 vp.addEventListener('pointercancel', endPointer);
+// Choisit les cartes touchées par le cadre ; un groupe n'est pris que s'il est entièrement dedans,
+// sinon un cadre tracé à l'intérieur d'un groupe le prendrait à chaque fois.
+function boxTo(cx, cy) {
+  const g = G, r = $('#selrect');
+  const x1 = Math.min(g.sx, cx), y1 = Math.min(g.sy, cy), x2 = Math.max(g.sx, cx), y2 = Math.max(g.sy, cy);
+  Object.assign(r.style, { left: x1 + 'px', top: y1 + 'px', width: x2 - x1 + 'px', height: y2 - y1 + 'px' }); r.hidden = false;
+  const a = toWorld(x1, y1), b = toWorld(x2, y2), next = new Set(g.base);
+  for (const [id, it] of S.items) {
+    if (it.parent || typeof it.x !== 'number') continue;
+    const hit = it.type === 'group'
+      ? it.x >= a.x && it.y >= a.y && it.x + it.w <= b.x && it.y + it.h <= b.y
+      : it.x < b.x && it.x + it.w > a.x && it.y < b.y && it.y + it.h > a.y;
+    if (hit) next.add(id);
+  }
+  if (next.size !== S.sel.size || [...next].some(id => !S.sel.has(id))) { S.sel = next; S.selLink = null; render(); }
+}
+vp.addEventListener('contextmenu', e => { if (G?.type === 'box' || G?.lp) e.preventDefault(); });
 function startPinch() {
+  clearTimeout(G?.lp); $('#selrect').hidden = true;
   if (G?.type === 'drag') { for (const [mid, p] of Object.entries(G.start)) { const it = S.items.get(mid); if (it) { it.x = p.x; it.y = p.y; } S.busy.delete(mid); } render(); }
   if (G?.type === 'resize') S.busy.delete(G.id);
   edgeTmp.setAttribute('d', '');
