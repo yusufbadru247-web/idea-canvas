@@ -2497,6 +2497,9 @@ function renderBoardPop(renaming) {
   kids.push(nb, rn, ex, trb);
   if (CAN_SW && !isStandalone()) { const ia = document.createElement('button'); ia.className = 'pop-item'; ia.textContent = 'Install as an app'; ia.onclick = () => { closePops(); installApp(); }; kids.push(ia); }
   if (!S.readonly) kids.push(im);
+  // Page de présentation de la toile, dans un nouvel onglet pour ne pas quitter le tableau.
+  const ab = document.createElement('a'); ab.className = 'pop-item'; ab.href = './welcome.html'; ab.target = '_blank'; ab.rel = 'noopener'; ab.textContent = 'About Idea Canvas'; ab.style.textDecoration = 'none'; ab.style.color = 'inherit'; ab.onclick = () => closePops();
+  kids.push(ab);
   kids.push(document.createElement('hr'), bl, seg);
   if (PHONE.matches) { const th = document.createElement('button'); th.className = 'pop-item'; th.textContent = isDark() ? 'Switch to light mode' : 'Switch to dark mode'; th.onclick = () => { $('#theme-btn').click(); renderBoardPop(); }; kids.push(th); }
   const note = document.createElement('p'); note.className = 'hint'; note.style.margin = '6px 10px 4px';
