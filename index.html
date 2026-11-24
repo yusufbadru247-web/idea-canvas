@@ -476,10 +476,25 @@ body.list #selbar,body.list #empty,body.list .zoomctl{display:none!important}
 .tbl-fbtn{display:flex;align-items:center;min-height:36px;width:100%;border:1px solid var(--line);border-radius:7px;background:transparent;font:inherit;padding:5px 10px;cursor:pointer;color:var(--ink);text-align:left}
 .tbl-sheet .row{margin-top:14px}
 .tblcard{display:flex;flex-direction:column;gap:8px;padding:12px 14px;flex:1;min-height:0}
-.tblmini{border-collapse:collapse;font-size:11.5px;width:100%;table-layout:fixed}
-.tblmini th{color:var(--muted);font-weight:500;text-align:left;padding:3px 6px;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tblmini td{padding:3px 6px;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;height:22px}
+.tblcard .pc-title .t-ic{margin-right:5px}
+/* Aperçu d'une grille sur la toile : tout le texte, renvoyé à la ligne, avec les couleurs, icônes, tri et totaux du tableau.
+   Ce qui dépasse la carte s'estompe ; agrandir la carte en montre plus. */
+.tblmini-wrap{flex:1;min-height:0;overflow:hidden;position:relative}
+.tblmini-wrap.cut-y{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent)}
+.tblmini-wrap.cut-x{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
+.tblmini-wrap.cut-x.cut-y{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent),linear-gradient(to right,#000 calc(100% - 22px),transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent),linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-composite:intersect}
+.tblmini{border-collapse:collapse;font-size:11.5px;line-height:1.35;width:100%;table-layout:auto}
+.tblmini th,.tblmini td{text-align:left;vertical-align:top;padding:3px 6px;border-bottom:1px solid var(--line);white-space:normal;overflow-wrap:break-word;word-break:normal;min-width:48px}
+.tblmini th+th,.tblmini td+td{border-left:1px solid var(--line)}
+.tblmini th{color:var(--muted);font-weight:500}
+.tblmini td{color:var(--ink)}
+.tblmini td.t-number{text-align:right;font-variant-numeric:tabular-nums}
+.tblmini td.t-select,.tblmini td.t-date,.tblmini td.t-check{white-space:nowrap}
 .tblmini .tpill,.tblmini .due{font-size:10.5px}
+.tblmini .tcb{width:13px;height:13px;font-size:9px}
+.tblmini .r-ic{font-size:12px;margin-right:4px;cursor:inherit}
+.tblmini tfoot td{font-weight:600;border-bottom:0}
+.tblmini tfoot span{color:var(--muted);font-weight:400;margin-right:3px}
 #tblview{position:fixed;inset:0;z-index:27;background:var(--bg);display:flex;flex-direction:column}
 .tv-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
 .tv-doc{max-width:1100px;margin:0 auto;padding:24px 24px calc(100px + env(safe-area-inset-bottom,0px))}
@@ -1646,9 +1661,11 @@ function buildContent(el, it) {
   } else if (it.type === 'table') {
     const c = document.createElement('div'); c.className = 'tblcard';
     const t = document.createElement('div'); t.className = 'pc-title'; t.textContent = it.name || 'Untitled table';
+    if (it.icon) { const ti = document.createElement('span'); ti.className = 't-ic'; ti.textContent = it.icon; t.prepend(ti); }
     c.append(t); c.insertAdjacentHTML('beforeend', tablePreview(it));
+    const tw = c.querySelector('.tblmini-wrap'); if (tw && tblCut) tblCut.observe(tw);
     const f = document.createElement('div'); f.className = 'pc-foot'; f.style.marginTop = 'auto';
-    const n = (it.rows || []).length; const ct = document.createElement('span'); ct.textContent = n === 1 ? '1 row' : n + ' rows';
+    const n = (it.rows || []).length; const ct = document.createElement('span'); ct.textContent = n === 1 ? '1 row' : n + ' rows'; ct.dataset.n = n;
     const ob = document.createElement('button'); ob.className = 'pc-open'; ob.textContent = 'Open'; ob.onclick = e => { e.stopPropagation(); openTable(el.dataset.id); };
     f.append(ct, ob); c.append(f); inner.append(c);
   } else if (it.type === 'mindmap') {
@@ -4282,12 +4299,30 @@ function drawBoard(id, t) {
   }
   return box;
 }
+// Mêmes règles que la grille ouverte (drawGrid) : couleurs de colonne et de ligne, icônes, ordre de tri, totaux.
 function tablePreview(t) {
-  const cols = (t.cols || []).slice(0, 3), rows = (t.rows || []).slice(0, 4);
-  const th = cols.map(c => `<th>${esc(c.name || '')}</th>`).join('');
-  const tr = rows.map(r => `<tr>${cols.map(c => `<td>${cellHTML(c, r.v?.[c.id])}</td>`).join('')}</tr>`).join('');
-  return `<table class="tblmini"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>`;
+  const cols = (t.cols || []).slice(0, 12), rows = sortedRows(t).slice(0, 60);
+  const th = cols.map(c => `<th${c.c ? ` style="background:var(--c${c.c}b)"` : ''}>${esc((c.icon ? c.icon + ' ' : '') + (c.name || ''))}</th>`).join('');
+  const tr = rows.map(r => `<tr${r.c ? ` style="background:var(--c${r.c}b)"` : ''}>${cols.map((c, ci) => {
+    const bg = c.c && !r.c ? ` style="background:color-mix(in srgb, var(--c${c.c}b) 70%, transparent)"` : '';
+    return `<td class="t-${c.type}"${bg}>${ci === 0 && r.icon ? `<span class="r-ic">${esc(r.icon)}</span>` : ''}${cellHTML(c, r.v?.[c.id])}</td>`;
+  }).join('')}</tr>`).join('');
+  let tf = '';
+  if (cols.some(c => c.type === 'number') && (t.rows || []).length > 1) {
+    tf = `<tfoot><tr>${cols.map(c => {
+      if (c.type !== 'number') return '<td></td>';
+      const vals = (t.rows || []).map(r => parseFloat(r.v?.[c.id])).filter(v => !isNaN(v));
+      return `<td class="t-number">${vals.length ? `<span>Total</span>${esc(String(Math.round(vals.reduce((a, v) => a + v, 0) * 100) / 100))}` : ''}</td>`;
+    }).join('')}</tr></tfoot>`;
+  }
+  return `<div class="tblmini-wrap"><table class="tblmini"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody>${tf}</table></div>`;
 }
+// L'estompe n'apparaît que quand le contenu dépasse vraiment la carte, et suit ses redimensionnements.
+const tblCut = 'ResizeObserver' in window ? new ResizeObserver(es => { for (const e of es) { const w = e.target; if (!w.isConnected) { tblCut.unobserve(w); continue; } w.classList.toggle('cut-y', w.scrollHeight > w.clientHeight + 1); w.classList.toggle('cut-x', w.scrollWidth > w.clientWidth + 1);
+  // Pied de carte : combien de lignes se lisent en entier quand tout ne tient pas.
+  const ct = w.parentElement?.querySelector('.pc-foot span'), n = +(ct?.dataset.n || 0); if (!ct) continue;
+  const bot = w.getBoundingClientRect().bottom, seen = [...w.querySelectorAll('tbody tr')].filter(tr => tr.getBoundingClientRect().bottom <= bot + 1).length;
+  ct.textContent = seen < n ? `${seen} of ${n} rows shown` : (n === 1 ? '1 row' : n + ' rows'); } }) : null;
 function addTable() {
   const p = nextPos(340, 200);
   const id = createItem({ ...newTableData(''), x: p.x, y: p.y, w: 340, h: 200 });
